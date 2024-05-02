@@ -3,7 +3,7 @@
 FROM node:20.10
 
 # Définir le répertoire de travail dans le conteneur
-WORKDIR /app2
+WORKDIR /mspr3-authservice
 
 # Copier le package.json et package-lock.json pour installer les dépendances
 COPY package*.json ./

@@ -1,6 +1,7 @@
 ## choses a faire
 
-- mise en place des routes
-- tests des routes
-
-
+- faire les tests
+- faire les controller / model / routes / service pour:
+    - conversation
+    - user
+    - participant conversation

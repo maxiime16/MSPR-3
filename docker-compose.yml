@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  backEnd:
+  backend:
     build: 
       context: ./BackEnd
       dockerfile: Dockerfile
@@ -12,7 +12,7 @@ services:
     env_file:
       - ./BackEnd/.env
 
-  authService:
+  authservice:
     build: 
       context: ./Authentification
       dockerfile: Dockerfile
@@ -23,6 +23,17 @@ services:
     env_file:
       - ./Authentification/.env
 
+  messagerieservice:
+    build:
+      context: ./Messagerie
+      dockerfile: Dockerfile
+    container_name: MessagerieService
+    restart: always
+    ports:
+      - "3002:3000"            
+    env_file:
+      - ./Messagerie/.env
+
   postgres:
     image: postgres
     container_name: postgres_db
@@ -30,8 +41,18 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: arosaje
     volumes:
       - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
