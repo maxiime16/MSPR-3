@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 // Configuration de la connexion à la base de données
 const pool = new Pool({
   user: 'admin',
-  host: 'admin',
+  host: 'localhost', // Utilisez le nom du service du conteneur Docker
   database: 'arosaje',
   password: 'admin',
   port: '5432', // Par défaut, le port de PostgreSQL est 5432
