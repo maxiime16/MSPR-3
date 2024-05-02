@@ -1,9 +1,9 @@
 # MSPR 3
 
 ### Objectifs
-- ajouter un système de messagerie
-- basculement sur un SGBD Postgres
-- mise en place d'une documentation Swagger
+- ❌ ajouter un système de messagerie
+- ❌ basculement sur un SGBD Postgres
+- ❌ mise en place d'une documentation Swagger
 
 ### Livrable obligatoire
 - ❌ Diagramme UML de la base de données

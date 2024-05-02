@@ -1,29 +1,34 @@
-# Script pour récupérer la strucure de la base de donnée SQLite et la convertir pour Postgres et créer un .sql
 import sqlite3
 
-def extract_sqlite_schema(sqlite_db_path):
-    conn = sqlite3.connect(sqlite_db_path)
-    cursor = conn.cursor()
-    
-    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+def extract_sqlite_schema(sqlite_db_paths):
     schemas = {}
     
-    for table in tables:
-        table_name = table[0]
-        cursor.execute(f"PRAGMA table_info({table_name})")
-        columns = cursor.fetchall()
-        schema = []
+    for db_path in sqlite_db_paths:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
         
-        for col in columns:
-            col_name = col[1]
-            col_type = col[2]
-            col_nullable = "NOT NULL" if not col[3] else ""
-            col_default = f"DEFAULT '{col[4]}'" if col[4] is not None else ""
-            schema.append(f"{col_name} {col_type} {col_nullable} {col_default}")
+        tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         
-        schemas[table_name] = schema
+        for table in tables:
+            table_name = table[0]
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            columns = cursor.fetchall()
+            schema = []
+            
+            for col in columns:
+                col_name = col[1]
+                col_type = col[2]
+                col_nullable = "NOT NULL" if not col[3] else ""
+                col_default = f"DEFAULT '{col[4]}'" if col[4] is not None else ""
+                schema.append(f"{col_name} {col_type} {col_nullable} {col_default}")
+            
+            if table_name not in schemas:
+                schemas[table_name] = schema
+            else:
+                schemas[table_name].extend(schema)
+        
+        conn.close()
     
-    conn.close()
     return schemas
 
 def convert_to_postgresql_schema(sqlite_schemas):
@@ -58,7 +63,7 @@ def generate_postgresql_sql(sqlite_schemas):
     print("Conversion terminée. Le script SQL pour PostgreSQL a été enregistré dans un fichier.")
 
 if __name__ == "__main__":
-    sqlite_db_path = "./BackEnd/bdd/arosaje.db"
-    sqlite_schemas = extract_sqlite_schema(sqlite_db_path)
+    sqlite_db_paths = ["./BackEnd/bdd/arosaje.db", "./Authentification/bdd/auth.db"]
+    sqlite_schemas = extract_sqlite_schema(sqlite_db_paths)
     postgresql_schemas = convert_to_postgresql_schema(sqlite_schemas)
     generate_postgresql_sql(postgresql_schemas)
