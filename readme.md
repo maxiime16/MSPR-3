@@ -14,6 +14,11 @@
 - Avoir docker ouvert
 - Commande à la racine du projet: `docker-compose up`
 
+### Accès pgAdmin
+- démarrer les conteneurs
+- aller a l'url `http://localhost:5050`
+- email: `admin@admin.com` | password: `admin`
+
 ### Partie maxime
 - mise en place du micro-service de messagerie
 - basculement de sqlite vers postgres

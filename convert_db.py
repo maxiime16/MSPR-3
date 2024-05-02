@@ -2,6 +2,7 @@ import sqlite3
 
 def extract_sqlite_schema(sqlite_db_paths):
     schemas = {}
+    foreign_keys = {}
     
     for db_path in sqlite_db_paths:
         conn = sqlite3.connect(db_path)
@@ -22,16 +23,21 @@ def extract_sqlite_schema(sqlite_db_paths):
                 col_default = f"DEFAULT '{col[4]}'" if col[4] is not None else ""
                 schema.append(f"{col_name} {col_type} {col_nullable} {col_default}")
             
-            if table_name not in schemas:
-                schemas[table_name] = schema
-            else:
-                schemas[table_name].extend(schema)
+            schemas[table_name] = schema
+            
+            # Extract foreign keys
+            cursor.execute(f"PRAGMA foreign_key_list({table_name})")
+            fks = cursor.fetchall()
+            for fk in fks:
+                if table_name not in foreign_keys:
+                    foreign_keys[table_name] = []
+                foreign_keys[table_name].append(fk)
         
         conn.close()
     
-    return schemas
+    return schemas, foreign_keys
 
-def convert_to_postgresql_schema(sqlite_schemas):
+def convert_to_postgresql_schema(sqlite_schemas, sqlite_foreign_keys):
     postgresql_schemas = {}
     
     for table_name, columns in sqlite_schemas.items():
@@ -49,11 +55,18 @@ def convert_to_postgresql_schema(sqlite_schemas):
             
             postgres_schema.append(column.replace("AUTOINCREMENT", "").replace(postgres_type, postgres_type.upper()))
         
+        # Add foreign key constraints
+        if table_name in sqlite_foreign_keys:
+            for fk in sqlite_foreign_keys[table_name]:
+                foreign_table = fk[2]
+                foreign_column = fk[3]
+                postgres_schema.append(f"FOREIGN KEY ({fk[3]}) REFERENCES {fk[2]} ({fk[4]})")
+        
         postgresql_schemas[table_name] = postgres_schema
     
     return postgresql_schemas
 
-def generate_postgresql_sql(sqlite_schemas):
+def generate_postgresql_sql(sqlite_schemas, sqlite_foreign_keys):
     with open("sqlite_to_postgresql.sql", "w") as f:
         for table_name, columns in sqlite_schemas.items():
             f.write(f"CREATE TABLE IF NOT EXISTS {table_name} (\n")
@@ -64,6 +77,6 @@ def generate_postgresql_sql(sqlite_schemas):
 
 if __name__ == "__main__":
     sqlite_db_paths = ["./BackEnd/bdd/arosaje.db", "./Authentification/bdd/auth.db"]
-    sqlite_schemas = extract_sqlite_schema(sqlite_db_paths)
-    postgresql_schemas = convert_to_postgresql_schema(sqlite_schemas)
-    generate_postgresql_sql(postgresql_schemas)
+    sqlite_schemas, sqlite_foreign_keys = extract_sqlite_schema(sqlite_db_paths)
+    postgresql_schemas = convert_to_postgresql_schema(sqlite_schemas, sqlite_foreign_keys)
+    generate_postgresql_sql(postgresql_schemas, sqlite_foreign_keys)
