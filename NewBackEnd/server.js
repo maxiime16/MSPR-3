@@ -1,7 +1,7 @@
 const express = require('express');
 const { specs, swaggerUi } = require('./config/swaggerConfig');
 const app = express();
-const PORT = 3002;
+const PORT = 3000;
 
 // Middleware pour analyser les requêtes JSON
 app.use(express.json());
