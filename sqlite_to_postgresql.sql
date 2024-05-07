@@ -19,9 +19,9 @@ category_id INTEGER NOT NULL
 
 CREATE TABLE IF NOT EXISTS Advice (
 id INTEGER NOT NULL ,
+advice TEXT NOT NULL 
 advertisement_id INTEGER NOT NULL ,
 user_id INTEGER NOT NULL ,
-advice TEXT NOT NULL 
 );
 
 CREATE TABLE IF NOT EXISTS Advertisements (
