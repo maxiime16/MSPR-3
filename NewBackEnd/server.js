@@ -1,35 +1,41 @@
-const express = require('express');
-const { specs, swaggerUi } = require('./config/swaggerConfig');
+const express = require("express");
+const { specs, swaggerUi } = require("./config/swaggerConfig");
+const cors = require("cors");
 const app = express();
 const PORT = 3000;
 
 // Middleware pour analyser les requêtes JSON
-app.use(express.json());
+app.use(
+  express.json(),
+  cors({
+    origin: "http://localhost:5174",
+  })
+);
 
 // Middleware pour servir la documentation Swagger
-app.use('/api/doc', swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/doc", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes pour l'entité "advertisement"
-const advertisementRoutes = require('./routes/advertisementRoute');
-app.use('/api/advertisement', advertisementRoutes);
+const advertisementRoutes = require("./routes/advertisementRoute");
+app.use("/api/advertisement", advertisementRoutes);
 
 // Routes pour l'entité "advice"
-const adviceRoutes = require('./routes/adviceRoute');
-app.use('/api/advice', adviceRoutes);
+const adviceRoutes = require("./routes/adviceRoute");
+app.use("/api/advice", adviceRoutes);
 
 // Routes pour l'entité "category"
-const categoryRoutes = require('./routes/categoryRoute');
-app.use('/api/category', categoryRoutes);
+const categoryRoutes = require("./routes/categoryRoute");
+app.use("/api/category", categoryRoutes);
 
 // Gestion des erreurs globales
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Internal Server Error');
+  console.error(err.stack);
+  res.status(500).send("Internal Server Error");
 });
 
 // Laissez cette route pour gérer les autres types de requêtes ou les erreurs 404
 app.use((req, res) => {
-    res.status(404).send('Page not found');
+  res.status(404).send("Page not found");
 });
 
 // Exporter l'application pour les tests

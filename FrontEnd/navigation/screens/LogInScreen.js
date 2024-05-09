@@ -66,7 +66,7 @@ const LogInScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${IP}/users/login`, {
+      const response = await fetch(`${IP}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

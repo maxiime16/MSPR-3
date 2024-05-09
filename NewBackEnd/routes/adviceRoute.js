@@ -67,7 +67,7 @@ const adviceController = require("../controllers/adviceController");
  *         description: Objet de conseil à créer
  *         required: true
  *         schema:
- *           $ref: "#/definitions/Advice"
+ *           $ref: "#/definitions/AdviceBis"
  *     responses:
  *       201:
  *         description: Conseil créé avec succès
