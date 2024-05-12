@@ -9,6 +9,7 @@ const ProfileScreen = ({ onLogout }) => {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleteAdModalVisible, setDeleteAdModalVisible] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [userAds, setUserAds] = useState([]);
   const [deletingAdId, setDeletingAdId] = useState(null);
   const IP = IP_Auth;
@@ -19,8 +20,13 @@ const ProfileScreen = ({ onLogout }) => {
       try {
         const jsonValue = await AsyncStorage.getItem("userData");
         if (jsonValue !== null) {
-          const userData = JSON.parse(jsonValue);
+
+          const userData = JSON.parse(jsonValue).data.attributes;
+          const userId = JSON.parse(jsonValue).data.id;
           setUserData(userData);
+          setUserId(userId);
+          console.log("jsonValue", jsonValue)
+          console.log("userData", userData)
 
           // Appeler la méthode pour récupérer les annonces de l'utilisateur
           const fetchUserAds = async () => {
@@ -60,13 +66,24 @@ const ProfileScreen = ({ onLogout }) => {
 
   const handleSave = async () => {
     try {
+
+      console.log(userId);
+      console.log("firstname", userData.first_name);
+      console.log("last_name", userData.last_name);
+      console.log("email", userData.email);
+      const userForm = {
+        "first_name": userData.first_name,
+        "last_name": userData.last_name,
+        "email": userData.email
+      };
+
       // Faire la requête PUT à l'API pour mettre à jour les informations de l'utilisateur
-      const response = await fetch(`${IP}/users/${userData.id}`, {
+      const response = await fetch(`${IP}/user/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userForm),
       });
 
       console.log("userdata envoie", userData);

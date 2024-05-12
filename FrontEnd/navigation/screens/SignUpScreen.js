@@ -54,7 +54,7 @@ const SignUpScreen = ({ navigation }) => {
       "password": password,
     };
 
-    fetch(`${IP}/user/signup`, {
+    fetch(`${IP}/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -24,7 +24,7 @@ class UserModel {
   static async getById(id) {
     try {
       const user = await pool.query(
-        'SELECT id, email, first_name AS name, last_name FROM "users" WHERE id = $1',
+        'SELECT * FROM "users" WHERE id = $1',
         [id]
       );
       return user.rows[0];
@@ -37,7 +37,7 @@ class UserModel {
     try {
       const updateUserDataResult = await pool.query(
         'UPDATE "users" SET email = $1, first_name = $2, last_name = $3 WHERE id = $4',
-        [first_name, last_name, email, userId]
+        [email, first_name, last_name, userId]
       );
       return updateUserDataResult.rows[0];
     } catch (err) {
