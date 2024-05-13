@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 class JWTModel {
-  verifyToken(token) {
+  static async verifyToken(token) {
     try {
       const decoded = jwt.verify(token.split(' ')[1], 'test');
       return true;
