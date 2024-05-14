@@ -1,6 +1,25 @@
 const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const Joi = require("joi");
+
+dotenv.config();
+
+// Schémas de validation
+const userSchema = Joi.object({
+  first_name: Joi.string().min(1).max(30).required(),
+  last_name: Joi.string().min(1).max(30).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required()
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required()
+});
+
+// Contrôleurs
 
 exports.getAll = async (req, res) => {
   try {
@@ -71,6 +90,13 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
+
+  // Valider les entrées
+  const { error } = userSchema.validate({ first_name, last_name, email, password });
+  if (error) {
+    return res.status(400).json({ errors: [{ title: error.details[0].message }] });
+  }
+
   try {
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await UserModel.getByEmail(email);
@@ -101,6 +127,9 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
+
+  // Optionnel : valider les données mises à jour si vous avez un schéma de validation
+
   try {
     // Vérifier si l'utilisateur existe
     const existingUser = await UserModel.getById(id);
@@ -130,12 +159,18 @@ exports.deleteUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  // Valider les entrées
+  const { error } = loginSchema.validate({ email, password });
+  if (error) {
+    return res.status(400).json({ errors: [{ title: error.details[0].message }] });
+  }
+
   try {
     // Recherche de l'utilisateur par email
     const user = await UserModel.getByEmail(email);
 
     if (!user) {
-      return res.status(404).json({ errors: [{ title: "User not found." }] });
+      return res.status(401).json({ errors: [{ title: "Invalid email or password." }] });
     }
 
     // Vérification du mot de passe
@@ -144,7 +179,7 @@ exports.loginUser = async (req, res) => {
     if (!passwordMatch) {
       return res
         .status(401)
-        .json({ errors: [{ title: "Incorrect password." }] });
+        .json({ errors: [{ title: "Invalid email or password." }] });
     }
 
     // Si le mot de passe est correct, créer un JWT
@@ -155,7 +190,8 @@ exports.loginUser = async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
       },
-      "test" // Clé secrète pour signer le token
+      process.env.JWT_SECRET, // Clé secrète pour signer le token
+      // { expiresIn: '1h' } // Expiration du token
     );
 
     // Retourner les informations de l'utilisateur et le token JWT
