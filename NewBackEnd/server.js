@@ -27,6 +27,10 @@ app.use("/api/advice", adviceRoutes);
 const categoryRoutes = require("./routes/categoryRoute");
 app.use("/api/category", categoryRoutes);
 
+// Routes pour l'entité "sub-category"
+const subCategoryRoutes = require("./routes/subCategoryRoute");
+app.use("/api/subcategory", subCategoryRoutes);
+
 // Gestion des erreurs globales
 app.use((err, req, res, next) => {
   console.error(err.stack);

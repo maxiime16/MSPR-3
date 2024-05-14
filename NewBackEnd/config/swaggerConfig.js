@@ -9,7 +9,7 @@ const options = {
             description: 'Documentation de votre API',
         },
     },
-    apis: ['routes/advertisementRoute.js', 'routes/adviceRoute.js', 'routes/categoryRoute.js', ],
+    apis: ['routes/advertisementRoute.js', 'routes/adviceRoute.js', 'routes/categoryRoute.js', 'routes/subCategoryRoute.js', 'routes/imageRoute.js' ],
 };
 
 const specs = swaggerJsdoc(options);

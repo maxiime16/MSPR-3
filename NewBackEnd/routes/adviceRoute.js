@@ -5,159 +5,155 @@ const adviceController = require("../controllers/adviceController");
 /**
  * @swagger
  * tags:
- *   name: Advice
- *   description: Operations related to advice
+ *   name: Advices
+ *   description: Operations related to advices
+ */
+
+/**
+ * @swagger
  * definitions:
  *   Advice:
- *     type: "object"
+ *     type: object
+ *     required:
+ *       - advice
+ *       - advertisement_id
+ *       - user_id
  *     properties:
  *       id:
- *         type: "integer"
- *       advertisement_id:
- *         type: "integer"
- *       user_id:
- *         type: "integer"
+ *         type: integer
  *       advice:
- *         type: "string"
- *     required:
- *       - "id"
- *       - "advertisement_id"
- *       - "user_id"
- *       - "advice"
- *   AdviceBis:
- *     type: "object"
- *     properties:
+ *         type: string
  *       advertisement_id:
- *         type: "integer"
+ *         type: integer
  *       user_id:
- *         type: "integer"
- *       advice:
- *         type: "string"
- *     required:
- *       - "advertisement_id"
- *       - "user_id"
- *       - "advice"
+ *         type: integer
  */
 
 /**
  * @swagger
  * /api/advice:
  *   get:
- *     summary: Récupérer tous les conseils
- *     produces:
- *       - application/json
+ *     summary: Retrieve a list of advices
+ *     tags: [Advices]
  *     responses:
  *       200:
- *         description: Succès
- *         schema:
- *           type: array
- *           items:
- *             $ref: "#/definitions/Advice"
- *       500:
- *         description: Erreur du serveur
- *     tags:
- *       - Advice
- *   post:
- *     summary: Créer un nouveau conseil
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: body
- *         description: Objet de conseil à créer
- *         required: true
- *         schema:
- *           $ref: "#/definitions/AdviceBis"
- *     responses:
- *       201:
- *         description: Conseil créé avec succès
- *         schema:
- *           $ref: "#/definitions/AdviceBis"
- *       500:
- *         description: Erreur du serveur
- *     tags:
- *       - Advice
+ *         description: A list of advices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Advice'
  */
-router
-  .route("/")
-  .get(adviceController.getAllAdvices)
-  .post(adviceController.createAdvice);
+router.get("/", adviceController.getAllAdvices);
 
 /**
  * @swagger
  * /api/advice/{id}:
  *   get:
- *     summary: Récupérer un conseil par ID
- *     produces:
- *       - application/json
+ *     summary: Retrieve an advice by ID
+ *     tags: [Advices]
  *     parameters:
- *       - name: id
- *         in: path
- *         description: ID du conseil à récupérer
+ *       - in: path
+ *         name: id
  *         required: true
- *         type: string
+ *         schema:
+ *           type: integer
+ *         description: The ID of the advice to retrieve
  *     responses:
  *       200:
- *         description: Succès
- *         schema:
- *           $ref: "#/definitions/Advice"
- *       404:
- *         description: Conseil non trouvé
+ *         description: Advice found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/definitions/Advice'
+ *       400:
+ *         description: Missing or invalid ID
  *       500:
- *         description: Erreur du serveur
- *     tags:
- *       - Advice
- *   delete:
- *     summary: Supprimer un conseil par ID
- *     produces:
- *       - application/json
+ *         description: Server error
+ */
+router.get("/:id", adviceController.getAdviceById);
+
+/**
+ * @swagger
+ * /api/advice:
+ *   post:
+ *     summary: Create a new advice
+ *     tags: [Advices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/definitions/Advice'
+ *     responses:
+ *       201:
+ *         description: Advice created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/definitions/Advice'
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Server error
+ */
+router.post("/", adviceController.createAdvice);
+
+/**
+ * @swagger
+ * /api/advice/{id}:
+ *   put:
+ *     summary: Update an advice
+ *     tags: [Advices]
  *     parameters:
- *       - name: id
- *         in: path
- *         description: ID du conseil à supprimer
+ *       - in: path
+ *         name: id
  *         required: true
- *         type: string
+ *         schema:
+ *           type: integer
+ *         description: The ID of the advice to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/definitions/Advice'
+ *     responses:
+ *       200:
+ *         description: Advice updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/definitions/Advice'
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Server error
+ */
+router.put("/:id", adviceController.updateAdvice);
+
+/**
+ * @swagger
+ * /api/advice/{id}:
+ *   delete:
+ *     summary: Delete an advice
+ *     tags: [Advices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the advice to delete
  *     responses:
  *       204:
- *         description: Conseil supprimé avec succès
- *       404:
- *         description: Conseil non trouvé
+ *         description: Advice deleted
+ *       400:
+ *         description: Missing or invalid ID
  *       500:
- *         description: Erreur du serveur
- *     tags:
- *       - Advice
- *   put:
- *     summary: Mettre à jour un conseil par ID
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: id
- *         in: path
- *         description: ID du conseil à mettre à jour
- *         required: true
- *         type: string
- *       - in: body
- *         name: body
- *         description: Objet de conseil mis à jour
- *         required: true
- *         schema:
- *           $ref: "#/definitions/AdviceBis"
- *     responses:
- *       200:
- *         description: Conseil mis à jour avec succès
- *         schema:
- *           $ref: "#/definitions/Advice"
- *       404:
- *         description: Conseil non trouvé
- *       500:
- *         description: Erreur du serveur
- *     tags:
- *       - Advice
+ *         description: Server error
  */
-router
-  .route("/:id")
-  .get(adviceController.getAdviceById)
-  .delete(adviceController.deleteAdvice)
-  .put(adviceController.updateAdvice);
+router.delete("/:id", adviceController.deleteAdvice);
 
 module.exports = router;

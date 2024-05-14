@@ -3,12 +3,10 @@ const pool = require("../config/db");
 class AdvertisementModel {
   static async getAll() {
     try {
-      const advertisementsDataResult = await pool.query(
-        "SELECT * FROM advertisements"
-      );
+      const advertisementsDataResult = await pool.query("SELECT * FROM advertisements");
       return advertisementsDataResult.rows;
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error retrieving advertisements: ${err.message}`);
     }
   }
 
@@ -23,11 +21,11 @@ class AdvertisementModel {
       }
       return advertisementDataResult.rows[0];
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error retrieving advertisement: ${err.message}`);
     }
   }
 
-  static async getByIdUser(userID) {
+  static async getByUserId(userID) {
     try {
       const advertisementDataResult = await pool.query(
         "SELECT * FROM advertisements WHERE user_id = $1",
@@ -38,11 +36,11 @@ class AdvertisementModel {
       }
       return advertisementDataResult.rows;
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error retrieving advertisements for user: ${err.message}`);
     }
   }
 
-  static async getByIdCategory(categoryID) {
+  static async getByCategoryId(categoryID) {
     try {
       const advertisementDataResult = await pool.query(
         "SELECT * FROM advertisements WHERE category_id = $1",
@@ -53,7 +51,7 @@ class AdvertisementModel {
       }
       return advertisementDataResult.rows;
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error retrieving advertisements for category: ${err.message}`);
     }
   }
 
@@ -90,17 +88,21 @@ class AdvertisementModel {
 
       return newAdvertisementDataResult.rows[0];
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error creating advertisement: ${err.message}`);
     }
   }
 
   static async delete(advertisementId) {
     try {
-      await pool.query("DELETE FROM advertisements WHERE id = $1", [
+      const result = await pool.query("DELETE FROM advertisements WHERE id = $1 RETURNING *", [
         advertisementId,
       ]);
+      if (result.rows.length === 0) {
+        throw new Error("Advertisement not found");
+      }
+      return result.rows[0];
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error deleting advertisement: ${err.message}`);
     }
   }
 
@@ -139,9 +141,13 @@ class AdvertisementModel {
         ]
       );
 
+      if (updatedAdvertisementDataResult.rows.length === 0) {
+        throw new Error("Advertisement not found");
+      }
+
       return updatedAdvertisementDataResult.rows[0];
     } catch (err) {
-      throw new Error(err.message);
+      throw new Error(`Error updating advertisement: ${err.message}`);
     }
   }
 }
