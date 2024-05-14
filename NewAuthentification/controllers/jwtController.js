@@ -8,9 +8,12 @@ exports.verifyToken = async (req, res) => {
   }
 
   try {
-    await JWTModel.verifyToken(token);
+    const isValid = await JWTModel.verifyToken(token);
+    if (!isValid) {
+      return res.status(401).json({ error: "Token JWT invalide." });
+    }
     res.status(200).json({ message: "Token JWT valide." });
   } catch (error) {
-    res.status(401).json({ error: "Token JWT invalide." });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
