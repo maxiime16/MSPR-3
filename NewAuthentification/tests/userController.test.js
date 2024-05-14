@@ -3,8 +3,9 @@ const UserModel = require('../models/userModel');
 const { mockRequest, mockResponse } = require('../utils/testUtils');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Joi = require("joi");
 
-// Mock des méthodes du modèle utilisateur
+// Mock des méthodes du modèle utilisateur, bcrypt et jwt
 jest.mock('../models/userModel');
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
@@ -161,12 +162,18 @@ describe('User Controller', () => {
 
   describe('createUser', () => {
     it('should create a new user', async () => {
-      const newUser = { id: 1, first_name: 'John', last_name: 'Doe', email: 'john@example.com', password: 'hashedpassword' };
+      const newUser = {
+        id: 1,
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashedpassword'
+      };
 
       req.body = {
         first_name: 'John',
         last_name: 'Doe',
-        email: 'john@example.com',
+        email: 'john.doe@example.com',
         password: 'password123'
       };
 
@@ -184,7 +191,7 @@ describe('User Controller', () => {
       req.body = {
         first_name: 'John',
         last_name: 'Doe',
-        email: 'john@example.com',
+        email: 'john.doe@example.com',
         password: 'password123'
       };
 
@@ -198,12 +205,28 @@ describe('User Controller', () => {
       });
     });
 
+    it('should return 400 if validation fails', async () => {
+      req.body = {
+        first_name: '',
+        last_name: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'password123'
+      };
+
+      await userController.createUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: expect.any(String) }]
+      });
+    });
+
     it('should handle errors', async () => {
       const error = new Error('Something went wrong');
       req.body = {
         first_name: 'John',
         last_name: 'Doe',
-        email: 'john@example.com',
+        email: 'john.doe@example.com',
         password: 'password123'
       };
 
@@ -318,6 +341,20 @@ describe('User Controller', () => {
             token: 'fake-jwt-token'
           }
         }
+      });
+    });
+
+    it('should return 400 if validation fails', async () => {
+      req.body = {
+        email: 'john@example.com',
+        password: ''
+      };
+
+      await userController.loginUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: expect.any(String) }]
       });
     });
 

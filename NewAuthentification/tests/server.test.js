@@ -8,6 +8,21 @@ jest.mock('../models/userModel');
 jest.mock('../models/jwtModel');
 
 describe("Server", () => {
+  let originalConsoleLog;
+  let originalConsoleError;
+
+  beforeAll(() => {
+    originalConsoleLog = console.log;
+    originalConsoleError = console.error;
+    console.log = jest.fn();
+    console.error = jest.fn();
+  });
+
+  afterAll(() => {
+    console.log = originalConsoleLog;
+    console.error = originalConsoleError;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
