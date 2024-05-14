@@ -125,7 +125,7 @@ const userController = require("../controllers/userController");
  *       404:
  *         description: User not found
  *
- * /api/user/:
+ * /api/user:
  *   post:
  *     summary: Create a new user
  *     tags: [User]
@@ -140,21 +140,22 @@ const userController = require("../controllers/userController");
  *         description: User created successfully
  *       400:
  *         description: Invalid request body
- *
  *   get:
- *     summary: get all user
+ *     summary: Get all users
  *     tags: [User]
  *     responses:
- *       201:
- *         description: User created successfully
- *         schema:
- *           type: array
- *           items:
- *             $ref: "#/definitions/User"
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/definitions/User"
  *       400:
  *         description: Invalid request body
  *
- * /user/login:
+ * /api/user/login:
  *   post:
  *     summary: User login
  *     tags: [User]
@@ -199,8 +200,12 @@ router
   .delete(userController.deleteUser)
   .put(userController.updateUser);
 
-router.route("/").post(userController.createUser).get(userController.getAll);
 router.get("/email/:email", userController.getUserByEmail);
+
+router.route("/")
+  .post(userController.createUser)
+  .get(userController.getAll);
+
 router.post("/login", userController.loginUser);
 
 module.exports = router;

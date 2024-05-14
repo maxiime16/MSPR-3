@@ -7,11 +7,10 @@ exports.verifyToken = async (req, res) => {
     return res.status(401).json({ error: "Token JWT non fourni." });
   }
 
-  const isValid = JWTModel.verifyToken(token);
-
-  if (!isValid) {
-    return res.status(401).json({ error: "Token JWT invalide." });
+  try {
+    await JWTModel.verifyToken(token);
+    res.status(200).json({ message: "Token JWT valide." });
+  } catch (error) {
+    res.status(401).json({ error: "Token JWT invalide." });
   }
-
-  res.status(200).json({ message: "Token JWT valide." });
 };
