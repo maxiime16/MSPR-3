@@ -1,18 +1,11 @@
-/* Imports */
+// server.js
 const express = require("express");
-const sqlite3 = require("sqlite3");
+const { specs, swaggerUi } = require("./config/swaggerConfig");
 const cors = require("cors");
-const path = require("path");
-
-const fs = require("fs");
-
-
 const app = express();
+const PORT = 3001;
 
-// Connexion à la base de données SQLite
-const db = new sqlite3.Database("./bdd/auth.db");
-
-//Création de l'application
+// Middleware pour analyser les requêtes JSON
 app.use(
   express.json(),
   cors({
@@ -20,37 +13,39 @@ app.use(
   })
 );
 
-// Démarrer le serveur
-app.listen(process.env.SERVER_PORT, () => {
-  console.log(`Le serveur est en cours d'exécution sur le port ${process.env.SERVER_PORT}`);
+// Middleware pour servir la documentation Swagger
+app.use("/api/doc", swaggerUi.serve, swaggerUi.setup(specs));
+
+// Routes pour l'entité "user"
+const userRoutes = require("./routes/userRoute");
+app.use("/api/user", userRoutes);
+
+// Routes pour l'entité "jwt"
+const jwtRoutes = require("./routes/jwtRoute");
+app.use("/api/jwt", jwtRoutes);
+
+// Gestion des erreurs de syntaxe JSON
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('Bad JSON');
+    return res.status(400).send({ error: 'Bad JSON' }); // envoyer une réponse 400
+  }
+  next(err); // passer à l'autre middleware d'erreurs si ce n'est pas une erreur de syntaxe
 });
 
+// Gestion des erreurs globales
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Internal Server Error");
+});
+
+// Laissez cette route pour gérer les autres types de requêtes ou les erreurs 404
+app.use((req, res) => {
+  res.status(404).send("Page not found");
+});
+
+// Exporter l'application pour les tests
 module.exports = app;
 
-/* Gestion des routes */
-
-// récupérer les fichiers pour les routes
-const routeFilesUsers = fs.readdirSync(
-  path.join(__dirname, "routes", "users")
-);
-
-const routeFilesJWT = fs.readdirSync(
-  path.join(__dirname, "routes", "jwt")
-);
-
-// Importer chaque fichier et les ajouter à l'application
-routeFilesUsers.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/users/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/users/`, route);
-  }
-});
-
-routeFilesJWT.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/jwt/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/jwt/`, route);
-  }
-});
+// Démarrer le serveur
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
