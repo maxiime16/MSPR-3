@@ -11,10 +11,16 @@ jest.mock('jsonwebtoken');
 
 describe('User Controller', () => {
   let req, res;
+  const originalConsoleError = console.error;
 
   beforeEach(() => {
     req = mockRequest();
     res = mockResponse();
+    console.error = jest.fn(); // Rediriger console.error vers une fonction de moquerie
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError; // Restaurer console.error après les tests
   });
 
   describe('getAll', () => {
