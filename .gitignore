@@ -36,3 +36,6 @@ yarn-error.*
 
 # data
 data/
+
+# coverage
+coverage/
