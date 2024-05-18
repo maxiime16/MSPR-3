@@ -202,9 +202,7 @@ router
 
 router.get("/email/:email", userController.getUserByEmail);
 
-router.route("/")
-  .post(userController.createUser)
-  .get(userController.getAll);
+router.route("/").post(userController.createUser).get(userController.getAll);
 
 router.post("/login", userController.loginUser);
 

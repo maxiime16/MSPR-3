@@ -12,16 +12,24 @@ class MessageModel {
 
   static async getByConversationId(conversationID) {
     try {
-      const messageDataResult = await pool.query("SELECT * FROM messages WHERE conversation_id = $1", [conversationID]);
+      const messageDataResult = await pool.query(
+        "SELECT * FROM messages WHERE conversation_id = $1",
+        [conversationID]
+      );
       return messageDataResult.rows;
     } catch (err) {
-      throw new Error(`Error retrieving messages by conversation ID: ${err.message}`);
+      throw new Error(
+        `Error retrieving messages by conversation ID: ${err.message}`
+      );
     }
   }
 
   static async getById(messageID) {
     try {
-      const messageDataResult = await pool.query("SELECT * FROM messages WHERE id = $1", [messageID]);
+      const messageDataResult = await pool.query(
+        "SELECT * FROM messages WHERE id = $1",
+        [messageID]
+      );
       if (messageDataResult.rows.length === 0) {
         throw new Error("Message not found");
       }
@@ -45,7 +53,10 @@ class MessageModel {
 
   static async delete(messageID) {
     try {
-      const result = await pool.query("DELETE FROM messages WHERE id = $1 RETURNING *", [messageID]);
+      const result = await pool.query(
+        "DELETE FROM messages WHERE id = $1 RETURNING *",
+        [messageID]
+      );
       if (result.rows.length === 0) {
         throw new Error("Message not found");
       }

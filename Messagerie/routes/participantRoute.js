@@ -71,7 +71,10 @@ router.get("/", participantController.getAllParticipants);
  *       500:
  *         description: Server error
  */
-router.get("/conversation/:conversation_id", participantController.getParticipantsByConversationId);
+router.get(
+  "/conversation/:conversation_id",
+  participantController.getParticipantsByConversationId
+);
 
 /**
  * @swagger

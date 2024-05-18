@@ -3,7 +3,8 @@ const express = require("express");
 const { specs, swaggerUi } = require("./config/swaggerConfig");
 const cors = require("cors");
 const app = express();
-const PORT = 3001;
+require("dotenv").config();
+const PORT = process.env.SERVER_PORT;
 
 // Middleware pour analyser les requêtes JSON
 app.use(
@@ -26,9 +27,9 @@ app.use("/api/jwt", jwtRoutes);
 
 // Gestion des erreurs de syntaxe JSON
 app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    console.error('Bad JSON');
-    return res.status(400).send({ error: 'Bad JSON' }); // envoyer une réponse 400
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    console.error("Bad JSON");
+    return res.status(400).send({ error: "Bad JSON" }); // envoyer une réponse 400
   }
   next(err); // passer à l'autre middleware d'erreurs si ce n'est pas une erreur de syntaxe
 });

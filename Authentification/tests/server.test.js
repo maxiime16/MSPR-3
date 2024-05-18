@@ -1,11 +1,11 @@
 const request = require("supertest");
 const app = require("../server"); // Importer le fichier server.js
-const UserModel = require('../models/userModel');
-const JWTModel = require('../models/jwtModel'); // Importer le modèle JWT
+const UserModel = require("../models/userModel");
+const JWTModel = require("../models/jwtModel"); // Importer le modèle JWT
 
 // Mock des méthodes du modèle utilisateur et JWT
-jest.mock('../models/userModel');
-jest.mock('../models/jwtModel');
+jest.mock("../models/userModel");
+jest.mock("../models/jwtModel");
 
 describe("Server", () => {
   let originalConsoleLog;
@@ -51,8 +51,18 @@ describe("Server", () => {
   // Tests pour les routes utilisateur
   it("should get all users", async () => {
     const users = [
-      { id: 1, first_name: 'John', last_name: 'Doe', email: 'john@example.com' },
-      { id: 2, first_name: 'Jane', last_name: 'Doe', email: 'jane@example.com' }
+      {
+        id: 1,
+        first_name: "John",
+        last_name: "Doe",
+        email: "john@example.com",
+      },
+      {
+        id: 2,
+        first_name: "Jane",
+        last_name: "Doe",
+        email: "jane@example.com",
+      },
     ];
     UserModel.getAll.mockResolvedValue(users);
 
@@ -72,11 +82,19 @@ describe("Server", () => {
 
     const res = await request(app).post("/api/user").send(newUser);
     expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty("data.message", "Utilisateur créé avec succès.");
+    expect(res.body).toHaveProperty(
+      "data.message",
+      "Utilisateur créé avec succès."
+    );
   });
 
   it("should return user by email", async () => {
-    const user = { id: 1, first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com' };
+    const user = {
+      id: 1,
+      first_name: "John",
+      last_name: "Doe",
+      email: "john.doe@example.com",
+    };
     UserModel.getByEmail.mockResolvedValue(user);
 
     const res = await request(app).get(`/api/user/email/john.doe@example.com`);
@@ -87,7 +105,9 @@ describe("Server", () => {
   it("should return 404 if user not found by email", async () => {
     UserModel.getByEmail.mockResolvedValue(null);
 
-    const res = await request(app).get(`/api/user/email/nonexistent@example.com`);
+    const res = await request(app).get(
+      `/api/user/email/nonexistent@example.com`
+    );
     expect(res.statusCode).toEqual(404);
     expect(res.body).toHaveProperty("errors");
   });
@@ -97,7 +117,9 @@ describe("Server", () => {
     const token = "Bearer valid.token.here";
     JWTModel.verifyToken.mockResolvedValue(true); // Mock de verifyToken
 
-    const res = await request(app).post("/api/jwt/verifyToken").set("Authorization", token);
+    const res = await request(app)
+      .post("/api/jwt/verifyToken")
+      .set("Authorization", token);
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty("message", "Token JWT valide.");
   });
@@ -112,7 +134,9 @@ describe("Server", () => {
     const token = "Bearer invalid.token.here";
     JWTModel.verifyToken.mockResolvedValue(false); // Mock de verifyToken
 
-    const res = await request(app).post("/api/jwt/verifyToken").set("Authorization", token);
+    const res = await request(app)
+      .post("/api/jwt/verifyToken")
+      .set("Authorization", token);
     expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty("error", "Token JWT invalide.");
   });

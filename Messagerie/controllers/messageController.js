@@ -14,7 +14,9 @@ exports.getAllMessages = async (req, res) => {
 exports.getMessagesByConversationId = async (req, res) => {
   const conversationId = req.params.conversation_id;
   if (!conversationId) {
-    return res.status(400).json({ errors: [{ message: "Missing conversation ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing conversation ID" }] });
   }
   try {
     const messages = await MessageModel.getByConversationId(conversationId);
@@ -28,7 +30,9 @@ exports.getMessagesByConversationId = async (req, res) => {
 exports.getMessageById = async (req, res) => {
   const messageId = req.params.id;
   if (!messageId) {
-    return res.status(400).json({ errors: [{ message: "Missing message ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing message ID" }] });
   }
   try {
     const message = await MessageModel.getById(messageId);
@@ -43,7 +47,9 @@ exports.createMessage = async (req, res) => {
   const { error, value } = messageSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   try {
@@ -59,7 +65,9 @@ exports.deleteMessage = async (req, res) => {
   const messageId = req.params.id;
 
   if (!messageId) {
-    return res.status(400).json({ errors: [{ message: "Missing message ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing message ID" }] });
   }
 
   try {

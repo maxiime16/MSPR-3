@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const JWTController = require('../controllers/jwtController');
+const JWTController = require("../controllers/jwtController");
 
-router.post('/verifyToken', JWTController.verifyToken);
+router.post("/verifyToken", JWTController.verifyToken);
 
 module.exports = router;

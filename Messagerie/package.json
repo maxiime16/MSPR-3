@@ -7,15 +7,16 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
+    "start": "node start.js",
+    "test": "jest --detectOpenHandles"
+  },  
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "http": "^0.0.1-security",
     "joi": "^17.13.1",
     "pg": "^8.11.5",
     "swagger-jsdoc": "^6.2.8",

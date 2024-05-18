@@ -11,12 +11,12 @@ const userSchema = Joi.object({
   first_name: Joi.string().min(1).max(30).required(),
   last_name: Joi.string().min(1).max(30).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).required()
+  password: Joi.string().min(8).required(),
 });
 
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).required()
+  password: Joi.string().min(8).required(),
 });
 
 // Contrôleurs
@@ -92,9 +92,16 @@ exports.createUser = async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
 
   // Valider les entrées
-  const { error } = userSchema.validate({ first_name, last_name, email, password });
+  const { error } = userSchema.validate({
+    first_name,
+    last_name,
+    email,
+    password,
+  });
   if (error) {
-    return res.status(400).json({ errors: [{ title: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ title: error.details[0].message }] });
   }
 
   try {
@@ -162,7 +169,9 @@ exports.loginUser = async (req, res) => {
   // Valider les entrées
   const { error } = loginSchema.validate({ email, password });
   if (error) {
-    return res.status(400).json({ errors: [{ title: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ title: error.details[0].message }] });
   }
 
   try {
@@ -170,7 +179,9 @@ exports.loginUser = async (req, res) => {
     const user = await UserModel.getByEmail(email);
 
     if (!user) {
-      return res.status(401).json({ errors: [{ title: "Invalid email or password." }] });
+      return res
+        .status(401)
+        .json({ errors: [{ title: "Invalid email or password." }] });
     }
 
     // Vérification du mot de passe
@@ -190,7 +201,7 @@ exports.loginUser = async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
       },
-      process.env.JWT_SECRET, // Clé secrète pour signer le token
+      process.env.JWT_SECRET // Clé secrète pour signer le token
       // { expiresIn: '1h' } // Expiration du token
     );
 

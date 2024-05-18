@@ -3,7 +3,9 @@ const pool = require("../config/db");
 class ParticipantModel {
   static async getAll() {
     try {
-      const participantDataResult = await pool.query("SELECT * FROM participants");
+      const participantDataResult = await pool.query(
+        "SELECT * FROM participants"
+      );
       return participantDataResult.rows;
     } catch (err) {
       throw new Error(`Error retrieving participants: ${err.message}`);
@@ -12,19 +14,29 @@ class ParticipantModel {
 
   static async getByConversationId(conversationID) {
     try {
-      const participantDataResult = await pool.query("SELECT * FROM participants WHERE conversation_id = $1", [conversationID]);
+      const participantDataResult = await pool.query(
+        "SELECT * FROM participants WHERE conversation_id = $1",
+        [conversationID]
+      );
       return participantDataResult.rows;
     } catch (err) {
-      throw new Error(`Error retrieving participants by conversation ID: ${err.message}`);
+      throw new Error(
+        `Error retrieving participants by conversation ID: ${err.message}`
+      );
     }
   }
 
   static async getByUserId(userID) {
     try {
-      const participantDataResult = await pool.query("SELECT * FROM participants WHERE user_id = $1", [userID]);
+      const participantDataResult = await pool.query(
+        "SELECT * FROM participants WHERE user_id = $1",
+        [userID]
+      );
       return participantDataResult.rows;
     } catch (err) {
-      throw new Error(`Error retrieving participants by user ID: ${err.message}`);
+      throw new Error(
+        `Error retrieving participants by user ID: ${err.message}`
+      );
     }
   }
 
@@ -42,7 +54,10 @@ class ParticipantModel {
 
   static async delete(participantID) {
     try {
-      const result = await pool.query("DELETE FROM participants WHERE id = $1 RETURNING *", [participantID]);
+      const result = await pool.query(
+        "DELETE FROM participants WHERE id = $1 RETURNING *",
+        [participantID]
+      );
       if (result.rows.length === 0) {
         throw new Error("Participant not found");
       }

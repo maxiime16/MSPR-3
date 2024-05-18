@@ -5,10 +5,10 @@ services:
     build: 
       context: ./BackEnd
       dockerfile: Dockerfile
-    container_name: backendMSPR
+    container_name: MSPR-BackEnd
     restart: always
     ports:
-      - "3001:3001"
+      - "3000:3000"
     env_file:
       - ./BackEnd/.env
 
@@ -16,10 +16,10 @@ services:
     build: 
       context: ./Authentification
       dockerfile: Dockerfile
-    container_name: AuthService
+    container_name: MSPR-AuthService
     restart: always
     ports:
-      - "3000:3000"            
+      - "3001:3001"            
     env_file:
       - ./Authentification/.env
 
@@ -27,10 +27,10 @@ services:
     build:
       context: ./Messagerie
       dockerfile: Dockerfile
-    container_name: MessagerieService
+    container_name: MSPR-MessageService
     restart: always
     ports:
-      - "3002:3000"            
+      - "3002:3002"            
     env_file:
       - ./Messagerie/.env
 
@@ -43,7 +43,6 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: arosaje
     volumes:
       - ./data:/var/lib/postgresql/data
 

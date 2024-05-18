@@ -16,7 +16,9 @@ exports.getConversationById = async (req, res) => {
   try {
     const conversation = await ConversationModel.getById(id);
     if (!conversation) {
-      return res.status(404).json({ errors: [{ message: "Conversation not found" }] });
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Conversation not found" }] });
     }
     res.status(200).json({ data: conversation });
   } catch (err) {
@@ -28,7 +30,9 @@ exports.getConversationById = async (req, res) => {
 exports.createConversation = async (req, res) => {
   const { error } = conversationSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   try {
@@ -45,7 +49,9 @@ exports.deleteConversation = async (req, res) => {
   try {
     const deleted = await ConversationModel.delete(id);
     if (!deleted) {
-      return res.status(404).json({ errors: [{ message: "Conversation not found" }] });
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Conversation not found" }] });
     }
     res.status(204).send();
   } catch (err) {

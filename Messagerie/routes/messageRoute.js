@@ -77,7 +77,10 @@ router.get("/", messageController.getAllMessages);
  *       500:
  *         description: Server error
  */
-router.get("/conversation/:conversation_id", messageController.getMessagesByConversationId);
+router.get(
+  "/conversation/:conversation_id",
+  messageController.getMessagesByConversationId
+);
 
 /**
  * @swagger

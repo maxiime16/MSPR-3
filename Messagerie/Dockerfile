@@ -3,7 +3,7 @@
 FROM node:20.10
 
 # Définir le répertoire de travail dans le conteneur
-WORKDIR /mspr3-messageService
+WORKDIR /mspr3-messagerieService
 
 # Copier le package.json et package-lock.json pour installer les dépendances
 COPY package*.json ./
@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 3001
 
 # Commande pour démarrer l'application
-CMD ["node", "server.js"]
+CMD ["node", "start.js"]

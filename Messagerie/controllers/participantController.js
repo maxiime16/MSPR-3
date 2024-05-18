@@ -14,13 +14,19 @@ exports.getAllParticipants = async (req, res) => {
 exports.getParticipantsByConversationId = async (req, res) => {
   const conversationId = req.params.conversation_id;
   if (!conversationId) {
-    return res.status(400).json({ errors: [{ message: "Missing conversation ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing conversation ID" }] });
   }
   try {
-    const participants = await ParticipantModel.getByConversationId(conversationId);
+    const participants = await ParticipantModel.getByConversationId(
+      conversationId
+    );
     res.status(200).json({ data: participants });
   } catch (err) {
-    console.error(`Error fetching participants by conversation ID: ${err.message}`);
+    console.error(
+      `Error fetching participants by conversation ID: ${err.message}`
+    );
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
@@ -43,7 +49,9 @@ exports.addParticipant = async (req, res) => {
   const { error, value } = participantSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   try {
@@ -59,7 +67,9 @@ exports.deleteParticipant = async (req, res) => {
   const participantId = req.params.id;
 
   if (!participantId) {
-    return res.status(400).json({ errors: [{ message: "Missing participant ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing participant ID" }] });
   }
 
   try {
