@@ -17,3 +17,4 @@ jobs:
 
     - name: Run npm commands in all directories
       run: ./run-all-tests-installs.sh
+      
