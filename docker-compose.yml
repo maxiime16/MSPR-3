@@ -11,6 +11,8 @@ services:
       - "3000:3000"
     env_file:
       - ./BackEnd/.env
+    networks:
+      - mspr_network
 
   authservice:
     build: 
@@ -22,6 +24,8 @@ services:
       - "3001:3001"            
     env_file:
       - ./Authentification/.env
+    networks:
+      - mspr_network
 
   messagerieservice:
     build:
@@ -33,6 +37,8 @@ services:
       - "3002:3002"            
     env_file:
       - ./Messagerie/.env
+    networks:
+      - mspr_network
 
   postgres:
     image: postgres
@@ -45,6 +51,8 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - ./data:/var/lib/postgresql/data
+    networks:
+      - mspr_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -55,3 +63,9 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - mspr_network
+
+networks:
+  mspr_network:
+    driver: bridge

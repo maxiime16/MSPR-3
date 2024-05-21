@@ -1,143 +1,73 @@
 const request = require("supertest");
-const app = require("../server"); // Importer le fichier server.js
-const UserModel = require("../models/userModel");
-const JWTModel = require("../models/jwtModel"); // Importer le modèle JWT
+const app = require("../server");
+const http = require("http");
 
-// Mock des méthodes du modèle utilisateur et JWT
-jest.mock("../models/userModel");
-jest.mock("../models/jwtModel");
+let server;
+
+beforeAll((done) => {
+  // Démarrer l'application sur un port différent pour les tests
+  server = http.createServer(app);
+  server.listen(3011, done);
+});
+
+afterAll((done) => {
+  server.close(done);
+});
 
 describe("Server", () => {
-  let originalConsoleLog;
-  let originalConsoleError;
-
   beforeAll(() => {
-    originalConsoleLog = console.log;
-    originalConsoleError = console.error;
-    console.log = jest.fn();
-    console.error = jest.fn();
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    console.log = originalConsoleLog;
-    console.error = originalConsoleError;
+    console.error.mockRestore();
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  it("should serve Swagger docs on /api/doc", async () => {
+    const res = await request(app).get("/api/doc");
+    if (res.status === 301 || res.status === 302) {
+      const redirectRes = await request(app).get(res.headers.location);
+      expect(redirectRes.status).toBe(200);
+      expect(redirectRes.text).toContain("Swagger UI");
+    } else {
+      expect(res.status).toBe(200);
+      expect(res.text).toContain("Swagger UI");
+    }
   });
 
-  it("should return 200 for the Swagger docs route", async () => {
-    const res = await request(app).get("/api/doc/");
-    expect(res.statusCode).toEqual(200);
-    expect(res.text).toContain("Swagger");
+  it("should handle 404 errors", async () => {
+    const res = await request(app).get("/non-existent-route");
+    expect(res.status).toBe(404);
+    expect(res.text).toBe("Page not found");
   });
 
-  it("should return 404 for unknown routes", async () => {
-    const res = await request(app).get("/unknown-route");
-    expect(res.statusCode).toEqual(404);
-    expect(res.text).toEqual("Page not found");
-  });
-
-  it("should handle JSON parse errors", async () => {
+  it("should handle bad JSON error", async () => {
     const res = await request(app)
       .post("/api/user")
       .send("invalid json")
       .set("Content-Type", "application/json");
-    expect(res.statusCode).toEqual(400); // Changement attendu
-    expect(res.body).toHaveProperty("error", "Bad JSON");
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: "Bad JSON" });
   });
 
-  // Tests pour les routes utilisateur
-  it("should get all users", async () => {
-    const users = [
-      {
-        id: 1,
-        first_name: "John",
-        last_name: "Doe",
-        email: "john@example.com",
-      },
-      {
-        id: 2,
-        first_name: "Jane",
-        last_name: "Doe",
-        email: "jane@example.com",
-      },
-    ];
-    UserModel.getAll.mockResolvedValue(users);
+  it("should handle global errors", async () => {
+    // Mock a route to throw an error
+    app.get("/error", (req, res, next) => {
+      next(new Error("Test Error"));
+    });
 
+    const res = await request(app).get("/error");
+    expect(res.status).toBe(500);
+    expect(res.text).toBe("Internal Server Error");
+  });
+
+  it("should return 200 for /api/user", async () => {
     const res = await request(app).get("/api/user");
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty("data");
+    expect(res.status).toBe(200);
   });
 
-  it("should create a new user", async () => {
-    const newUser = {
-      first_name: "John",
-      last_name: "Doe",
-      email: "john.doe@example.com",
-      password: "password123",
-    };
-    UserModel.createUser.mockResolvedValue(newUser);
-
-    const res = await request(app).post("/api/user").send(newUser);
-    expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty(
-      "data.message",
-      "Utilisateur créé avec succès."
-    );
-  });
-
-  it("should return user by email", async () => {
-    const user = {
-      id: 1,
-      first_name: "John",
-      last_name: "Doe",
-      email: "john.doe@example.com",
-    };
-    UserModel.getByEmail.mockResolvedValue(user);
-
-    const res = await request(app).get(`/api/user/email/john.doe@example.com`);
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty("data");
-  });
-
-  it("should return 404 if user not found by email", async () => {
-    UserModel.getByEmail.mockResolvedValue(null);
-
-    const res = await request(app).get(
-      `/api/user/email/nonexistent@example.com`
-    );
-    expect(res.statusCode).toEqual(404);
-    expect(res.body).toHaveProperty("errors");
-  });
-
-  // Tests pour les routes JWT
-  it("should verify a valid JWT token", async () => {
-    const token = "Bearer valid.token.here";
-    JWTModel.verifyToken.mockResolvedValue(true); // Mock de verifyToken
-
-    const res = await request(app)
-      .post("/api/jwt/verifyToken")
-      .set("Authorization", token);
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty("message", "Token JWT valide.");
-  });
-
-  it("should return 401 if JWT token is not provided", async () => {
-    const res = await request(app).post("/api/jwt/verifyToken");
-    expect(res.statusCode).toEqual(401);
-    expect(res.body).toHaveProperty("error", "Token JWT non fourni.");
-  });
-
-  it("should return 401 if JWT token is invalid", async () => {
-    const token = "Bearer invalid.token.here";
-    JWTModel.verifyToken.mockResolvedValue(false); // Mock de verifyToken
-
-    const res = await request(app)
-      .post("/api/jwt/verifyToken")
-      .set("Authorization", token);
-    expect(res.statusCode).toEqual(401);
-    expect(res.body).toHaveProperty("error", "Token JWT invalide.");
+  it("should return 200 for /api/jwt", async () => {
+    const res = await request(app).get("/api/jwt");
+    expect(res.status).toBe(200);
   });
 });

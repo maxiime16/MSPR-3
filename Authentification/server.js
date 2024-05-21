@@ -48,5 +48,7 @@ app.use((req, res) => {
 // Exporter l'application pour les tests
 module.exports = app;
 
-// Démarrer le serveur
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Démarrer le serveur uniquement si ce fichier est exécuté directement
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}

@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../server"); // Assurez-vous que le chemin est correct
+const app = require("../server");
 const http = require("http");
 
 let server;
@@ -7,7 +7,7 @@ let server;
 beforeAll(done => {
   // Démarrer l'application sur un port différent pour les tests
   server = http.createServer(app);
-  server.listen(3012, done); // Utiliser le port 4000 pour les tests
+  server.listen(3012, done); 
 });
 
 afterAll(done => {
@@ -43,7 +43,7 @@ describe("Server", () => {
 
   it("should handle bad JSON error", async () => {
     const res = await request(app)
-      .post("/api/conversation") // Vous pouvez changer cette route pour toute route POST valide
+      .post("/api/conversation")
       .send("invalid json")
       .set("Content-Type", "application/json");
     expect(res.status).toBe(400);

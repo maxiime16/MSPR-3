@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.5",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "http": "^0.0.1-security"
   },
   "devDependencies": {
     "jest": "^29.7.0",
