@@ -48,13 +48,13 @@ const SignUpScreen = ({ navigation }) => {
 
     // Création de l'objet contenant les données du formulaire
     const userData = {
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      password: password,
+      "first_name": firstName,
+      "last_name": lastName,
+      "email": email,
+      "password": password,
     };
 
-    fetch(`${IP}/users/signup`, {
+    fetch(`${IP}/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

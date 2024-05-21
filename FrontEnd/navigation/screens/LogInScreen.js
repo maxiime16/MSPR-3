@@ -64,14 +64,22 @@ const LogInScreen = () => {
   }, []);
 
 
+  
   const handleLogin = async () => {
+    
+    
     try {
-      const response = await fetch(`${IP}/users/login`, {
+      // Création de l'objet contenant les données du formulaire
+      const userForm = {
+        "email": email,
+        "password": password,
+      };
+      const response = await fetch(`${IP}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify( userForm ),
       });
 
       if (!response.ok) {
@@ -84,12 +92,12 @@ const LogInScreen = () => {
       console.log('userData renvoyé', userData)
 
       const token = response.headers.get("Authorization");
-      console.log("token", token);
+      console.log("token", userData.data.attributes.token);
       console.log('======================================================')
 
       const userDataString = JSON.stringify(userData);
       // Stockage JWT et data user dans AsyncStorage
-      await AsyncStorage.setItem("userToken", token);
+      await AsyncStorage.setItem("userToken", userData.data.attributes.token);
       await AsyncStorage.setItem("userData", userDataString);
 
       setEmail("");

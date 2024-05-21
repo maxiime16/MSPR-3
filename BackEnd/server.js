@@ -1,81 +1,52 @@
-/* Imports */
 const express = require("express");
-const sqlite3 = require("sqlite3");
+const { specs, swaggerUi } = require("./config/swaggerConfig");
 const cors = require("cors");
-const path = require("path");
-const fs = require("fs");
 const app = express();
+const PORT = 3000;
 
-// Connexion à la base de données SQLite
-const db = new sqlite3.Database("./bdd/arosaje.db");
-
+// Middleware pour analyser les requêtes JSON
 app.use(
   express.json(),
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://localhost:5174",
   })
 );
 
-// Démarrer le serveur
-app.listen(process.env.SERVER_PORT, () => {
-  console.log(`Le serveur est en cours d'exécution sur le port ${process.env.SERVER_PORT}`);
+// Middleware pour servir la documentation Swagger
+app.use("/api/doc", swaggerUi.serve, swaggerUi.setup(specs));
+
+// Routes pour l'entité "advertisement"
+const advertisementRoutes = require("./routes/advertisementRoute");
+app.use("/api/advertisement", advertisementRoutes);
+
+// Routes pour l'entité "advice"
+const adviceRoutes = require("./routes/adviceRoute");
+app.use("/api/advice", adviceRoutes);
+
+// Routes pour l'entité "category"
+const categoryRoutes = require("./routes/categoryRoute");
+app.use("/api/category", categoryRoutes);
+
+// Routes pour l'entité "sub-category"
+const subCategoryRoutes = require("./routes/subCategoryRoute");
+app.use("/api/subcategory", subCategoryRoutes);
+
+const imageRoutes = require("./routes/imageRoute");
+app.use("/api/image", imageRoutes);
+
+// Gestion des erreurs globales
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Internal Server Error");
+});
+
+// Laissez cette route pour gérer les autres types de requêtes ou les erreurs 404
+app.use((req, res) => {
+  res.status(404).send("Page not found");
 });
 
 // Exporter l'application pour les tests
 module.exports = app;
 
-/* Gestion des routes */
-const routeFilesAdvertisement = fs.readdirSync(
-  path.join(__dirname, "routes", "advertisements")
-);
-const routeFilesAdvice = fs.readdirSync(
-  path.join(__dirname, "routes", "advices")
-);
-const routeFilesCategory = fs.readdirSync(
-  path.join(__dirname, "routes", "categories")
-);
-const routeFilesSubCategory = fs.readdirSync(
-  path.join(__dirname, "routes", "subCategories")
-);
-const routeFilesImage = fs.readdirSync(
-  path.join(__dirname, "routes", "images")
-);
-
-// Importer chaque fichier et les ajouter à l'application
-routeFilesAdvertisement.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/advertisements/${file}`;
-    const route = require(routePath)(db);
-    // const routeName = path.basename(file, '.js');
-    // console.log(`/api/advertisements/${routeName}`)
-    app.use(`/api/advertisements`, route);
-  }
-});
-routeFilesAdvice.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/advices/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/advices`, route);
-  }
-});
-routeFilesCategory.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/categories/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/categories`, route);
-  }
-});
-routeFilesSubCategory.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/subCategories/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/subCategories`, route);
-  }
-});
-routeFilesImage.forEach((file) => {
-  if (file.endsWith(".js")) {
-    const routePath = `./routes/images/${file}`;
-    const route = require(routePath)(db);
-    app.use(`/api/images`, route);
-  }
-});
+// Démarrer le serveur
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

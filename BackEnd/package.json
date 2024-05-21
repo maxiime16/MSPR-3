@@ -1,22 +1,21 @@
 {
-  "name": "backendperso",
+  "name": "messagerie",
   "version": "1.0.0",
-  "description": "",
+  "description": "- mise en place des routes - tests des routes",
   "main": "server.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
-    "test": "jest"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "jest-mock-extended": "^3.0.5",
-    "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {
+    "express": "^4.19.2",
     "jest": "^29.7.0",
-    "supertest": "^6.3.4"
+    "pg": "^8.11.5",
+    "supertest": "^7.0.0"
   }
 }
