@@ -135,7 +135,7 @@ exports.deleteAdvertisement = async (req, res) => {
 
   try {
     await AdvertisementModel.delete(advertisementId);
-    res.status(204).send();
+    res.status(204).json();
   } catch (err) {
     console.error(`Error deleting advertisement: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });

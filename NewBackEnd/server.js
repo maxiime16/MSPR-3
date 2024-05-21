@@ -31,6 +31,9 @@ app.use("/api/category", categoryRoutes);
 const subCategoryRoutes = require("./routes/subCategoryRoute");
 app.use("/api/subcategory", subCategoryRoutes);
 
+const imageRoutes = require("./routes/imageRoute");
+app.use("/api/image", imageRoutes);
+
 // Gestion des erreurs globales
 app.use((err, req, res, next) => {
   console.error(err.stack);
