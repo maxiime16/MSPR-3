@@ -15,7 +15,7 @@ directories=("Authentification" "BackEnd" "FrontEnd" "Messagerie")
 
 # Iterate over directories and run npm commands
 for dir in "${directories[@]}"; do
-  if [ -f "$dir /package.json" ]; then
+  if [ -f "$dir/package.json" ]; then
     run_npm_commands "$dir"
   else
     echo "No package.json found in $dir"
