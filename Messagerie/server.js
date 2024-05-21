@@ -1,8 +1,11 @@
-const express = require("express");
 const { specs, swaggerUi } = require("./config/swaggerConfig");
+const express = require("express");
+const WebSocket = require("ws");
 const cors = require("cors");
-const app = express();
+const http = require("http");
 require("dotenv").config();
+
+const app = express();
 const PORT = process.env.SERVER_PORT;
 
 // Middleware pour analyser les requêtes JSON
@@ -53,10 +56,35 @@ app.use((req, res) => {
   res.status(404).send("Page not found");
 });
 
-// Exporter l'application pour les tests
-module.exports = app;
+// Créer le serveur HTTP
+const server = http.createServer(app);
+
+// Configurer WebSocket
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", (ws) => {
+  console.log("New client connected");
+
+  ws.on("message", (message) => {
+    const parsedMessage = JSON.parse(message);
+    console.log("Received:", parsedMessage);
+
+    // Diffuser le message à tous les clients
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  });
+
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
+});
 
 // Démarrer le serveur uniquement si ce fichier est exécuté directement
 if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
+
+module.exports = app;

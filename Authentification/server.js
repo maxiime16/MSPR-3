@@ -25,6 +25,11 @@ app.use("/api/user", userRoutes);
 const jwtRoutes = require("./routes/jwtRoute");
 app.use("/api/jwt", jwtRoutes);
 
+// Route pour tester la gestion globale des erreurs
+app.get("/error", (req, res, next) => {
+  next(new Error("Test Error"));
+});
+
 // Gestion des erreurs de syntaxe JSON
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
