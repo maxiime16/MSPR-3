@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         project:
-          - Backend
+          - BackEnd
           - Authentification
           - Messagerie
           # Ajoutez d'autres projets ici si nécessaire
