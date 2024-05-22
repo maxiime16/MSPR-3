@@ -1,20 +1,36 @@
-name: CI
+name: Actions pour plusieurs projets
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - GithubAction
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        project:
+          - Backend
+          - Authentification
+          - Messagerie
+          # Ajoutez d'autres projets ici si nécessaire
 
     steps:
-    - name: Checkout repository
+    - name: Checkout du code
       uses: actions/checkout@v2
-
-    - name: Set up Node.js
+      
+    - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14' # Specify the Node.js version
-
-    - name: Run npm commands in all directories
-      run: ./run-all-tests-installs.sh
-      
+        node-version: '14'
+    
+    - name: Install dependencies and run tests
+      run: |
+        for project in ${{ matrix.project }}; do
+          cd $project
+          npm install
+          npm test
+          cd ..
+        done
