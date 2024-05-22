@@ -67,14 +67,18 @@ router.get("/:id", ImageController.getImageById);
  * @swagger
  * /api/image:
  *   post:
- *     summary: Create a new Picture
+ *     summary: Create a new Image
  *     tags: [Pictures]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/definitions/Image'
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Image created
@@ -86,8 +90,9 @@ router.get("/:id", ImageController.getImageById);
  *         description: Invalid input
  *       500:
  *         description: Server error
-*/
-router.get("/", ImageController.CreateImage);
+ */
+router.post("/", ImageController.CreateImage);
+
 
 /**
  * @swagger
