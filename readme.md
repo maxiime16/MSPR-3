@@ -12,9 +12,8 @@
 - 🔴 Une démonstration de l'applicatif
 
 ### Lancer les conteneurs
-- Avoir docker ouvert
-- 1er build: Commande à la racine du projet: `docker-compose up -d`
-- Rebuild: `docker-compose up --build -d backend authservice messagerieservice`
+- `docker-compose up -d`
+- `docker-compose up --build -d`
 
 ### Accès pgAdmin
 - démarrer les conteneurs
