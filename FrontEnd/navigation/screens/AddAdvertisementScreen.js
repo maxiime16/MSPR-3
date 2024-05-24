@@ -26,9 +26,9 @@ const IP = IP_Backend;
 export default function AddAdvertisementScreen({ navigation }) {
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("Champs-Élysées, Paris, France");
-  const [city, setCity] = useState("Paris");
-  const [postalCode, setPostalCode] = useState("75008");
-  const [coordinates, setCoordinates] = useState({ lat: 48.8566, lng: 2.3522 });
+  const [coordinates, setCoordinates] = useState(null);
+  const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [plants, setPlants] = useState([]);
   const [showAddPlant, setShowAddPlant] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -160,7 +160,6 @@ export default function AddAdvertisementScreen({ navigation }) {
         // Step 4: Add each image for the plant with the plant ID
         console.log("=== Step 4 ===");
         for (const image of plant.images) {
-          console.log(image.uri);
           const imageResponse = await axios.post(`${IP}/image`, {
             image: image.base64,
             plant_id: plantId,
@@ -187,116 +186,267 @@ export default function AddAdvertisementScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Titre de l'annonce"
-          value={title}
-          onChangeText={setTitle}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Adresse"
-          value={address}
-          onChangeText={setAddress}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Ville"
-          value={city}
-          onChangeText={setCity}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Code Postal"
-          value={postalCode}
-          onChangeText={setPostalCode}
-        />
-        <View style={styles.datePicker}>
-          <Text style={[styles.label, { paddingTop: 10 }]}>Date de début</Text>
-          <DatePicker
-            onSelectedChange={(date) => setSelectedStartDate(date)}
-            mode="calendar"
-            minimumDate={currentDate}
-            options={{
-              selectedTextColor: "#fff",
-              mainColor: "#A3D288",
-            }}
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <Text style={[styles.label, { paddingTop: 10 }]}>
+            Nom de l'annonce
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Titre de l'annonce"
+            value={title}
+            onChangeText={setTitle}
           />
-          {selectedStartDate && (
-            <View>
-              <Text style={[styles.label, { paddingTop: 10 }]}>
-                Date de fin
-              </Text>
-              <DatePicker
-                onSelectedChange={(date) => setSelectedEndDate(date)}
-                mode="calendar"
-                minimumDate={selectedStartDate}
-                current={selectedStartDate}
-                options={{
-                  selectedTextColor: "#fff",
-                  mainColor: "#A3D288",
+          {/* Adresse Google maps */}
+          <View style={{ marginBottom: 10 }}>
+            <Text style={[styles.label, { paddingTop: 10 }]}>Adresse</Text>
+            <ScrollView
+              horizontal={true}
+              nestedScrollEnabled={true}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
+              <GooglePlacesAutocomplete
+                placeholder="2 rue Alphonse Colas, Pl. du Concert, Lille"
+                onPress={(data, details = null) => {
+                  if (details) {
+                    // Extraire la ville à partir des détails de l'adresse
+                    const city = details.address_components.find((component) =>
+                      component.types.includes("locality")
+                    );
+
+                    // Extraire le code postal à partir des détails de l'adresse
+                    const postalCode = details.address_components.find(
+                      (component) => component.types.includes("postal_code")
+                    );
+
+                    // Vérifier si la ville a été trouvée
+                    if (city) {
+                      // Utiliser la ville comme vous le souhaitez
+                      console.log("Ville sélectionnée :", city.long_name);
+                      console.log("Code postal :", postalCode.long_name);
+                      // Stocker la ville dans un état par exemple
+                      setCity(city.long_name);
+                      setPostalCode(postalCode.long_name);
+                    }
+                  }
+                  // Stocker également les coordonnées si nécessaire
+                  setCoordinates(details.geometry.location);
                 }}
+                query={{
+                  key: "AIzaSyBXAHTLR9ttEAdSJ4d3Tr28Xe0mtIFESn4",
+                  language: "fr",
+                }}
+                fetchDetails={true}
+                enablePoweredByContainer={false}
               />
-            </View>
-          )}
-        </View>
-        {plants.map((plant, index) => (
-          <View
-            key={index}
-            style={styles.plantContainer}
-          >
-            <View style={styles.plantDetails}>
-              <Text>Plante {index + 1}</Text>
-              <Text>Nom: {plant.plantName}</Text>
-              <Text>Description: {plant.description}</Text>
-              <Text>Catégorie: {plant.categoryValue}</Text>
-              <Text>Sous-catégorie: {plant.subCategoryValue}</Text>
-              <Text>Images: {plant.images.length}</Text>
-            </View>
-            <TouchableOpacity onPress={() => handleRemovePlant(index)}>
-              <Icon
-                name="delete"
-                size={30}
-                color="red"
-              />
-            </TouchableOpacity>
+            </ScrollView>
           </View>
-        ))}
-        {showAddPlant ? (
-          <AddPlant onPlantAdd={handlePlantAdd} />
-        ) : (
-          <Button
-            title="Ajouter une plante"
-            onPress={handleShowAddPlant}
-          />
-        )}
-        <Button
-          title="Publier l'annonce"
-          onPress={handlePublish}
-        />
-      </ScrollView>
-    </View>
+          <View style={styles.datePicker}>
+            <Text style={[styles.label, { paddingTop: 10 }]}>
+              Date de début
+            </Text>
+            <DatePicker
+              onSelectedChange={(date) => setSelectedStartDate(date)}
+              mode="calendar"
+              minimumDate={currentDate}
+              options={{
+                selectedTextColor: "#fff",
+                mainColor: "#A3D288",
+              }}
+            />
+            {selectedStartDate && (
+              <View>
+                <Text style={[styles.label, { paddingTop: 10 }]}>
+                  Date de fin
+                </Text>
+                <DatePicker
+                  onSelectedChange={(date) => setSelectedEndDate(date)}
+                  mode="calendar"
+                  minimumDate={selectedStartDate}
+                  current={selectedStartDate}
+                  options={{
+                    selectedTextColor: "#fff",
+                    mainColor: "#A3D288",
+                  }}
+                />
+              </View>
+            )}
+          </View>
+          <View style={styles.plantsContainer}>
+            <Text style={[styles.label, { paddingTop: 10 }]}>
+              Liste des plantes
+            </Text>
+            {plants.length > 0 ? (
+              plants.map((plant, index) => (
+                <View key={index} style={styles.plantContainer}>
+                  <View style={styles.plantDetails}>
+                    <Text>Plante {index + 1}</Text>
+                    <Text>Nom: {plant.plantName}</Text>
+                    <Text>Description: {plant.description}</Text>
+                    <Text>Catégorie: {plant.categoryValue}</Text>
+                    <Text>Sous-catégorie: {plant.subCategoryValue}</Text>
+                    <Text>Images: {plant.images.length}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => handleRemovePlant(index)}>
+                    <Icon name="delete" size={30} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyMessage}>Aucune plante ajoutée</Text>
+            )}
+            {showAddPlant ? (
+              <AddPlant onPlantAdd={handlePlantAdd} />
+            ) : (
+              <View style={[styles.buttonContainer, { marginBottom: 15 }]}>
+                <ButtonEdit
+                  style={styles.buttonAddImage1}
+                  theme="primary-icon"
+                  icon="plus"
+                  label="Ajouter une plante"
+                  onPress={handleShowAddPlant}
+                />
+              </View>
+            )}
+          </View>
+          {/* Submit button */}
+          <View style={styles.sendButtonContainer}>
+            <ButtonEdit
+              style={styles.sendButton}
+              theme="primary-full"
+              label="publier l'annonce"
+              onPress={handlePublish}
+            />
+          </View>
+
+          <Text style={styles.footerText}>Soyez rassuré ...</Text>
+          <Text style={styles.footerText}>
+            L'adresse de votre logement est affiché sous la forme d'une zone
+            geograpgique et non d'un point.
+          </Text>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
   },
-  scrollContainer: {
-    flexGrow: 1,
+  label: {
+    fontSize: 15,
+    color: "#9b9b9b",
+    textAlign: "left",
+    paddingLeft: 10,
+    backgroundColor: "white",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#fff",
     padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
+    width: "100%",
+    textAlign: "left",
     backgroundColor: "white",
+  },
+  multilineInput: {
+    height: 100,
+  },
+  buttonContainer: {
+    alignItems: "center",
+    flex: 1,
+
+    justifyContent: "center",
+  },
+  ImageContainer: {
+    margin: "auto",
+    flex: 1,
+    height: 200,
+    justifyContent: "center",
+    paddingLeft: 15,
+  },
+  imageAndButton: {
+    flex: 1,
+    gap: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    height: 200,
+    justifyContent: "center",
+  },
+  buttonInImage: {
+    alignSelf: "center",
+    backgroundColor: "green",
+  },
+  imageItem: {
+    width: 150,
+    height: 150,
+  },
+  mapContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  map: {
+    width: "100%",
+    height: 300,
+  },
+  dropDownPicker: {
+    flex: 1,
+    maxHeight: 800,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  sendButtonContainer: {
+    alignItems: "center",
+    height: 100,
+    justifyContent: "center",
+  },
+  footerText: {
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 10,
+    textAlign: "center",
+    color: "grey",
+  },
+
+  invalidInput: {
+    borderColor: "red",
+  },
+  errorMessage: {
+    textAlign: "center",
+    color: "red",
+    fontSize: 12,
+  },
+  Informationcontainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  InformationMessage: {
+    color: "black",
+    color: "#9b9b9b",
+  },
+  emptyMessage: {
+    textAlign: 'center', 
+    color: '#9b9b9b', 
+    fontSize: 16, 
+    marginTop: 20, 
+    marginBottom: 10,
+  },
+  datePicker: {
+    backgroundColor: "white",
+  },
+  plantsContainer: {
+    backgroundColor: "white",
+    margin: "auto",
   },
   plantContainer: {
     marginTop: 15,
@@ -309,14 +459,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    width: "90%",
+    alignSelf: "center",
   },
   plantDetails: {
     flex: 1,
-  },
-  label: {
-    fontSize: 15,
-    color: "#9b9b9b",
-    paddingVertical: 5,
   },
   datePicker: {
     marginBottom: 20,
