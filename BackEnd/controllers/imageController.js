@@ -51,9 +51,6 @@ exports.createImage = async (req, res) => {
 
   const { image, plant_id } = req.body;
 
-  console.log('Received image:', image);
-  console.log('Received plant_id:', plant_id);
-
   try {
     const newImage = await ImageModel.create({
       image,

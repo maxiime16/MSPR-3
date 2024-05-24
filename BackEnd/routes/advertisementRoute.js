@@ -35,7 +35,67 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: integer
  *       address_id:
  *         type: integer
+ * 
+ *   AdvertisementDetail:
+ *     type: object
+ *     required:
+ *       - title
+ *       - description
+ *       - longitude
+ *       - latitude
+ *       - start_date
+ *       - end_date
+ *       - city
+ *       - postal_code
+ *       - user_id
+ *       - category_id
+ *       - sub_category_id
+ *     properties:
+ *       id:
+ *         type: integer
+ *       title:
+ *         type: string
+ *       description:
+ *         type: string
+ *       longitude:
+ *         type: number
+ *       latitude:
+ *         type: number
+ *       start_date:
+ *         type: string
+ *         format: date-time
+ *       end_date:
+ *         type: string
+ *         format: date-time
+ *       city:
+ *         type: string
+ *       postal_code:
+ *         type: string
+ *       user_id:
+ *         type: integer
+ *       category_id:
+ *         type: integer
+ *       sub_category_id:
+ *         type: integer
  */
+
+/**
+ * @swagger
+ * /api/advertisement/details:
+ *   get:
+ *     summary: Retrieve detailed advertisement information
+ *     tags: [Advertisements]
+ *     responses:
+ *       200:
+ *         description: Detailed advertisement information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/AdvertisementDetail'
+ */
+router.get("/details", advertisementController.getAdvertisementDetails);
 
 /**
  * @swagger

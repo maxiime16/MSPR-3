@@ -126,6 +126,41 @@ class AdvertisementModel {
       throw new Error(`Error updating advertisement: ${err.message}`);
     }
   }
+
+  static async getAdvertisementDetails() {
+    try {
+      const query = `
+      SELECT 
+      Advertisement.AdvertisementId,
+      Advertisement.Title AS AdvertisementTitle,
+      Advertisement.StartDate,
+      Advertisement.EndDate,
+      Address.City,
+      Address.Postal_Code,
+      SubCategory.Name AS SubCategoryName,
+      Category.Name AS CategoryName,
+      Image.Image AS FirstImage
+    FROM 
+      Advertisement
+    INNER JOIN 
+      Address ON Advertisement.AddressId = Address.AddressId
+    INNER JOIN 
+      Plant ON Advertisement.AdvertisementId = Plant.AdvertisementId
+    INNER JOIN 
+      SubCategory ON Plant.SubCategoryId = SubCategory.SubCategoryId
+    INNER JOIN 
+      Category ON SubCategory.CategoryId = Category.CategoryId
+    LEFT JOIN
+      (SELECT DISTINCT ON (PlantId) Image.Image, PlantId FROM Image ORDER BY PlantId, ImageId) AS Image
+      ON Plant.PlantId = Image.PlantId;
+    
+      `;
+      const { rows } = await pool.query(query);
+      return rows;
+    } catch (err) {
+      throw new Error(`Error retrieving advertisement details: ${err.message}`);
+    }
+  }
 }
 
 module.exports = AdvertisementModel;

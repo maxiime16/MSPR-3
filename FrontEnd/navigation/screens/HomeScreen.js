@@ -20,8 +20,6 @@ const HomeScreen = () => {
   const [categoriesWithAds, setCategoriesWithAds] = useState([]);
   // State pour le chargement initial
   const [loading, setLoading] = useState(true);
-  // State pour stocker les sous-catégories
-  const [subCategories, setSubCategories] = useState([]);
   // Hook pour la navigation
   const navigation = useNavigation();
   // State pour le rafraîchissement des données
@@ -29,64 +27,44 @@ const HomeScreen = () => {
 
   // Hook useEffect pour effectuer des actions après le rendu initial
   useEffect(() => {
-    // Fonction asynchrone pour récupérer les sous-catégories
-    const fetchSubCategories = async () => {
-      try {
-        const response = await fetch(`${IP}/subCategories`);
-        const data = await response.json();
-        setSubCategories(data);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des sous-catégories :", error);
-      }
-    };
-
-    // Appel de la fonction pour récupérer les sous-catégories
-    fetchSubCategories();
-    // Appel de la fonction pour récupérer les catégories avec les annonces
     fetchCategoriesWithAds();
   }, []);
 
-    useEffect(() => {
-      const fetchUserData = async () => {
-        try {
-          const userData = await AsyncStorage.getItem("userData");
-          console.log('================================')
-          console.log("userdata", userData)
-          console.log('================================')
-        } catch (error) {
-          console.error("Erreur lors de la récupération des données utilisateur :", error);
-        }
-      };
-    
-      fetchUserData();
-    }, []);
-  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("userData");
+        console.log('================================');
+        console.log("userdata", userData);
+        console.log('================================');
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données utilisateur :", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Fonction pour récupérer les catégories avec les annonces
   const fetchCategoriesWithAds = async () => {
     try {
-      const response = await fetch(`${IP}/categories`);
-      const data = await response.json();
+      const response = await fetch(`${IP}/category`);
+      const categoriesData = await response.json();
+      const adsResponse = await fetch(`${IP}/advertisement/details`);
+      const adsData = await adsResponse.json();
 
-      // Récupération des annonces pour chaque catégorie
-      const categoriesWithAdsData = await Promise.all(
-        data.map(async (category) => {
-          const adsResponse = await fetch(`${IP}/advertisements/category/${category.id}`);
-          const adsData = await adsResponse.json();
-          
-          // Récupération des images pour chaque annonce
-          const adsWithData = await Promise.all(
-            adsData.map(async (ad) => {
-              const imagesResponse = await fetch(`${IP}/images/all/${ad.id}`);
-              const imagesData = await imagesResponse.json();
-              return { ...ad, images: imagesData };
-            })
-          );
-          return { ...category, ads: adsWithData };
-        })
-      );
+      if (!adsData.data) {
+        throw new Error("Invalid advertisement data format");
+      }
 
-      // Mise à jour du state avec les catégories et les annonces
+      console.log('Advertisements data:', adsData.data);
+
+      // Grouper les annonces par catégorie
+      const categoriesWithAdsData = categoriesData.data.map(category => {
+        const adsForCategory = adsData.data.filter(ad => ad.categoryname === category.attributes.name);
+        return { ...category.attributes, id: category.id, ads: adsForCategory };
+      });
+
       setCategoriesWithAds(categoriesWithAdsData);
       setLoading(false); // Fin du chargement
     } catch (error) {
@@ -96,22 +74,23 @@ const HomeScreen = () => {
 
   // Fonction pour naviguer vers les détails d'une annonce
   const navigateToAdDetails = (adId) => {
-    console.log(adId)
+    console.log(adId);
     navigation.navigate("AdDetailsScreen", { adId });
   };
 
   // Fonction pour rendre un élément d'annonce
   const renderAdItem = ({ item }) => {
-    const subCategory = subCategories.find(sub => sub.id === item.sub_category_id);
-    const subCategoryName = subCategory ? subCategory.name : '';
-    const truncatedTitle = item.title.length > 50 ? item.title.slice(0, 35) + "..." : item.title;
+    const truncatedTitle = item.advertisementtitle.length > 50 ? item.advertisementtitle.slice(0, 35) + "..." : item.advertisementtitle;
+    const imageUri = item.firstimage ? `data:image/jpeg;base64,${item.firstimage}` : null;
     return (
-      <TouchableOpacity onPress={() => navigateToAdDetails(item.id)}>
+      <TouchableOpacity onPress={() => navigateToAdDetails(item.advertisementid)}>
         <View style={styles.adContainer}>
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${item.images[0].image}` }}
-            style={styles.adImage}
-          />
+          {imageUri && (
+            <Image
+              source={{ uri: imageUri }}
+              style={styles.adImage}
+            />
+          )}
           <View style={styles.MoreInfoContainer}>
             <View style={styles.adTitleContainer}>
               <Text style={styles.adTitle}>{truncatedTitle}</Text>
@@ -121,12 +100,12 @@ const HomeScreen = () => {
                   <Text style={styles.adPostaleCode}>{item.postal_code}</Text>
                 </View>
                 <View style={styles.dateContainer}>
-                  <Text style={styles.adStartDate}>{item.start_date}</Text>
+                  <Text style={styles.adStartDate}>{new Date(item.startdate).toLocaleDateString()}</Text>
                   <Text> - </Text>
-                  <Text style={styles.adEndDate}>{item.end_date}</Text>
+                  <Text style={styles.adEndDate}>{new Date(item.enddate).toLocaleDateString()}</Text>
                 </View>
                 <View style={styles.subCategoriesContainer}>
-                  <Text style={styles.subCategories}>{subCategoryName}</Text>
+                  <Text style={styles.subCategories}>{item.subcategoryname}</Text>
                 </View>
               </View>
             </View>
@@ -144,7 +123,7 @@ const HomeScreen = () => {
       <FlatList
         data={item.ads}
         renderItem={renderAdItem}
-        keyExtractor={(ad) => ad.id.toString()}
+        keyExtractor={(ad) => `${ad.advertisementid}-${item.id}`}
         horizontal={true}
         contentContainerStyle={styles.scrollViewContent}
       />

@@ -45,16 +45,6 @@ CREATE TABLE Advertisement (
     FOREIGN KEY (AddressId) REFERENCES Address(AddressId)
 );
 
-CREATE TABLE Plant (
-    PlantId SERIAL PRIMARY KEY,
-    Name_Plant VARCHAR(100),
-    Description TEXT,
-    AdvertisementId INT,
-    SubCategoryId INT,
-    FOREIGN KEY (AdvertisementId) REFERENCES Advertisement(AdvertisementId),
-    FOREIGN KEY (SubCategoryId) REFERENCES SubCategory(SubCategoryId)
-);
-
 CREATE TABLE Category (
     CategoryId SERIAL PRIMARY KEY,
     Name VARCHAR(100)
@@ -65,6 +55,16 @@ CREATE TABLE SubCategory (
     Name VARCHAR(100),
     CategoryId INT,
     FOREIGN KEY (CategoryId) REFERENCES Category(CategoryId)
+);
+
+CREATE TABLE Plant (
+    PlantId SERIAL PRIMARY KEY,
+    Name_Plant VARCHAR(100),
+    Description TEXT,
+    AdvertisementId INT,
+    SubCategoryId INT,
+    FOREIGN KEY (AdvertisementId) REFERENCES Advertisement(AdvertisementId),
+    FOREIGN KEY (SubCategoryId) REFERENCES SubCategory(SubCategoryId)
 );
 
 CREATE TABLE Image (

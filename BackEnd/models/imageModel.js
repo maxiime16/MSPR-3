@@ -34,10 +34,9 @@ class ImageModel {
   static async create({ image, plant_id }) {
     try {
       const result = await pool.query(
-        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING ImageId, PlantId",
+        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING ImageId,Image, PlantId",
         [image, plant_id]
       );
-      console.log('Image inserted successfully:', result.rows[0]);
       return result.rows[0];
     } catch (err) {
       console.error(`Error creating image: ${err.message}`);

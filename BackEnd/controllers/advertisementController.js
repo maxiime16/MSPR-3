@@ -164,3 +164,22 @@ exports.updateAdvertisement = async (req, res) => {
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
+
+exports.getAdvertisementDetails = async (req, res) => {
+  try {
+    const advertisementDetails = await AdvertisementModel.getAdvertisementDetails();
+
+    // Convertir les images Buffer en base64
+    const convertedAds = advertisementDetails.map(ad => {
+      if (ad.firstimage) {
+        ad.firstimage = ad.firstimage.toString('base64');
+      }
+      return ad;
+    });
+
+    res.status(200).json({ data: convertedAds });
+  } catch (err) {
+    console.error(`Error fetching advertisement details: ${err.message}`);
+    res.status(500).json({ errors: [{ message: "Server Error" }] });
+  }
+};
