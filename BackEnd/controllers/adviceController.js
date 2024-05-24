@@ -2,22 +2,22 @@ const AdviceModel = require("../models/adviceModel");
 const adviceSchema = require("../schemas/adviceSchema");
 
 const formatAdvice = (advice) => ({
-  type: "advices",
-  id: advice.id,
+  type: "advice",
+  id: advice.adviceid,
   attributes: {
-    advice: advice.advice,
-    advertisement_id: advice.advertisement_id,
-    user_id: advice.user_id,
+    content: advice.content,
+    user_id: advice.userid,
+    plant_id: advice.plantid,
   },
 });
 
-exports.getAllAdvices = async (req, res) => {
+exports.getAllAdvice = async (req, res) => {
   try {
-    const advices = await AdviceModel.getAll();
-    const responseData = advices.map(formatAdvice);
+    const adviceList = await AdviceModel.getAll();
+    const responseData = adviceList.map(formatAdvice);
     res.status(200).json({ data: responseData });
   } catch (err) {
-    console.error(`Error fetching advices: ${err.message}`);
+    console.error(`Error fetching advice: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
@@ -42,10 +42,10 @@ exports.createAdvice = async (req, res) => {
     return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { advice, advertisement_id, user_id } = req.body;
+  const { content, user_id, plant_id } = req.body;
 
   try {
-    const newAdvice = await AdviceModel.create({ advice, advertisement_id, user_id });
+    const newAdvice = await AdviceModel.create({ content, user_id, plant_id });
     res.status(201).json({ data: formatAdvice(newAdvice) });
   } catch (err) {
     console.error(`Error creating advice: ${err.message}`);
@@ -61,8 +61,8 @@ exports.deleteAdvice = async (req, res) => {
   }
 
   try {
-    await AdviceModel.delete(adviceId);
-    res.status(204).send();
+    const deletedAdvice = await AdviceModel.delete(adviceId);
+    res.status(204).json();
   } catch (err) {
     console.error(`Error deleting advice: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
@@ -76,14 +76,19 @@ exports.updateAdvice = async (req, res) => {
     return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { advice, advertisement_id, user_id } = req.body;
+  const { content, user_id, plant_id } = req.body;
 
   if (!adviceId) {
     return res.status(400).json({ errors: [{ message: "Missing advice ID" }] });
   }
 
   try {
-    const updatedAdvice = await AdviceModel.update(adviceId, { advice, advertisement_id, user_id });
+    const updatedAdvice = await AdviceModel.update(adviceId, { content, user_id, plant_id });
+
+    if (!updatedAdvice) {
+      return res.status(404).json({ errors: [{ message: "Advice not found" }] });
+    }
+
     res.status(200).json({ data: formatAdvice(updatedAdvice) });
   } catch (err) {
     console.error(`Error updating advice: ${err.message}`);

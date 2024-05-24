@@ -3,7 +3,7 @@ const categorySchema = require("../schemas/categorySchema");
 
 const formatCategory = (category) => ({
   type: "categories",
-  id: category.id,
+  id: category.categoryid,
   attributes: {
     name: category.name,
   },
@@ -59,8 +59,8 @@ exports.deleteCategory = async (req, res) => {
   }
 
   try {
-    await CategoryModel.delete(categoryId);
-    res.status(204).send();
+    const deletedCategory = await CategoryModel.delete(categoryId);
+    res.status(204).json();
   } catch (err) {
     console.error(`Error deleting category: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
@@ -82,6 +82,11 @@ exports.updateCategory = async (req, res) => {
 
   try {
     const updatedCategory = await CategoryModel.update(categoryId, { name });
+
+    if (!updatedCategory) {
+      return res.status(404).json({ errors: [{ message: "Category not found" }] });
+    }
+
     res.status(200).json({ data: formatCategory(updatedCategory) });
   } catch (err) {
     console.error(`Error updating category: ${err.message}`);

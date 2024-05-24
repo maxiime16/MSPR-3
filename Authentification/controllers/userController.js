@@ -8,8 +8,8 @@ dotenv.config();
 
 // Schémas de validation
 const userSchema = Joi.object({
-  first_name: Joi.string().min(1).max(30).required(),
-  last_name: Joi.string().min(1).max(30).required(),
+  first_name: Joi.string().min(1).max(50).required(),
+  last_name: Joi.string().min(1).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
 });
@@ -26,10 +26,10 @@ exports.getAll = async (req, res) => {
     const users = await UserModel.getAll();
     const responseData = users.map((user) => ({
       type: "user",
-      id: user.id,
+      id: user.userid,
       attributes: {
-        first_name: user.first_name,
-        last_name: user.last_name,
+        first_name: user.firstname,
+        last_name: user.lastname,
         email: user.email,
       },
     }));
@@ -50,10 +50,10 @@ exports.getUserByEmail = async (req, res) => {
     res.status(200).json({
       data: {
         type: "user",
-        id: user.id,
+        id: user.userid,
         attributes: {
-          first_name: user.first_name,
-          last_name: user.last_name,
+          first_name: user.firstname,
+          last_name: user.lastname,
           email: user.email,
         },
       },
@@ -74,10 +74,10 @@ exports.getUserById = async (req, res) => {
     res.status(200).json({
       data: {
         type: "user",
-        id: user.id,
+        id: user.userid,
         attributes: {
-          first_name: user.first_name,
-          last_name: user.last_name,
+          first_name: user.firstname,
+          last_name: user.lastname,
           email: user.email,
         },
       },
@@ -196,10 +196,10 @@ exports.loginUser = async (req, res) => {
     // Si le mot de passe est correct, créer un JWT
     const token = jwt.sign(
       {
-        id: user.id,
+        id: user.userid,
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
+        first_name: user.firstname,
+        last_name: user.lastname,
       },
       process.env.JWT_SECRET // Clé secrète pour signer le token
       // { expiresIn: '1h' } // Expiration du token
@@ -208,11 +208,11 @@ exports.loginUser = async (req, res) => {
     // Retourner les informations de l'utilisateur et le token JWT
     res.status(200).json({
       data: {
-        id: user.id,
+        id: user.userid,
         type: "user",
         attributes: {
-          first_name: user.first_name,
-          last_name: user.last_name,
+          first_name: user.firstname,
+          last_name: user.lastname,
           email: user.email,
           token: token,
         },

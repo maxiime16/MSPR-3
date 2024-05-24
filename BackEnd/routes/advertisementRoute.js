@@ -16,42 +16,24 @@ const advertisementController = require("../controllers/advertisementController"
  *     type: object
  *     required:
  *       - title
- *       - description
- *       - longitude
- *       - latitude
  *       - start_date
  *       - end_date
- *       - city
- *       - postal_code
  *       - user_id
- *       - category_id
- *       - sub_category_id
+ *       - address_id
  *     properties:
  *       id:
  *         type: integer
  *       title:
  *         type: string
- *       description:
- *         type: string
- *       longitude:
- *         type: number
- *       latitude:
- *         type: number
  *       start_date:
  *         type: string
  *         format: date-time
  *       end_date:
  *         type: string
  *         format: date-time
- *       city:
- *         type: string
- *       postal_code:
- *         type: string
  *       user_id:
  *         type: integer
- *       category_id:
- *         type: integer
- *       sub_category_id:
+ *       address_id:
  *         type: integer
  */
 
@@ -131,17 +113,17 @@ router.get("/user/:user_id", advertisementController.getAdvertisementByUserId);
 
 /**
  * @swagger
- * /api/advertisement/category/{category_id}:
+ * /api/advertisement/address/{address_id}:
  *   get:
- *     summary: Retrieve advertisements by category ID
+ *     summary: Retrieve advertisements by address ID
  *     tags: [Advertisements]
  *     parameters:
  *       - in: path
- *         name: category_id
+ *         name: address_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the category to retrieve advertisements for
+ *         description: The ID of the address to retrieve advertisements for
  *     responses:
  *       200:
  *         description: Advertisements found
@@ -152,11 +134,11 @@ router.get("/user/:user_id", advertisementController.getAdvertisementByUserId);
  *               items:
  *                 $ref: '#/definitions/Advertisement'
  *       400:
- *         description: Missing or invalid category ID
+ *         description: Missing or invalid address ID
  *       500:
  *         description: Server error
  */
-router.get("/category/:category_id", advertisementController.getAdvertisementByCategoryId);
+router.get("/address/:address_id", advertisementController.getAdvertisementByAddressId);
 
 /**
  * @swagger

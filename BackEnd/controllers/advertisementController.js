@@ -3,19 +3,13 @@ const advertisementSchema = require("../schemas/advertisementSchema");
 
 const formatAdvertisement = (advertisement) => ({
   type: "advertisements",
-  id: advertisement.id,
+  id: advertisement.advertisementid,
   attributes: {
     title: advertisement.title,
-    description: advertisement.description,
-    longitude: advertisement.longitude,
-    latitude: advertisement.latitude,
-    start_date: advertisement.start_date,
-    end_date: advertisement.end_date,
-    city: advertisement.city,
-    postal_code: advertisement.postal_code,
-    user_id: advertisement.user_id,
-    category_id: advertisement.category_id,
-    sub_category_id: advertisement.sub_category_id,
+    start_date: advertisement.startdate,
+    end_date: advertisement.enddate,
+    user_id: advertisement.userid,
+    address_id: advertisement.addressid,
   },
 });
 
@@ -33,12 +27,13 @@ exports.getAllAdvertisements = async (req, res) => {
 exports.getAdvertisementById = async (req, res) => {
   const advertisementId = req.params.id;
   if (!advertisementId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing advertisement ID" }] });
+    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
   }
   try {
     const advertisement = await AdvertisementModel.getById(advertisementId);
+    if (!advertisement) {
+      return res.status(404).json({ errors: [{ message: "Advertisement not found" }] });
+    }
     res.status(200).json({ data: formatAdvertisement(advertisement) });
   } catch (err) {
     console.error(`Error fetching advertisement by ID: ${err.message}`);
@@ -53,6 +48,9 @@ exports.getAdvertisementByUserId = async (req, res) => {
   }
   try {
     const advertisements = await AdvertisementModel.getByUserId(userId);
+    if (advertisements.length === 0) {
+      return res.status(404).json({ errors: [{ message: "Advertisements not found for this user" }] });
+    }
     const responseData = advertisements.map(formatAdvertisement);
     res.status(200).json({ data: responseData });
   } catch (err) {
@@ -61,21 +59,20 @@ exports.getAdvertisementByUserId = async (req, res) => {
   }
 };
 
-exports.getAdvertisementByCategoryId = async (req, res) => {
-  const categoryId = req.params.category_id;
-  if (!categoryId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing category ID" }] });
+exports.getAdvertisementByAddressId = async (req, res) => {
+  const addressId = req.params.address_id;
+  if (!addressId) {
+    return res.status(400).json({ errors: [{ message: "Missing address ID" }] });
   }
   try {
-    const advertisements = await AdvertisementModel.getByCategoryId(categoryId);
+    const advertisements = await AdvertisementModel.getByAddressId(addressId);
+    if (advertisements.length === 0) {
+      return res.status(404).json({ errors: [{ message: "Advertisements not found for this address" }] });
+    }
     const responseData = advertisements.map(formatAdvertisement);
     res.status(200).json({ data: responseData });
   } catch (err) {
-    console.error(
-      `Error fetching advertisements by category ID: ${err.message}`
-    );
+    console.error(`Error fetching advertisements by address ID: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
@@ -83,38 +80,24 @@ exports.getAdvertisementByCategoryId = async (req, res) => {
 exports.createAdvertisement = async (req, res) => {
   const { error } = advertisementSchema.validate(req.body);
   if (error) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: error.details[0].message }] });
+    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
   const {
     title,
-    description,
-    longitude,
-    latitude,
     start_date,
     end_date,
-    city,
-    postal_code,
     user_id,
-    category_id,
-    sub_category_id,
+    address_id,
   } = req.body;
 
   try {
     const newAdvertisement = await AdvertisementModel.create({
       title,
-      description,
-      longitude,
-      latitude,
       start_date,
       end_date,
-      city,
-      postal_code,
       user_id,
-      category_id,
-      sub_category_id,
+      address_id,
     });
 
     res.status(201).json({ data: formatAdvertisement(newAdvertisement) });
@@ -128,13 +111,14 @@ exports.deleteAdvertisement = async (req, res) => {
   const advertisementId = req.params.id;
 
   if (!advertisementId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing advertisement ID" }] });
+    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
   }
 
   try {
-    await AdvertisementModel.delete(advertisementId);
+    const deletedAdvertisement = await AdvertisementModel.delete(advertisementId);
+    if (!deletedAdvertisement) {
+      return res.status(404).json({ errors: [{ message: "Advertisement not found" }] });
+    }
     res.status(204).json();
   } catch (err) {
     console.error(`Error deleting advertisement: ${err.message}`);
@@ -146,48 +130,33 @@ exports.updateAdvertisement = async (req, res) => {
   const advertisementId = req.params.id;
   const { error } = advertisementSchema.validate(req.body);
   if (error) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: error.details[0].message }] });
+    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
   const {
     title,
-    description,
-    longitude,
-    latitude,
     start_date,
     end_date,
-    city,
-    postal_code,
     user_id,
-    category_id,
-    sub_category_id,
+    address_id,
   } = req.body;
 
   if (!advertisementId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing advertisement ID" }] });
+    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
   }
 
   try {
-    const updatedAdvertisement = await AdvertisementModel.update(
-      advertisementId,
-      {
-        title,
-        description,
-        longitude,
-        latitude,
-        start_date,
-        end_date,
-        city,
-        postal_code,
-        user_id,
-        category_id,
-        sub_category_id,
-      }
-    );
+    const updatedAdvertisement = await AdvertisementModel.update(advertisementId, {
+      title,
+      start_date,
+      end_date,
+      user_id,
+      address_id,
+    });
+
+    if (!updatedAdvertisement) {
+      return res.status(404).json({ errors: [{ message: "Advertisement not found" }] });
+    }
 
     res.status(200).json({ data: formatAdvertisement(updatedAdvertisement) });
   } catch (err) {

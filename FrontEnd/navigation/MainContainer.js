@@ -16,6 +16,7 @@ import AdDetailsScreen from "./screens/AdDetailsScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
 import GeneralConditionsOfUse from "./screens/GeneralConditionsOfUse";
+import AddAdvertisementScreen from "./screens/AddAdvertisementScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,8 @@ function MainTabs() {
             iconName = focused ? "search" : "search-outline";
           } else if (route.name === "Ajouter") {
             iconName = focused ? "add-circle" : "add-circle-outline";
+          } else if (route.name === "Add") {
+            iconName = focused ? "add-circle" : "add-circle-outline";
           } else if (route.name === "Message") {
             iconName = focused ? "chatbubbles" : "chatbubbles-outline";
           } else if (route.name === "Profil") {
@@ -83,6 +86,19 @@ function MainTabs() {
       <Tab.Screen
         name="Ajouter"
         component={AddScreen}
+        options={{
+          headerShown: true, // Afficher l'en-tête
+          headerStyle: { height: 110}, // Style de l'en-tête
+          headerTintColor: "white", // Couleur du texte de l'en-tête
+          headerTitle: () => (
+            <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
+          ),
+
+        }}
+      />
+            <Tab.Screen
+        name="Add"
+        component={AddAdvertisementScreen}
         options={{
           headerShown: true, // Afficher l'en-tête
           headerStyle: { height: 110}, // Style de l'en-tête

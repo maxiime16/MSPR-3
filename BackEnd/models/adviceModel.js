@@ -3,16 +3,19 @@ const pool = require("../config/db");
 class AdviceModel {
   static async getAll() {
     try {
-      const advicesDataResult = await pool.query("SELECT * FROM advice");
-      return advicesDataResult.rows;
+      const adviceDataResult = await pool.query("SELECT * FROM Advice");
+      return adviceDataResult.rows;
     } catch (err) {
-      throw new Error(`Error retrieving advices: ${err.message}`);
+      throw new Error(`Error retrieving advice: ${err.message}`);
     }
   }
 
-  static async getById(adviceID) {
+  static async getById(adviceId) {
     try {
-      const adviceDataResult = await pool.query("SELECT * FROM advice WHERE id = $1", [adviceID]);
+      const adviceDataResult = await pool.query(
+        "SELECT * FROM Advice WHERE AdviceId = $1",
+        [adviceId]
+      );
       if (adviceDataResult.rows.length === 0) {
         throw new Error("Advice not found");
       }
@@ -22,12 +25,13 @@ class AdviceModel {
     }
   }
 
-  static async create({ advice, advertisement_id, user_id }) {
+  static async create({ content, user_id, plant_id }) {
     try {
       const newAdviceDataResult = await pool.query(
-        "INSERT INTO advice (advice, advertisement_id, user_id) VALUES ($1, $2, $3) RETURNING *",
-        [advice, advertisement_id, user_id]
+        "INSERT INTO Advice (Content, UserId, PlantId) VALUES ($1, $2, $3) RETURNING *",
+        [content, user_id, plant_id]
       );
+
       return newAdviceDataResult.rows[0];
     } catch (err) {
       throw new Error(`Error creating advice: ${err.message}`);
@@ -36,7 +40,9 @@ class AdviceModel {
 
   static async delete(adviceId) {
     try {
-      const result = await pool.query("DELETE FROM advice WHERE id = $1 RETURNING *", [adviceId]);
+      const result = await pool.query("DELETE FROM Advice WHERE AdviceId = $1 RETURNING *", [
+        adviceId,
+      ]);
       if (result.rows.length === 0) {
         throw new Error("Advice not found");
       }
@@ -46,18 +52,18 @@ class AdviceModel {
     }
   }
 
-  static async update(adviceId, { advice, advertisement_id, user_id }) {
+  static async update(adviceId, { content, user_id, plant_id }) {
     try {
-      const updateAdviceDataResult = await pool.query(
-        "UPDATE advice SET advice = $1, advertisement_id = $2, user_id = $3 WHERE id = $4 RETURNING *",
-        [advice, advertisement_id, user_id, adviceId]
+      const updatedAdviceDataResult = await pool.query(
+        "UPDATE Advice SET Content = $1, UserId = $2, PlantId = $3 WHERE AdviceId = $4 RETURNING *",
+        [content, user_id, plant_id, adviceId]
       );
 
-      if (updateAdviceDataResult.rows.length === 0) {
+      if (updatedAdviceDataResult.rows.length === 0) {
         throw new Error("Advice not found");
       }
 
-      return updateAdviceDataResult.rows[0];
+      return updatedAdviceDataResult.rows[0];
     } catch (err) {
       throw new Error(`Error updating advice: ${err.message}`);
     }

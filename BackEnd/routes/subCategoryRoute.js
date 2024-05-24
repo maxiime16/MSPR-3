@@ -18,7 +18,7 @@ const subCategoryController = require("../controllers/subCategoryController");
  *       - name
  *       - category_id
  *     properties:
- *       id:
+ *       sub_category_id:
  *         type: integer
  *       name:
  *         type: string

@@ -1,159 +1,162 @@
 const express = require("express");
 const router = express.Router();
-const adviceController = require("../controllers/adviceController");
+const plantController = require("../controllers/plantController");
 
 /**
  * @swagger
  * tags:
- *   name: Advice
- *   description: Operations related to advice
+ *   name: Plants
+ *   description: Operations related to plants
  */
 
 /**
  * @swagger
  * definitions:
- *   Advice:
+ *   Plant:
  *     type: object
  *     required:
- *       - content
- *       - user_id
- *       - plant_id
+ *       - name_plant
+ *       - description
+ *       - advertisement_id
+ *       - subcategory_id
  *     properties:
  *       id:
  *         type: integer
- *       content:
+ *       name_plant:
  *         type: string
- *       user_id:
+ *       description:
+ *         type: string
+ *       advertisement_id:
  *         type: integer
- *       plant_id:
+ *       subcategory_id:
  *         type: integer
  */
 
 /**
  * @swagger
- * /api/advice:
+ * /api/plant:
  *   get:
- *     summary: Retrieve a list of advice
- *     tags: [Advice]
+ *     summary: Retrieve a list of plants
+ *     tags: [Plants]
  *     responses:
  *       200:
- *         description: A list of advice
+ *         description: A list of plants
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/definitions/Advice'
+ *                 $ref: '#/definitions/Plant'
  */
-router.get("/", adviceController.getAllAdvice);
+router.get("/", plantController.getAllPlants);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/plant/{id}:
  *   get:
- *     summary: Retrieve advice by ID
- *     tags: [Advice]
+ *     summary: Retrieve a plant by ID
+ *     tags: [Plants]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to retrieve
+ *         description: The ID of the plant to retrieve
  *     responses:
  *       200:
- *         description: Advice found
+ *         description: Plant found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Plant'
  *       400:
  *         description: Missing or invalid ID
  *       500:
  *         description: Server error
  */
-router.get("/:id", adviceController.getAdviceById);
+router.get("/:id", plantController.getPlantById);
 
 /**
  * @swagger
- * /api/advice:
+ * /api/plant:
  *   post:
- *     summary: Create new advice
- *     tags: [Advice]
+ *     summary: Create a new plant
+ *     tags: [Plants]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/definitions/Advice'
+ *             $ref: '#/definitions/Plant'
  *     responses:
  *       201:
- *         description: Advice created
+ *         description: Plant created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Plant'
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.post("/", adviceController.createAdvice);
+router.post("/", plantController.createPlant);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/plant/{id}:
  *   put:
- *     summary: Update advice
- *     tags: [Advice]
+ *     summary: Update a plant
+ *     tags: [Plants]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to update
+ *         description: The ID of the plant to update
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/definitions/Advice'
+ *             $ref: '#/definitions/Plant'
  *     responses:
  *       200:
- *         description: Advice updated
+ *         description: Plant updated
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Plant'
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.put("/:id", adviceController.updateAdvice);
+router.put("/:id", plantController.updatePlant);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/plant/{id}:
  *   delete:
- *     summary: Delete advice
- *     tags: [Advice]
+ *     summary: Delete a plant
+ *     tags: [Plants]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to delete
+ *         description: The ID of the plant to delete
  *     responses:
  *       204:
- *         description: Advice deleted
+ *         description: Plant deleted
  *       400:
  *         description: Missing or invalid ID
  *       500:
  *         description: Server error
  */
-router.delete("/:id", adviceController.deleteAdvice);
+router.delete("/:id", plantController.deletePlant);
 
 module.exports = router;

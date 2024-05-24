@@ -3,7 +3,7 @@ const pool = require("../config/db");
 class AdvertisementModel {
   static async getAll() {
     try {
-      const advertisementsDataResult = await pool.query("SELECT * FROM advertisements");
+      const advertisementsDataResult = await pool.query("SELECT * FROM Advertisement");
       return advertisementsDataResult.rows;
     } catch (err) {
       throw new Error(`Error retrieving advertisements: ${err.message}`);
@@ -13,7 +13,7 @@ class AdvertisementModel {
   static async getById(advertisementID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM advertisements WHERE id = $1",
+        "SELECT * FROM Advertisement WHERE AdvertisementId = $1",
         [advertisementID]
       );
       if (advertisementDataResult.rows.length === 0) {
@@ -28,7 +28,7 @@ class AdvertisementModel {
   static async getByUserId(userID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM advertisements WHERE user_id = $1",
+        "SELECT * FROM Advertisement WHERE UserId = $1",
         [userID]
       );
       if (advertisementDataResult.rows.length === 0) {
@@ -40,49 +40,37 @@ class AdvertisementModel {
     }
   }
 
-  static async getByCategoryId(categoryID) {
+  static async getByAddressId(addressID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM advertisements WHERE category_id = $1",
-        [categoryID]
+        "SELECT * FROM Advertisement WHERE AddressId = $1",
+        [addressID]
       );
       if (advertisementDataResult.rows.length === 0) {
         throw new Error("Advertisement not found");
       }
       return advertisementDataResult.rows;
     } catch (err) {
-      throw new Error(`Error retrieving advertisements for category: ${err.message}`);
+      throw new Error(`Error retrieving advertisements for address: ${err.message}`);
     }
   }
 
   static async create({
     title,
-    description,
-    longitude,
-    latitude,
     start_date,
     end_date,
-    city,
-    postal_code,
     user_id,
-    category_id,
-    sub_category_id,
+    address_id,
   }) {
     try {
       const newAdvertisementDataResult = await pool.query(
-        "INSERT INTO advertisements (title, description, longitude, latitude, start_date, end_date, city, postal_code, user_id, category_id, sub_category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+        "INSERT INTO Advertisement (Title, StartDate, EndDate, UserId, AddressId) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [
           title,
-          description,
-          longitude,
-          latitude,
           start_date,
           end_date,
-          city,
-          postal_code,
           user_id,
-          category_id,
-          sub_category_id,
+          address_id,
         ]
       );
 
@@ -94,7 +82,7 @@ class AdvertisementModel {
 
   static async delete(advertisementId) {
     try {
-      const result = await pool.query("DELETE FROM advertisements WHERE id = $1 RETURNING *", [
+      const result = await pool.query("DELETE FROM Advertisement WHERE AdvertisementId = $1 RETURNING *", [
         advertisementId,
       ]);
       if (result.rows.length === 0) {
@@ -110,33 +98,21 @@ class AdvertisementModel {
     advertisementId,
     {
       title,
-      description,
-      longitude,
-      latitude,
       start_date,
       end_date,
-      city,
-      postal_code,
       user_id,
-      category_id,
-      sub_category_id,
+      address_id,
     }
   ) {
     try {
       const updatedAdvertisementDataResult = await pool.query(
-        "UPDATE advertisements SET title = $1, description = $2, longitude = $3, latitude = $4, start_date = $5, end_date = $6, city = $7, postal_code = $8, user_id = $9, category_id = $10, sub_category_id = $11 WHERE id = $12 RETURNING *",
+        "UPDATE Advertisement SET Title = $1, StartDate = $2, EndDate = $3, UserId = $4, AddressId = $5 WHERE AdvertisementId = $6 RETURNING *",
         [
           title,
-          description,
-          longitude,
-          latitude,
           start_date,
           end_date,
-          city,
-          postal_code,
           user_id,
-          category_id,
-          sub_category_id,
+          address_id,
           advertisementId,
         ]
       );

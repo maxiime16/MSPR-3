@@ -3,16 +3,19 @@ const pool = require("../config/db");
 class CategoryModel {
   static async getAll() {
     try {
-      const categoryDataResult = await pool.query("SELECT * FROM category");
+      const categoryDataResult = await pool.query("SELECT * FROM Category");
       return categoryDataResult.rows;
     } catch (err) {
       throw new Error(`Error retrieving categories: ${err.message}`);
     }
   }
 
-  static async getById(categoryID) {
+  static async getById(categoryId) {
     try {
-      const categoryDataResult = await pool.query("SELECT * FROM category WHERE id = $1", [categoryID]);
+      const categoryDataResult = await pool.query(
+        "SELECT * FROM Category WHERE CategoryId = $1",
+        [categoryId]
+      );
       if (categoryDataResult.rows.length === 0) {
         throw new Error("Category not found");
       }
@@ -25,18 +28,21 @@ class CategoryModel {
   static async create({ name }) {
     try {
       const newCategoryDataResult = await pool.query(
-        "INSERT INTO category (name) VALUES ($1) RETURNING *",
+        "INSERT INTO Category (Name) VALUES ($1) RETURNING *",
         [name]
       );
+
       return newCategoryDataResult.rows[0];
     } catch (err) {
       throw new Error(`Error creating category: ${err.message}`);
     }
   }
 
-  static async delete(categoryID) {
+  static async delete(categoryId) {
     try {
-      const result = await pool.query("DELETE FROM category WHERE id = $1 RETURNING *", [categoryID]);
+      const result = await pool.query("DELETE FROM Category WHERE CategoryId = $1 RETURNING *", [
+        categoryId,
+      ]);
       if (result.rows.length === 0) {
         throw new Error("Category not found");
       }
@@ -46,18 +52,18 @@ class CategoryModel {
     }
   }
 
-  static async update(categoryID, { name }) {
+  static async update(categoryId, { name }) {
     try {
-      const updateCategoryDataResult = await pool.query(
-        "UPDATE category SET name = $1 WHERE id = $2 RETURNING *",
-        [name, categoryID]
+      const updatedCategoryDataResult = await pool.query(
+        "UPDATE Category SET Name = $1 WHERE CategoryId = $2 RETURNING *",
+        [name, categoryId]
       );
 
-      if (updateCategoryDataResult.rows.length === 0) {
+      if (updatedCategoryDataResult.rows.length === 0) {
         throw new Error("Category not found");
       }
 
-      return updateCategoryDataResult.rows[0];
+      return updatedCategoryDataResult.rows[0];
     } catch (err) {
       throw new Error(`Error updating category: ${err.message}`);
     }

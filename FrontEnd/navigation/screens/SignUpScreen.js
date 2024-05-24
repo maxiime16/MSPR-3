@@ -11,6 +11,7 @@ import ButtonEdit from "../../components/button";
 import Checkbox from 'expo-checkbox';
 
 const IP = IP_Auth;
+
 const SignUpScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,13 +20,12 @@ const SignUpScreen = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isChecked, setChecked] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Vérification des champs du formulaire
     if (!firstName || !lastName || !email || !password) {
       setErrorMessage("Veuillez remplir tous les champs du formulaire.");
       return;
     }
-
 
     // Vérification du format de l'adresse e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,34 +48,33 @@ const SignUpScreen = ({ navigation }) => {
 
     // Création de l'objet contenant les données du formulaire
     const userData = {
-      "first_name": firstName,
-      "last_name": lastName,
-      "email": email,
-      "password": password,
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      password: password,
     };
 
-    fetch(`${IP}/user`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Success:", data);
-        navigation.navigate('Login');
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setErrorMessage(error.message);
+    try {
+      const response = await fetch(`${IP}/user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
       });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.errors[0].title || 'Error during signup');
+      }
+
+      const data = await response.json();
+      console.log("Success:", data);
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage(error.message);
+    }
   };
 
   return (

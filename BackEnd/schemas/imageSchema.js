@@ -1,8 +1,8 @@
 const Joi = require("joi");
 
-const ImageSchema = Joi.object({
-    advertisement_id: Joi.number().integer().required(),
-    image: Joi.binary().required()
-})
+const imageSchema = Joi.object({
+  image: Joi.string().base64().required(),
+  plant_id: Joi.number().integer().required(),
+});
 
-module.exports = ImageSchema;
+module.exports = imageSchema;

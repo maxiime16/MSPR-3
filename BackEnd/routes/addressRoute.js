@@ -1,159 +1,162 @@
 const express = require("express");
 const router = express.Router();
-const adviceController = require("../controllers/adviceController");
+const addressController = require("../controllers/addressController");
 
 /**
  * @swagger
  * tags:
- *   name: Advice
- *   description: Operations related to advice
+ *   name: Addresses
+ *   description: Operations related to addresses
  */
 
 /**
  * @swagger
  * definitions:
- *   Advice:
+ *   Address:
  *     type: object
  *     required:
- *       - content
- *       - user_id
- *       - plant_id
+ *       - city
+ *       - postal_code
+ *       - longitude
+ *       - latitude
  *     properties:
  *       id:
  *         type: integer
- *       content:
+ *       city:
  *         type: string
- *       user_id:
- *         type: integer
- *       plant_id:
- *         type: integer
+ *       postal_code:
+ *         type: string
+ *       longitude:
+ *         type: number
+ *       latitude:
+ *         type: number
  */
 
 /**
  * @swagger
- * /api/advice:
+ * /api/address:
  *   get:
- *     summary: Retrieve a list of advice
- *     tags: [Advice]
+ *     summary: Retrieve a list of addresses
+ *     tags: [Addresses]
  *     responses:
  *       200:
- *         description: A list of advice
+ *         description: A list of addresses
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/definitions/Advice'
+ *                 $ref: '#/definitions/Address'
  */
-router.get("/", adviceController.getAllAdvice);
+router.get("/", addressController.getAllAddresses);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/address/{id}:
  *   get:
- *     summary: Retrieve advice by ID
- *     tags: [Advice]
+ *     summary: Retrieve an address by ID
+ *     tags: [Addresses]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to retrieve
+ *         description: The ID of the address to retrieve
  *     responses:
  *       200:
- *         description: Advice found
+ *         description: Address found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Address'
  *       400:
  *         description: Missing or invalid ID
  *       500:
  *         description: Server error
  */
-router.get("/:id", adviceController.getAdviceById);
+router.get("/:id", addressController.getAddressById);
 
 /**
  * @swagger
- * /api/advice:
+ * /api/address:
  *   post:
- *     summary: Create new advice
- *     tags: [Advice]
+ *     summary: Create a new address
+ *     tags: [Addresses]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/definitions/Advice'
+ *             $ref: '#/definitions/Address'
  *     responses:
  *       201:
- *         description: Advice created
+ *         description: Address created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Address'
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.post("/", adviceController.createAdvice);
+router.post("/", addressController.createAddress);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/address/{id}:
  *   put:
- *     summary: Update advice
- *     tags: [Advice]
+ *     summary: Update an address
+ *     tags: [Addresses]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to update
+ *         description: The ID of the address to update
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/definitions/Advice'
+ *             $ref: '#/definitions/Address'
  *     responses:
  *       200:
- *         description: Advice updated
+ *         description: Address updated
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/Advice'
+ *               $ref: '#/definitions/Address'
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
  */
-router.put("/:id", adviceController.updateAdvice);
+router.put("/:id", addressController.updateAddress);
 
 /**
  * @swagger
- * /api/advice/{id}:
+ * /api/address/{id}:
  *   delete:
- *     summary: Delete advice
- *     tags: [Advice]
+ *     summary: Delete an address
+ *     tags: [Addresses]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The ID of the advice to delete
+ *         description: The ID of the address to delete
  *     responses:
  *       204:
- *         description: Advice deleted
+ *         description: Address deleted
  *       400:
  *         description: Missing or invalid ID
  *       500:
  *         description: Server error
  */
-router.delete("/:id", adviceController.deleteAdvice);
+router.delete("/:id", addressController.deleteAddress);
 
 module.exports = router;

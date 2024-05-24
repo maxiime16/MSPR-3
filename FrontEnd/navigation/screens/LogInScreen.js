@@ -66,49 +66,49 @@ const LogInScreen = () => {
 
   
   const handleLogin = async () => {
-    
-    
     try {
       // Création de l'objet contenant les données du formulaire
       const userForm = {
-        "email": email,
-        "password": password,
+        email: email,
+        password: password,
       };
+  
       const response = await fetch(`${IP}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify( userForm ),
+        body: JSON.stringify(userForm),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error); // Lève une erreur avec le message d'erreur du backend
+        throw new Error(errorData.errors[0].title); // Lève une erreur avec le message d'erreur du backend
       }
-
-      const userData = await response.json();//info de l'utilisateur dans la réponse du serveur
+  
+      const userData = await response.json(); //info de l'utilisateur dans la réponse du serveur
       console.log('======================================================')
       console.log('userData renvoyé', userData)
-
-      const token = response.headers.get("Authorization");
-      console.log("token", userData.data.attributes.token);
+  
+      const token = userData.data.attributes.token;
+      console.log("token", token);
       console.log('======================================================')
-
+  
       const userDataString = JSON.stringify(userData);
       // Stockage JWT et data user dans AsyncStorage
-      await AsyncStorage.setItem("userToken", userData.data.attributes.token);
+      await AsyncStorage.setItem("userToken", token);
       await AsyncStorage.setItem("userData", userDataString);
-
+  
       setEmail("");
       setPassword("");
-
+  
       navigation.navigate("MainTabs");
     } catch (error) {
       console.error("Error logging in:", error);
       setErrorMessage(error.message);
     }
   };
+  
 
   // Fonction pour naviguer vers la page SignUpScreen
   const goToSignUpScreen = () => {

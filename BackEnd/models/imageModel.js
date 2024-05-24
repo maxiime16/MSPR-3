@@ -1,60 +1,59 @@
 const pool = require("../config/db");
 
 class ImageModel {
-
-//MÉTHODE DE RÉCUPÉRATION DE TOUTE LES IMAGES
   static async getAll() {
     try {
-      const imageDataResult = await pool.query("SELECT * FROM images");
-      return imageDataResult.rows;
+      const imagesDataResult = await pool.query("SELECT * FROM Image");
+      return imagesDataResult.rows;
     } catch (err) {
+      console.error(`Error retrieving images: ${err.message}`);
       throw new Error(`Error retrieving images: ${err.message}`);
     }
   }
 
-//METHODE DE RÉCUPÉRATION PAR ID
-  static async getImageById(imageId) {
+  static async getById(imageId) {
     try {
-      const imageDataResultGetById = await pool.query(
-        "SELECT * FROM images WHERE id = $1",
-        [imageId]
-      );
-      if (imageDataResultGetById.rows.length === 0) {
-        return null
-      }
-      return imageDataResultGetById.rows[0];
+      const imageDataResult = await pool.query("SELECT * FROM Image WHERE ImageId = $1", [imageId]);
+      return imageDataResult.rows[0];
     } catch (err) {
+      console.error(`Error retrieving image: ${err.message}`);
       throw new Error(`Error retrieving image: ${err.message}`);
     }
   }
 
-//MÉTHODE DE CREATION IMAGES
-  static async CreateImage({
-    id,
-    image
-  }) {
+  static async getByPlantId(plantId) {
     try {
-        const newImageDataResult = await pool.query(
-            'INSERT INTO image (id, image)',[
-                id,
-                image
-            ]
-        );
-        return newImageDataResult.rows[0];
-    } catch (err){
-        throw new Error (`Error cerating images: ${err.message}`);
+      const imagesDataResult = await pool.query("SELECT * FROM Image WHERE PlantId = $1", [plantId]);
+      return imagesDataResult.rows;
+    } catch (err) {
+      console.error(`Error retrieving images: ${err.message}`);
+      throw new Error(`Error retrieving images: ${err.message}`);
     }
   }
-  //MÉTHODE DE SUPPRESSION
-  static async DeleteImage(imageId){
+
+  static async create({ image, plant_id }) {
     try {
-        const result = await pool.query(`DELETE FROM images WHERE id = $1 RETURNING *`,[imageId]);
-        if (result.rows.length === 0)
-            throw new Error ("Images not founds");
-            return null;
-    } catch (err ){
-        throw new Error(`Error deleting Images ${err.message}`);
+      const result = await pool.query(
+        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING ImageId, PlantId",
+        [image, plant_id]
+      );
+      console.log('Image inserted successfully:', result.rows[0]);
+      return result.rows[0];
+    } catch (err) {
+      console.error(`Error creating image: ${err.message}`);
+      throw new Error(`Error creating image: ${err.message}`);
+    }
+  }
+
+  static async delete(imageId) {
+    try {
+      const result = await pool.query("DELETE FROM Image WHERE ImageId = $1 RETURNING ImageId", [imageId]);
+      return result.rows[0];
+    } catch (err) {
+      console.error(`Error deleting image: ${err.message}`);
+      throw new Error(`Error deleting image: ${err.message}`);
     }
   }
 }
+
 module.exports = ImageModel;

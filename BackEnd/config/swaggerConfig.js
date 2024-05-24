@@ -9,9 +9,10 @@ const options = {
             description: 'Documentation de votre API',
         },
     },
-    apis: ['routes/advertisementRoute.js', 'routes/adviceRoute.js', 'routes/categoryRoute.js', 'routes/subCategoryRoute.js', 'routes/imageRoute.js' ],
+    apis: ['routes/addressRoute.js', 'routes/advertisementRoute.js', 'routes/adviceRoute.js', 'routes/categoryRoute.js', 'routes/subCategoryRoute.js', 'routes/imageRoute.js', 'routes/plantRoute.js', ],
 };
 
 const specs = swaggerJsdoc(options);
 
 module.exports = { specs, swaggerUi };
+// 'routes/adviceRoute.js', 'routes/categoryRoute.js', 'routes/subCategoryRoute.js', 'routes/imageRoute.js'
