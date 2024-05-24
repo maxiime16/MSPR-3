@@ -160,7 +160,15 @@ export default function AddPlant({ onPlantAdd }) {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ScrollView style={styles.container} nestedScrollEnabled={true}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          justifyContent: "center", // Centre verticalement tous les enfants si nécessaire
+          alignItems: "center", // Centre horizontalement
+          padding: 20,
+        }}
+        nestedScrollEnabled={true}
+      >
         <Text style={styles.label}>Nom de la plante</Text>
         <TextInput
           style={styles.input}
@@ -308,6 +316,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 5,
     backgroundColor: "white",
+    width: "100%",
   },
   multilineInput: {
     height: 100,
@@ -318,10 +327,14 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginVertical: 15,
+    flexDirection: "row", // S'assurer que les éléments sont en ligne
+    justifyContent: "center", // Centrer les éléments horizontalement
+    alignItems: "center", // Centrer les éléments verticalement si nécessaire
   },
   imageAndButton: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 15,
   },
   imageItem: {
     width: 100,
