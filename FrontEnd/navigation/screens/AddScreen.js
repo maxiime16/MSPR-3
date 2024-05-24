@@ -33,7 +33,6 @@ export default function AddScreen({ navigation }) {
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [coordinates, setCoordinates] = useState(null);
   //Category selection
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState(null);
@@ -47,6 +46,7 @@ export default function AddScreen({ navigation }) {
   const [selectedEndDate, setSelectedEndDate] = useState('');
   const currentDate = getToday();
   
+  const [coordinates, setCoordinates] = useState(null);
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
   
@@ -364,7 +364,7 @@ export default function AddScreen({ navigation }) {
                   setCoordinates(details.geometry.location);
                 }}
                 query={{
-                  key: "AIzaSyBk7T5n-mYooDyw9eHCK1OkOs4AQp4Ttq4",
+                  key: "AIzaSyBXAHTLR9ttEAdSJ4d3Tr28Xe0mtIFESn4",
                   language: "fr",
                 }}
                 fetchDetails={true}
