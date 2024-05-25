@@ -68,6 +68,36 @@ class PlantModel {
       throw new Error(`Error updating plant: ${err.message}`);
     }
   }
+
+  static async getPlantsByAdvertisementId(advertisementId) {
+    try {
+      const plantDataResult = await pool.query(
+        `
+      SELECT 
+        p.PlantId,
+        p.Name_Plant,
+        p.Description,
+        s.Name AS SubCategoryName,
+        c.Name AS CategoryName
+      FROM 
+        Plant p
+      INNER JOIN 
+        SubCategory s ON p.SubCategoryId = s.SubCategoryId
+      INNER JOIN 
+        Category c ON s.CategoryId = c.CategoryId
+      WHERE 
+        p.AdvertisementId = $1;
+    `,
+        [advertisementId]
+      );
+      if (plantDataResult.rows.length === 0) {
+        throw new Error("Plant not found");
+      }
+      return plantDataResult.rows; // Retourne toutes les lignes trouvées
+    } catch (err) {
+      throw new Error(`Error retrieving plant: ${err.message}`);
+    }
+  }
 }
 
 module.exports = PlantModel;

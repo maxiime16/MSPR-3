@@ -159,4 +159,46 @@ router.put("/:id", plantController.updatePlant);
  */
 router.delete("/:id", plantController.deletePlant);
 
+/**
+ * @swagger
+ * /api/plant/advertisement/{id}:
+ *   get:
+ *     summary: Retrieve plants by advertisement ID
+ *     tags: [Plants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the advertisement to retrieve plants for
+ *     responses:
+ *       200:
+ *         description: Plants found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   plantId:
+ *                     type: integer
+ *                   name_plant:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   subCategoryName:
+ *                     type: string
+ *                   categoryName:
+ *                     type: string
+ *       400:
+ *         description: Missing or invalid advertisement ID
+ *       404:
+ *         description: No plants found
+ *       500:
+ *         description: Server error
+ */
+router.get("/advertisement/:id", plantController.getPlantsByAdvertisementId);
+
 module.exports = router;

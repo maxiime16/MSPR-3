@@ -36,6 +36,20 @@ exports.getAdviceById = async (req, res) => {
   }
 };
 
+exports.getAdviceByPlantId = async (req, res) => {
+  const plantId = req.params.plant_id;
+  if (!plantId) {
+    return res.status(400).json({ errors: [{ message: "Missing plant ID" }] });
+  }
+  try {
+    const adviceList = await AdviceModel.getByPlantId(plantId);
+    res.status(200).json({ data: adviceList });
+  } catch (err) {
+    console.error(`Error fetching advice by plant ID: ${err.message}`);
+    res.status(500).json({ errors: [{ message: "Server Error" }] });
+  }
+};
+
 exports.createAdvice = async (req, res) => {
   const { error } = adviceSchema.validate(req.body);
   if (error) {

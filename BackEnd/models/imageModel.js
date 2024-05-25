@@ -23,7 +23,7 @@ class ImageModel {
 
   static async getByPlantId(plantId) {
     try {
-      const imagesDataResult = await pool.query("SELECT * FROM Image WHERE PlantId = $1", [plantId]);
+      const imagesDataResult = await pool.query("SELECT Image.Image FROM Image WHERE PlantId = $1", [plantId]);
       return imagesDataResult.rows;
     } catch (err) {
       console.error(`Error retrieving images: ${err.message}`);
@@ -33,9 +33,10 @@ class ImageModel {
 
   static async create({ image, plant_id }) {
     try {
+      const imageBuffer = Buffer.from(image, 'base64'); // Convertir base64 en Buffer
       const result = await pool.query(
-        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING ImageId,Image, PlantId",
-        [image, plant_id]
+        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING *",
+        [imageBuffer, plant_id]
       );
       return result.rows[0];
     } catch (err) {
@@ -53,6 +54,7 @@ class ImageModel {
       throw new Error(`Error deleting image: ${err.message}`);
     }
   }
+
 }
 
 module.exports = ImageModel;

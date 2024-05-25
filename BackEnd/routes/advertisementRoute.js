@@ -77,6 +77,48 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: integer
  *       sub_category_id:
  *         type: integer
+ * 
+ *   AdvertisementDetailById:
+ *     type: object
+ *     required:
+ *       - title
+ *       - start_date
+ *       - end_date
+ *       - city
+ *       - postal_code
+ *       - user_id
+ *       - longitude
+ *       - latitude
+ *     properties:
+ *       id:
+ *         type: integer
+ *       title:
+ *         type: string
+ *       start_date:
+ *         type: string
+ *         format: date-time
+ *       end_date:
+ *         type: string
+ *         format: date-time
+ *       city:
+ *         type: string
+ *       postal_code:
+ *         type: string
+ *       longitude:
+ *         type: number
+ *       latitude:
+ *         type: number
+ *       firstimage:
+ *         type: string
+ *         format: byte
+ *       user_id:
+ *         type: integer
+ *       first_name:
+ *         type: string
+ *       last_name:
+ *         type: string
+ *       email:
+ *         type: string
  */
 
 /**
@@ -281,5 +323,37 @@ router.put("/:id", advertisementController.updateAdvertisement);
  *         description: Server error
  */
 router.delete("/:id", advertisementController.deleteAdvertisement);
+
+/**
+ * @swagger
+ * /api/advertisement/details/{id}:
+ *   get:
+ *     summary: Retrieve detailed advertisement information by ID
+ *     tags: [Advertisements]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the advertisement to retrieve details for
+ *     responses:
+ *       200:
+ *         description: Detailed advertisement information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/definitions/AdvertisementDetailById'
+ *       400:
+ *         description: Missing or invalid ID
+ *       404:
+ *         description: Advertisement not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/details/:id", advertisementController.getAdvertisementDetailsById);
 
 module.exports = router;

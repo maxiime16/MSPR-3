@@ -29,7 +29,7 @@ CREATE TABLE Message (
 CREATE TABLE Address (
     AddressId SERIAL PRIMARY KEY,
     City VARCHAR(100),
-    Postal_Code VARCHAR(20),
+    Postal_Code INT,
     Longitude FLOAT,
     Latitude FLOAT
 );
@@ -77,8 +77,34 @@ CREATE TABLE Image (
 CREATE TABLE Advice (
     AdviceId SERIAL PRIMARY KEY,
     Content TEXT,
+    CreationDate DATE DEFAULT CURRENT_DATE,
     UserId INT,
     PlantId INT,
     FOREIGN KEY (UserId) REFERENCES Users(UserId),
     FOREIGN KEY (PlantId) REFERENCES Plant(PlantId)
 );
+
+
+-- ----- Données --------
+-- Insertion des catégories
+INSERT INTO Category (Name) VALUES ('Arbres');
+INSERT INTO Category (Name) VALUES ('Fleurs');
+INSERT INTO Category (Name) VALUES ('Arbustes');
+INSERT INTO Category (Name) VALUES ('Plantes grimpantes');
+
+-- Insertion des sous-catégories pour chaque catégorie
+-- Sous-catégories pour 'Arbres'
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Chêne', 1);
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Érable', 1);
+
+-- Sous-catégories pour 'Fleurs'
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Rose', 2);
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Tulipe', 2);
+
+-- Sous-catégories pour 'Arbustes'
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Buis', 3);
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Hortensia', 3);
+
+-- Sous-catégories pour 'Plantes grimpantes'
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Lierre', 4);
+INSERT INTO SubCategory (Name, CategoryId) VALUES ('Glycine', 4);

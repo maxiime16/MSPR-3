@@ -23,6 +23,9 @@ const adviceController = require("../controllers/adviceController");
  *         type: integer
  *       content:
  *         type: string
+ *       creation_date:
+ *         type: string
+ *         format: date
  *       user_id:
  *         type: integer
  *       plant_id:
@@ -73,6 +76,35 @@ router.get("/", adviceController.getAllAdvice);
  *         description: Server error
  */
 router.get("/:id", adviceController.getAdviceById);
+
+/**
+ * @swagger
+ * /api/advice/plant/{plant_id}:
+ *   get:
+ *     summary: Retrieve advice by plant ID
+ *     tags: [Advice]
+ *     parameters:
+ *       - in: path
+ *         name: plant_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the plant to retrieve advice for
+ *     responses:
+ *       200:
+ *         description: Advice found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Advice'
+ *       400:
+ *         description: Missing or invalid plant ID
+ *       500:
+ *         description: Server error
+ */
+router.get("/plant/:plant_id", adviceController.getAdviceByPlantId);
 
 /**
  * @swagger

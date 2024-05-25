@@ -12,20 +12,14 @@ import { useNavigation } from "@react-navigation/native";
 import { IP_Backend } from '../../components/const';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Constante qui stocke l'adresse IP du serveur
 const IP = IP_Backend;
 
 const HomeScreen = () => {
-  // State pour stocker les catégories avec les annonces
   const [categoriesWithAds, setCategoriesWithAds] = useState([]);
-  // State pour le chargement initial
   const [loading, setLoading] = useState(true);
-  // Hook pour la navigation
   const navigation = useNavigation();
-  // State pour le rafraîchissement des données
   const [refreshing, setRefreshing] = useState(false);
 
-  // Hook useEffect pour effectuer des actions après le rendu initial
   useEffect(() => {
     fetchCategoriesWithAds();
   }, []);
@@ -45,7 +39,6 @@ const HomeScreen = () => {
     fetchUserData();
   }, []);
 
-  // Fonction pour récupérer les catégories avec les annonces
   const fetchCategoriesWithAds = async () => {
     try {
       const response = await fetch(`${IP}/category`);
@@ -57,28 +50,23 @@ const HomeScreen = () => {
         throw new Error("Invalid advertisement data format");
       }
 
-      console.log('Advertisements data:', adsData.data);
-
-      // Grouper les annonces par catégorie
       const categoriesWithAdsData = categoriesData.data.map(category => {
         const adsForCategory = adsData.data.filter(ad => ad.categoryname === category.attributes.name);
         return { ...category.attributes, id: category.id, ads: adsForCategory };
       });
 
       setCategoriesWithAds(categoriesWithAdsData);
-      setLoading(false); // Fin du chargement
+      setLoading(false);
     } catch (error) {
       console.error("Erreur lors de la récupération des catégories et annonces :", error);
     }
   };
 
-  // Fonction pour naviguer vers les détails d'une annonce
   const navigateToAdDetails = (adId) => {
     console.log(adId);
-    navigation.navigate("AdDetailsScreen", { adId });
+    navigation.navigate("AdvertisementDetailScreen", { adId });
   };
 
-  // Fonction pour rendre un élément d'annonce
   const renderAdItem = ({ item }) => {
     const truncatedTitle = item.advertisementtitle.length > 50 ? item.advertisementtitle.slice(0, 35) + "..." : item.advertisementtitle;
     const imageUri = item.firstimage ? `data:image/jpeg;base64,${item.firstimage}` : null;
@@ -115,7 +103,6 @@ const HomeScreen = () => {
     );
   };
 
-  // Fonction pour rendre un élément de catégorie
   const renderCategoryItem = ({ item }) => (
     <View style={{ padding: 10 }}>
       <Text style={{ fontWeight: "bold", fontSize: 18, color: "#767676", }}>{item.name}</Text>
@@ -130,7 +117,6 @@ const HomeScreen = () => {
     </View>
   );
 
-  // Fonction pour gérer le rafraîchissement des données
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -141,7 +127,6 @@ const HomeScreen = () => {
     setRefreshing(false);
   };
 
-  // Affichage d'un indicateur de chargement si les données sont en cours de chargement
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center"}}>
@@ -150,7 +135,6 @@ const HomeScreen = () => {
     );
   }
 
-  // Rendu principal avec la liste des catégories et des annonces
   return (
     <View style={{ flex: 1 }}>
       <FlatList
@@ -166,7 +150,6 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-// Styles CSS pour les composants
 const styles = StyleSheet.create({
   adContainer:{
     width: 220,

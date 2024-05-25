@@ -183,3 +183,21 @@ exports.getAdvertisementDetails = async (req, res) => {
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
+
+exports.getAdvertisementDetailsById = async (req, res) => {
+  const advertisementId = req.params.id;
+  if (!advertisementId) {
+    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
+  }
+  try {
+    const advertisementDetails = await AdvertisementModel.getAdvertisementDetailsById(advertisementId);
+    if (!advertisementDetails) {
+      return res.status(404).json({ errors: [{ message: "Advertisement not found" }] });
+    }
+
+    res.status(200).json({ data: advertisementDetails });
+  } catch (err) {
+    console.error(`Error fetching advertisement details by ID: ${err.message}`);
+    res.status(500).json({ errors: [{ message: "Server Error" }] });
+  }
+};

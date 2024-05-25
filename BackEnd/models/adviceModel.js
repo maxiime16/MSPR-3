@@ -25,6 +25,28 @@ class AdviceModel {
     }
   }
 
+  static async getByPlantId(plantId) {
+    try {
+      const adviceDataResult = await pool.query(
+        `SELECT 
+          Advice.Content,
+          Advice.CreationDate,
+          Users.FirstName,
+          Users.LastName
+        FROM 
+          Advice
+        JOIN 
+          Users ON Advice.UserId = Users.UserId
+        WHERE 
+          Advice.PlantId = $1`,
+        [plantId]
+      );
+      return adviceDataResult.rows;
+    } catch (err) {
+      throw new Error(`Error retrieving advice by plant ID: ${err.message}`);
+    }
+  }
+
   static async create({ content, user_id, plant_id }) {
     try {
       const newAdviceDataResult = await pool.query(

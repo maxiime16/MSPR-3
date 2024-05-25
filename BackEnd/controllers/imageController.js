@@ -34,7 +34,19 @@ exports.getImagesByPlantId = async (req, res) => {
   }
   try {
     const images = await ImageModel.getByPlantId(plantId);
-    res.status(200).json({ data: images });
+    
+    const imagesWithBase64 = images.map(image => {
+      if (image.image) {
+        const base64Image = Buffer.from(image.image).toString('base64');
+        return {
+          ...image,
+          image: base64Image
+        };
+      }
+      return image;
+    });
+
+    res.status(200).json({ data: imagesWithBase64 });
   } catch (err) {
     console.error(`Error fetching images by plant ID: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });

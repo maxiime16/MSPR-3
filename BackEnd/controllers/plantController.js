@@ -96,3 +96,21 @@ exports.updatePlant = async (req, res) => {
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
+
+exports.getPlantsByAdvertisementId = async (req, res) => {
+  const advertisementId = req.params.id;
+  if (!advertisementId) {
+    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
+  }
+  try {
+    const plants = await PlantModel.getPlantsByAdvertisementId(advertisementId);
+    if (plants.length === 0) {
+      return res.status(404).json({ errors: [{ message: "No plants found for this advertisement" }] });
+    }
+
+    res.status(200).json({ data: plants });
+  } catch (err) {
+    console.error(`Error fetching plants by advertisement ID: ${err.message}`);
+    res.status(500).json({ errors: [{ message: "Server Error" }] });
+  }
+};
