@@ -20,27 +20,19 @@ const ProfileScreen = ({ onLogout }) => {
       try {
         const jsonValue = await AsyncStorage.getItem("userData");
         if (jsonValue !== null) {
-
           const userData = JSON.parse(jsonValue).data.attributes;
           const userId = JSON.parse(jsonValue).data.id;
           setUserData(userData);
           setUserId(userId);
-          console.log("jsonValue", jsonValue)
-          console.log("userData", userData)
 
-          // Appeler la méthode pour récupérer les annonces de l'utilisateur
           const fetchUserAds = async () => {
             try {
-              console.log(userData.id);
-              const response = await fetch(
-                `${IP_Back}/advertisements/user/${userData.id}`
-              );
+              const response = await fetch(`${IP_Back}/advertisement/user/${userId}`);
               if (!response.ok) {
                 throw new Error("Failed to fetch user advertisements");
               }
               const userAds = await response.json();
-              setUserAds(userAds);
-              console.log(userAds);
+              setUserAds(userAds.data);
             } catch (error) {
               console.error("Error fetching user advertisements:", error);
             }
@@ -49,10 +41,7 @@ const ProfileScreen = ({ onLogout }) => {
           fetchUserAds();
         }
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des données utilisateur : ",
-          error
-        );
+        console.error("Erreur lors de la récupération des données utilisateur : ", error);
       }
     };
 
@@ -61,23 +50,16 @@ const ProfileScreen = ({ onLogout }) => {
 
   const handleChange = (field, value) => {
     setUserData({ ...userData, [field]: value });
-    console.log("userdata modifié", userData);
   };
 
   const handleSave = async () => {
     try {
-
-      console.log(userId);
-      console.log("firstname", userData.first_name);
-      console.log("last_name", userData.last_name);
-      console.log("email", userData.email);
       const userForm = {
         "first_name": userData.first_name,
         "last_name": userData.last_name,
         "email": userData.email
       };
 
-      // Faire la requête PUT à l'API pour mettre à jour les informations de l'utilisateur
       const response = await fetch(`${IP}/user/${userId}`, {
         method: "PUT",
         headers: {
@@ -85,8 +67,6 @@ const ProfileScreen = ({ onLogout }) => {
         },
         body: JSON.stringify(userForm),
       });
-
-      console.log("userdata envoie", userData);
 
       if (!response.ok) {
         throw new Error("Failed to update user information");
@@ -96,41 +76,36 @@ const ProfileScreen = ({ onLogout }) => {
     }
   };
 
-  // Fonction pour se déconnecter
   const handleLogout = async () => {
     try {
-      // Supprimer les données utilisateur du AsyncStorage
       await AsyncStorage.removeItem("userData");
       await AsyncStorage.removeItem("userToken");
-      onLogout(); // Appeler la fonction de rappel pour déconnecter l'utilisateur
+      onLogout();
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
 
-  // Fonction pour ouvrir le modal de confirmation
   const onDeleteAccount = () => {
     setDeleteModalVisible(true);
   };
 
   const onDeleteAd = (advertisementId) => {
     setDeleteAdModalVisible(true);
-    setDeletingAdId(advertisementId); // Enregistrer l'ID de l'annonce à supprimer
+    setDeletingAdId(advertisementId);
   };
 
-  // Fonction pour annuler la suppression du compte
   const cancelDeleteAccount = () => {
     setDeleteModalVisible(false);
   };
 
   const onCancelDeleteAd = () => {
     setDeleteAdModalVisible(false);
-    setDeletingAdId(null); // Réinitialiser l'ID de l'annonce à supprimer
+    setDeletingAdId(null);
   };
 
   const confirmDeleteAccount = async () => {
     try {
-      // Faire la requête DELETE à l'API pour supprimer le compte utilisateur
       const response = await fetch(`${IP}/users/${userData.id}`, {
         method: "DELETE",
       });
@@ -139,7 +114,6 @@ const ProfileScreen = ({ onLogout }) => {
         throw new Error("Failed to delete user account");
       }
 
-      // Supprimer les données utilisateur du AsyncStorage
       await AsyncStorage.removeItem("userData");
       await AsyncStorage.removeItem("userToken");
 
@@ -149,11 +123,48 @@ const ProfileScreen = ({ onLogout }) => {
     }
   };
 
-  
   const confirmDeleteAd = async () => {
-    console.log(deletingAdId)
     try {
-      const response = await fetch(`${IP_Back}/advertisements/${deletingAdId}`, {
+      console.log(`Deleting advertisement with ID: ${deletingAdId}`);
+      
+      // Fetch all plants associated with the advertisement
+      const plantsResponse = await fetch(`${IP_Back}/plant/advertisement/${deletingAdId}`);
+      if (!plantsResponse.ok) {
+        throw new Error("Failed to fetch plants associated with advertisement");
+      }
+      const plantsData = await plantsResponse.json();
+      console.log(`Plants associated with advertisement: `, plantsData.data);
+  
+      // Delete each plant and its associated images
+      for (const plant of plantsData.data) {
+        console.log(`Deleting plant with ID: ${plant.plantid}`);
+        const imagesResponse = await fetch(`${IP_Back}/image/plant/${plant.plantid}`);
+        if (!imagesResponse.ok) {
+          throw new Error(`Failed to fetch images for plant ${plant.plantid}`);
+        }
+        const imagesData = await imagesResponse.json();
+        console.log(`Images associated with plant ${plant.plantid}: `, imagesData.data);
+  
+        for (const image of imagesData.data) {
+          console.log(`Deleting image with ID: ${image.imageid}`);
+          const deleteImageResponse = await fetch(`${IP_Back}/image/${image.imageid}`, {
+            method: "DELETE",
+          });
+          if (!deleteImageResponse.ok) {
+            throw new Error(`Failed to delete image ${image.imageid}`);
+          }
+        }
+  
+        const deletePlantResponse = await fetch(`${IP_Back}/plant/${plant.plantid}`, {
+          method: "DELETE",
+        });
+        if (!deletePlantResponse.ok) {
+          throw new Error(`Failed to delete plant ${plant.plantid}`);
+        }
+      }
+  
+      // Delete the advertisement
+      const response = await fetch(`${IP_Back}/advertisement/${deletingAdId}`, {
         method: "DELETE",
       });
   
@@ -161,16 +172,16 @@ const ProfileScreen = ({ onLogout }) => {
         throw new Error("Failed to delete advertisement");
       }
   
-      // Actualiser la liste des annonces de l'utilisateur après la suppression
+      // Update the user's ads list
       const updatedUserAds = userAds.filter(ad => ad.id !== deletingAdId);
       setUserAds(updatedUserAds);
     } catch (error) {
       console.error("Error deleting advertisement:", error);
     } finally {
-      setDeleteAdModalVisible(false); // Cacher le modal de confirmation après la suppression
+      setDeleteAdModalVisible(false);
     }
   };
-
+  
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -183,10 +194,10 @@ const ProfileScreen = ({ onLogout }) => {
                 userAds.map((ad) => (
                   <View key={ad.id} style={styles.adContainer}>
                     <View style={styles.adTextContainer}>
-                      <Text style={styles.adTitle}>{ad.title}</Text>
-                      <Text>{ad.description}</Text>
+                      <Text style={styles.adTitle}>{ad.attributes.title}</Text>
+                      <Text>Du {new Date(ad.attributes.start_date).toLocaleDateString()} au {new Date(ad.attributes.end_date).toLocaleDateString()}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 15, }}>
+                    <View style={{ flexDirection: 'row', gap: 15 }}>
                       <ButtonEdit
                         theme="just-icon"
                         icon="edit"
@@ -207,7 +218,6 @@ const ProfileScreen = ({ onLogout }) => {
                 <Text>Vous n'avez pas encore d'annonce...</Text>
               )}
             </View>
-
 
             <View style={styles.infoContainer}>
               <Text style={styles.label}>Mes informations:</Text>
@@ -256,7 +266,6 @@ const ProfileScreen = ({ onLogout }) => {
             <View style={styles.sendButtonContainer}>
               <ButtonEdit label="Supprimer le compte" onPress={onDeleteAccount} />
             </View>
-            {/* Modal de confirmation pour la suppression du compte */}
             <ConfirmationModal
               visible={isDeleteModalVisible}
               onClose={cancelDeleteAccount}
@@ -336,6 +345,9 @@ const styles = StyleSheet.create({
   },
   adTitle: {
     fontWeight: 'bold',
+  },
+  adDate: {
+    fontStyle: 'italic',
   },
 });
 
