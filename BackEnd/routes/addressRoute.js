@@ -83,25 +83,38 @@ router.get("/:id", addressController.getAddressById);
  *   post:
  *     summary: Create a new address
  *     tags: [Addresses]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Address'
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             postal_code:
+ *               type: string
+ *               example: "59000"
+ *             city:
+ *               type: string
+ *               example: "Lille"
+ *             longitude:
+ *               type: number
+ *               format: float
+ *               example: 2.3522
+ *             latitude:
+ *               type: number
+ *               format: float
+ *               example: 48.8566
  *     responses:
- *       201:
- *         description: Address created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/definitions/Address'
+ *       200:
+ *         description: Create Adresse
  *       400:
  *         description: Invalid input
  *       500:
  *         description: Server error
- */
+ *
+ */ 
 router.post("/", addressController.createAddress);
+
 
 /**
  * @swagger
@@ -116,12 +129,27 @@ router.post("/", addressController.createAddress);
  *         schema:
  *           type: integer
  *         description: The ID of the address to update
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Address'
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             postal_code:
+ *               type: string
+ *               example: "59000"
+ *             city:
+ *               type: string
+ *               example: "Lille"
+ *             longitude:
+ *               type: number
+ *               format: float
+ *               example: 2.3522
+ *             latitude:
+ *               type: number
+ *               format: float
+ *               example: 48.8566
+ *         description: The ID of the address to update
  *     responses:
  *       200:
  *         description: Address updated
