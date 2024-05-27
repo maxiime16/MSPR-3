@@ -23,13 +23,13 @@ class ImageModel {
 
   static async getByPlantId(plantId) {
     try {
-      const imagesDataResult = await pool.query("SELECT Image.Image FROM Image WHERE PlantId = $1", [plantId]);
+      const imagesDataResult = await pool.query("SELECT ImageId, Image FROM Image WHERE PlantId = $1", [plantId]);
       return imagesDataResult.rows;
     } catch (err) {
       console.error(`Error retrieving images: ${err.message}`);
       throw new Error(`Error retrieving images: ${err.message}`);
     }
-  }
+  }  
 
   static async create({ image, plant_id }) {
     try {

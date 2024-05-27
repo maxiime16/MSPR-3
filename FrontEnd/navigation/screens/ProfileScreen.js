@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { ScrollView, View, Text, TextInput, StyleSheet } from "react-native";
 import { IP_Auth, IP_Backend } from "../../components/const";
 import ButtonEdit from "../../components/button";
 import ConfirmationModal from "../../components/confirmationModal";
@@ -202,13 +202,13 @@ const ProfileScreen = ({ onLogout }) => {
                         theme="just-icon"
                         icon="edit"
                         color="#4d4d4d"
-                        size="20"
+                        size={20} // Change to number
                       />
                       <ButtonEdit
                         theme="just-icon"
                         icon="close"
                         color="#db402c"
-                        size="20"
+                        size={20} // Change to number
                         onPress={() => onDeleteAd(ad.id)}
                       />
                     </View>

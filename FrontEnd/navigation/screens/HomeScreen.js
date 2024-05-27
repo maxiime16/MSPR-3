@@ -28,9 +28,6 @@ const HomeScreen = () => {
     const fetchUserData = async () => {
       try {
         const userData = await AsyncStorage.getItem("userData");
-        console.log('================================');
-        console.log("userdata", userData);
-        console.log('================================');
       } catch (error) {
         console.error("Erreur lors de la récupération des données utilisateur :", error);
       }
@@ -63,7 +60,6 @@ const HomeScreen = () => {
   };
 
   const navigateToAdDetails = (adId) => {
-    console.log(adId);
     navigation.navigate("AdvertisementDetailScreen", { adId });
   };
 

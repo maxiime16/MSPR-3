@@ -19,7 +19,6 @@ const AddAdviceForm = ({ plantId, onAddAdvice }) => {
           const userId = userData.data?.id;
           if (userId) {
             setUserId(userId);
-            console.log("User ID fetched:", userId); // Log the user ID
           } else {
             console.error("User ID not found in userData");
           }

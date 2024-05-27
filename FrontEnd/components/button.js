@@ -16,7 +16,7 @@ export default function ButtonEdit({
       <View
         style={[
           styles.buttonContainer,
-          { borderWidth: 2, borderColor: "#7FB75F" },
+          { borderWidth: border, borderColor: "#7FB75F" },
         ]}
       >
         <Pressable
@@ -41,7 +41,7 @@ export default function ButtonEdit({
       <View
         style={[
           styles.buttonContainer,
-          { borderWidth: 2, borderColor: "#7FB75F" },
+          { borderWidth: border, borderColor: "#7FB75F" },
         ]}
       >
         <Pressable
@@ -208,5 +208,12 @@ const styles = StyleSheet.create({
   buttonLabel: {
     color: "#000",
     fontSize: 16,
+  },
+  buttonIconLittle: {
+    paddingRight: 8,
+  },
+  buttonLabelLittle: {
+    color: "#000",
+    fontSize: 12,
   },
 });

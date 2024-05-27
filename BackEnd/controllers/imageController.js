@@ -4,22 +4,34 @@ const imageSchema = require("../schemas/imageSchema");
 exports.getAllImages = async (req, res) => {
   try {
     const images = await ImageModel.getAll();
-    res.status(200).json({ data: images });
+    const imagesWithBase64 = images.map(image => {
+      if (image.image) {
+        const base64Image = Buffer.from(image.image).toString('base64');
+        return {
+          ...image,
+          image: base64Image
+        };
+      }
+      return image;
+    });
+    res.status(200).json({ data: imagesWithBase64 });
   } catch (err) {
     console.error(`Error fetching images: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
 
+
 exports.getImageById = async (req, res) => {
   const imageId = req.params.id;
   if (!imageId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing image ID" }] });
+    return res.status(400).json({ errors: [{ message: "Missing image ID" }] });
   }
   try {
     const image = await ImageModel.getById(imageId);
+    if (image && image.image) {
+      image.image = Buffer.from(image.image).toString('base64');
+    }
     res.status(200).json({ data: image });
   } catch (err) {
     console.error(`Error fetching image by ID: ${err.message}`);

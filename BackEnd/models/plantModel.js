@@ -74,17 +74,9 @@ class PlantModel {
       const plantDataResult = await pool.query(
         `
       SELECT 
-        p.PlantId,
-        p.Name_Plant,
-        p.Description,
-        s.Name AS SubCategoryName,
-        c.Name AS CategoryName
+        p.PlantId
       FROM 
         Plant p
-      INNER JOIN 
-        SubCategory s ON p.SubCategoryId = s.SubCategoryId
-      INNER JOIN 
-        Category c ON s.CategoryId = c.CategoryId
       WHERE 
         p.AdvertisementId = $1;
     `,

@@ -22,7 +22,7 @@ const imageController = require("../controllers/imageController");
  *         type: integer
  *       image:
  *         type: string
- *         format: binary
+ *         format: base64
  *       plant_id:
  *         type: integer
  */
