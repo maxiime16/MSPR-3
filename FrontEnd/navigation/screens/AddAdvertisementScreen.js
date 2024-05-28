@@ -37,7 +37,6 @@ export default function AddAdvertisementScreen({ navigation }) {
   const currentDate = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    console.log("===== Ajout Annonce ======");
     const fetchUserId = async () => {
       try {
         const userDataJson = await AsyncStorage.getItem("userData");
@@ -46,7 +45,6 @@ export default function AddAdvertisementScreen({ navigation }) {
           const userId = userData.data?.id;
           if (userId) {
             setUserId(userId);
-            console.log("User ID fetched:", userId); // Log the user ID
           } else {
             console.error("User ID not found in userData");
           }
@@ -115,8 +113,6 @@ export default function AddAdvertisementScreen({ navigation }) {
       if (!userId) {
         throw new Error("User ID not found");
       }
-
-      console.log("Using User ID:", userId); // Log the user ID before making requests
 
       // Step 1: Add the address to the database
       console.log("=== Step 1 ===");

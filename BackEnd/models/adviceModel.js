@@ -29,6 +29,7 @@ class AdviceModel {
     try {
       const adviceDataResult = await pool.query(
         `SELECT 
+          Advice.AdviceId,
           Advice.Content,
           Advice.CreationDate,
           Users.FirstName,

@@ -125,7 +125,6 @@ const ProfileScreen = ({ onLogout }) => {
 
   const confirmDeleteAd = async () => {
     try {
-      console.log(`Deleting advertisement with ID: ${deletingAdId}`);
       
       // Fetch all plants associated with the advertisement
       const plantsResponse = await fetch(`${IP_Back}/plant/advertisement/${deletingAdId}`);
@@ -133,20 +132,16 @@ const ProfileScreen = ({ onLogout }) => {
         throw new Error("Failed to fetch plants associated with advertisement");
       }
       const plantsData = await plantsResponse.json();
-      console.log(`Plants associated with advertisement: `, plantsData.data);
   
       // Delete each plant and its associated images
       for (const plant of plantsData.data) {
-        console.log(`Deleting plant with ID: ${plant.plantid}`);
         const imagesResponse = await fetch(`${IP_Back}/image/plant/${plant.plantid}`);
         if (!imagesResponse.ok) {
           throw new Error(`Failed to fetch images for plant ${plant.plantid}`);
         }
         const imagesData = await imagesResponse.json();
-        console.log(`Images associated with plant ${plant.plantid}: `, imagesData.data);
   
         for (const image of imagesData.data) {
-          console.log(`Deleting image with ID: ${image.imageid}`);
           const deleteImageResponse = await fetch(`${IP_Back}/image/${image.imageid}`, {
             method: "DELETE",
           });
@@ -221,7 +216,6 @@ const ProfileScreen = ({ onLogout }) => {
 
             <View style={styles.infoContainer}>
               <Text style={styles.label}>Mes informations:</Text>
-              <View style={styles.hr}></View>
             </View>
             <View style={styles.formContainer}>
               <Text style={styles.label}>Prénom:</Text>
