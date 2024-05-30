@@ -1,12 +1,21 @@
-const { specs, swaggerUi } = require("./config/swaggerConfig");
+const { specs, swaggerUi } = require("./config/swaggerConfig.js");
 const express = require("express");
-const WebSocket = require("ws");
-const cors = require("cors");
 const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.SERVER_PORT;
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5174",
+    methods: ["GET", "POST"]
+  }
+});
 
 // Middleware pour analyser les requêtes JSON
 app.use(
@@ -56,29 +65,16 @@ app.use((req, res) => {
   res.status(404).send("Page not found");
 });
 
-// Créer le serveur HTTP
-const server = http.createServer(app);
+// Intégration de Socket.IO
+io.on("connection", (socket) => {
+  console.log("Un client s'est connecté");
 
-// Configurer WebSocket
-const wss = new WebSocket.Server({ server });
-
-wss.on("connection", (ws) => {
-  console.log("New client connected");
-
-  ws.on("message", (message) => {
-    const parsedMessage = JSON.parse(message);
-    console.log("Received:", parsedMessage);
-
-    // Diffuser le message à tous les clients
-    wss.clients.forEach((client) => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
+  socket.on("disconnect", () => {
+    console.log("Un client s'est déconnecté");
   });
 
-  ws.on("close", () => {
-    console.log("Client disconnected");
+  socket.on("send_message", (data) => {
+    io.emit("receive_message", data);
   });
 });
 

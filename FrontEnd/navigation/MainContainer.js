@@ -18,6 +18,7 @@ import LogInScreen from "./screens/LogInScreen";
 import GeneralConditionsOfUse from "./screens/GeneralConditionsOfUse";
 import AddAdvertisementScreen from "./screens/AddAdvertisementScreen";
 import AdvertisementDetailScreen from "./screens/AdvertisementDetailScreen";
+import { SocketProvider } from './SocketContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -25,16 +26,18 @@ const Stack = createNativeStackNavigator();
 export default function MainContainer() {
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LogInScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'slide_from_left' }}/>
-        <Stack.Screen name="AdDetailsScreen" component={AdDetailsScreen} />
-        <Stack.Screen name="AdvertisementDetailScreen" component={AdvertisementDetailScreen} />
-        <Stack.Screen name="GeneralConditionsOfUse" component={GeneralConditionsOfUse} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SocketProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LogInScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'slide_from_left' }}/>
+          <Stack.Screen name="AdDetailsScreen" component={AdDetailsScreen} />
+          <Stack.Screen name="AdvertisementDetailScreen" component={AdvertisementDetailScreen} />
+          <Stack.Screen name="GeneralConditionsOfUse" component={GeneralConditionsOfUse} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SocketProvider>
   );
 }
 
