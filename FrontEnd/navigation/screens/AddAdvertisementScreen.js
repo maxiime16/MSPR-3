@@ -37,24 +37,22 @@ export default function AddAdvertisementScreen({ navigation }) {
   const currentDate = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const fetchUserId = async () => {
+    const fetchUserData = async () => {
       try {
-        const userDataJson = await AsyncStorage.getItem("userData");
-        if (userDataJson !== null) {
-          const userData = JSON.parse(userDataJson);
-          const userId = userData.data?.id;
-          if (userId) {
-            setUserId(userId);
-          } else {
-            console.error("User ID not found in userData");
-          }
+        const userDataString = await AsyncStorage.getItem("userData");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setUserId(userData.data.id); // Store user ID in state
         }
       } catch (error) {
-        console.error("Failed to fetch user ID:", error);
+        console.error(
+          "Erreur lors de la récupération des données utilisateur :",
+          error
+        );
       }
     };
 
-    fetchUserId();
+    fetchUserData();
   }, []);
 
   const handlePlantAdd = (plantData) => {
@@ -96,16 +94,14 @@ export default function AddAdvertisementScreen({ navigation }) {
       );
       return;
     }
-
-    console.log("Plantes à valider:", plants); // Log all plants for validation
-
+    
     for (const plant of plants) {
       if (!plant.subCategoryValue) {
         Alert.alert("Erreur", "Chaque plante doit avoir une sous-catégorie.");
         return;
       }
     }
-
+  
     try {
       if (!coordinates) {
         throw new Error("Les coordonnées ne sont pas définies");
@@ -113,7 +109,7 @@ export default function AddAdvertisementScreen({ navigation }) {
       if (!userId) {
         throw new Error("User ID not found");
       }
-
+  
       // Step 1: Add the address to the database
       console.log("=== Step 1 ===");
       const addressResponse = await axios.post(`${IP}/address`, {
@@ -122,54 +118,50 @@ export default function AddAdvertisementScreen({ navigation }) {
         longitude: coordinates.lng,
         latitude: coordinates.lat,
       });
-
+  
       const addressId = addressResponse.data.data.id;
       console.log("Address added:", addressResponse.data);
-
+  
       // Step 2: Add the advertisement with the address ID and user ID
       console.log("=== Step 2 ===");
       const advertisementResponse = await axios.post(`${IP}/advertisement`, {
         title,
         start_date: selectedStartDate,
         end_date: selectedEndDate,
-        user_id: userId, // use the fetched user ID
+        user_id: userId,
         address_id: addressId,
       });
-
+  
       const advertisementId = advertisementResponse.data.data.id;
       console.log("Advertisement added:", advertisementResponse.data);
-
+  
       // Step 3: Add each plant with the advertisement ID
       console.log("=== Step 3 ===");
       for (const plant of plants) {
-        console.log("Adding plant:", plant.plantName); // Log each plant before adding
         const plantResponse = await axios.post(`${IP}/plant`, {
           name_plant: plant.plantName,
           description: plant.description,
           advertisement_id: advertisementId,
           subcategory_id: plant.subCategoryValue, // ensure subCategoryValue is provided
         });
-
+  
         const plantId = plantResponse.data.data.id;
         console.log("Plant added:", plantResponse.data);
-
         // Step 4: Add each image for the plant with the plant ID
         console.log("=== Step 4 ===");
         for (const image of plant.images) {
           const imageResponse = await axios.post(`${IP}/image`, {
             image: image.base64,
-            plant_id: plantId,
+            id_Plant: plantId, // Correction de la clé
           });
-
-          console.log("Image response:", imageResponse.data); // Log response
-
+            
           if (!imageResponse.data.success) {
             throw new Error("Failed to add image");
           }
           console.log("Image added:", imageResponse.data);
         }
       }
-
+  
       console.log("Annonce publiée avec succès");
       // You can navigate to another screen or show a success message here
     } catch (error) {
@@ -219,9 +211,6 @@ export default function AddAdvertisementScreen({ navigation }) {
 
                     // Vérifier si la ville a été trouvée
                     if (city) {
-                      // Utiliser la ville comme vous le souhaitez
-                      console.log("Ville sélectionnée :", city.long_name);
-                      console.log("Code postal :", postalCode.long_name);
                       // Stocker la ville dans un état par exemple
                       setCity(city.long_name);
                       setPostalCode(postalCode.long_name);
@@ -431,10 +420,10 @@ const styles = StyleSheet.create({
     color: "#9b9b9b",
   },
   emptyMessage: {
-    textAlign: 'center', 
-    color: '#9b9b9b', 
-    fontSize: 16, 
-    marginTop: 20, 
+    textAlign: "center",
+    color: "#9b9b9b",
+    fontSize: 16,
+    marginTop: 20,
     marginBottom: 10,
   },
   datePicker: {

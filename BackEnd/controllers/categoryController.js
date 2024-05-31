@@ -3,7 +3,7 @@ const categorySchema = require("../schemas/categorySchema");
 
 const formatCategory = (category) => ({
   type: "categories",
-  id: category.categoryid,
+  id: category.id,
   attributes: {
     name: category.name,
   },

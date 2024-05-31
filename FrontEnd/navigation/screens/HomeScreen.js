@@ -42,32 +42,38 @@ const HomeScreen = () => {
       const categoriesData = await response.json();
       const adsResponse = await fetch(`${IP}/advertisement/details`);
       const adsData = await adsResponse.json();
-
-      if (!adsData.data) {
-        throw new Error("Invalid advertisement data format");
+        
+      if (!adsData.data || !categoriesData.data) {
+        throw new Error("Invalid data format");
       }
-
+  
       const categoriesWithAdsData = categoriesData.data.map(category => {
         const adsForCategory = adsData.data.filter(ad => ad.categoryname === category.attributes.name);
         return { ...category.attributes, id: category.id, ads: adsForCategory };
-      });
-
+      }).filter(category => category.ads.length > 0); // Filter out categories with no ads
+  
       setCategoriesWithAds(categoriesWithAdsData);
       setLoading(false);
     } catch (error) {
       console.error("Erreur lors de la récupération des catégories et annonces :", error);
     }
   };
+  
 
   const navigateToAdDetails = (adId) => {
     navigation.navigate("AdvertisementDetailScreen", { adId });
   };
 
   const renderAdItem = ({ item }) => {
-    const truncatedTitle = item.advertisementtitle.length > 50 ? item.advertisementtitle.slice(0, 35) + "..." : item.advertisementtitle;
+    const truncatedTitle = item.advertisementtitle ? (item.advertisementtitle.length > 50 ? item.advertisementtitle.slice(0, 35) + "..." : item.advertisementtitle) : 'No Title';
     const imageUri = item.firstimage ? `data:image/jpeg;base64,${item.firstimage}` : null;
+
+    // Convertir les dates UTC en dates locales
+    const startDate = new Date(item.start_date).toLocaleDateString();
+    const endDate = new Date(item.end_date).toLocaleDateString();
+
     return (
-      <TouchableOpacity onPress={() => navigateToAdDetails(item.advertisementid)}>
+      <TouchableOpacity onPress={() => navigateToAdDetails(item.id)}>
         <View style={styles.adContainer}>
           {imageUri && (
             <Image
@@ -80,16 +86,16 @@ const HomeScreen = () => {
               <Text style={styles.adTitle}>{truncatedTitle}</Text>
               <View style={styles.MoreInfoContainer}>
                 <View style={styles.locationContainer}>
-                  <Text style={styles.adCity}>{item.city}</Text>
-                  <Text style={styles.adPostaleCode}>{item.postal_code}</Text>
+                  <Text style={styles.adCity}>{item.city || 'Unknown City'}</Text>
+                  <Text style={styles.adPostaleCode}>{item.postal_code || '00000'}</Text>
                 </View>
                 <View style={styles.dateContainer}>
-                  <Text style={styles.adStartDate}>{new Date(item.startdate).toLocaleDateString()}</Text>
+                  <Text style={styles.adStartDate}>{startDate || 'N/A'}</Text>
                   <Text> - </Text>
-                  <Text style={styles.adEndDate}>{new Date(item.enddate).toLocaleDateString()}</Text>
+                  <Text style={styles.adEndDate}>{endDate || 'N/A'}</Text>
                 </View>
                 <View style={styles.subCategoriesContainer}>
-                  <Text style={styles.subCategories}>{item.subcategoryname}</Text>
+                  <Text style={styles.subCategories}>{item.subcategoryname || 'No Subcategory'}</Text>
                 </View>
               </View>
             </View>
@@ -98,20 +104,21 @@ const HomeScreen = () => {
       </TouchableOpacity>
     );
   };
+  
 
   const renderCategoryItem = ({ item }) => (
     <View style={{ padding: 10 }}>
       <Text style={{ fontWeight: "bold", fontSize: 18, color: "#767676", }}>{item.name}</Text>
       <Text style={{ fontWeight: "normal", fontSize: 14, color:"#989696", marginBottom: 20 }}>Types de plantes qui pourraient vous intéresser ...</Text>
       <FlatList
-        data={item.ads}
+        data={item.ads || []}
         renderItem={renderAdItem}
         keyExtractor={(ad) => `${ad.advertisementid}-${item.id}`}
         horizontal={true}
         contentContainerStyle={styles.scrollViewContent}
       />
     </View>
-  );
+  );  
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -136,12 +143,13 @@ const HomeScreen = () => {
       <FlatList
         data={categoriesWithAds}
         renderItem={renderCategoryItem}
-        keyExtractor={(category) => category.id.toString()}
+        keyExtractor={(category) => category.id ? category.id.toString() : Math.random().toString()}
         onRefresh={handleRefresh}
         refreshing={refreshing}
       />
     </View>
   );
+  
 };
 
 export default HomeScreen;

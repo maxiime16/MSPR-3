@@ -1,23 +1,11 @@
 const UserModel = require("../models/userModel");
+const { userSchema, loginSchema } = require("../schemas/userSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const Joi = require("joi");
 
 dotenv.config();
-
-// Schémas de validation
-const userSchema = Joi.object({
-  first_name: Joi.string().min(1).max(50).required(),
-  last_name: Joi.string().min(1).max(50).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-});
-
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-});
 
 // Contrôleurs
 
@@ -120,7 +108,7 @@ exports.createUser = async (req, res) => {
       first_name,
       last_name,
       email,
-      password: hashedPassword, // Utiliser le mot de passe haché
+      password: hashedPassword, 
     });
     res
       .status(201)
@@ -208,7 +196,7 @@ exports.loginUser = async (req, res) => {
     // Retourner les informations de l'utilisateur et le token JWT
     res.status(200).json({
       data: {
-        id: user.userid,
+        id: user.id,
         type: "user",
         attributes: {
           first_name: user.firstname,

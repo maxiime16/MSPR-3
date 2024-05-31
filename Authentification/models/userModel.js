@@ -12,7 +12,7 @@ class UserModel {
 
   static async getByEmail(email) {
     try {
-      const result = await pool.query('SELECT * FROM  Users  WHERE  Email  = $1', [email]);
+      const result = await pool.query('SELECT * FROM Users WHERE Email = $1', [email]);
       return result.rows[0];
     } catch (err) {
       throw new Error(`Error fetching user by email: ${err.message}`);
@@ -21,7 +21,7 @@ class UserModel {
 
   static async getById(id) {
     try {
-      const result = await pool.query('SELECT * FROM  Users  WHERE  UserId  = $1', [id]);
+      const result = await pool.query('SELECT * FROM Users WHERE Users.id = $1', [id]);
       return result.rows[0];
     } catch (err) {
       throw new Error(`Error fetching user by ID: ${err.message}`);
@@ -31,7 +31,7 @@ class UserModel {
   static async update(userId, { first_name, last_name, email }) {
     try {
       const result = await pool.query(
-        'UPDATE  Users  SET  Email  = $1,  FirstName  = $2,  LastName  = $3 WHERE  UserId  = $4 RETURNING *',
+        'UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *',
         [email, first_name, last_name, userId]
       );
       return result.rows[0];
@@ -43,7 +43,7 @@ class UserModel {
   static async createUser({ first_name, last_name, email, password }) {
     try {
       const result = await pool.query(
-        'INSERT INTO  Users  ( FirstName ,  LastName ,  Email ,  Password ) VALUES ($1, $2, $3, $4) RETURNING *',
+        'INSERT INTO Users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *',
         [first_name, last_name, email, password]
       );
       return result.rows[0];
@@ -54,7 +54,7 @@ class UserModel {
 
   static async delete(userId) {
     try {
-      await pool.query('DELETE FROM  Users  WHERE  UserId  = $1', [userId]);
+      await pool.query('DELETE FROM Users WHERE Users.id = $1', [userId]);
     } catch (err) {
       throw new Error(`Error deleting user: ${err.message}`);
     }

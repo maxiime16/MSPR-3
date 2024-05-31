@@ -3,7 +3,7 @@ const plantSchema = require("../schemas/plantSchema");
 
 const formatPlant = (plant) => ({
   type: "plants",
-  id: plant.plantid,
+  id: plant.id,
   attributes: {
     name_plant: plant.name_plant,
     description: plant.description,

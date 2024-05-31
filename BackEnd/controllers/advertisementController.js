@@ -3,7 +3,7 @@ const advertisementSchema = require("../schemas/advertisementSchema");
 
 const formatAdvertisement = (advertisement) => ({
   type: "advertisements",
-  id: advertisement.advertisementid,
+  id: advertisement.id,
   attributes: {
     title: advertisement.title,
     start_date: advertisement.startdate,

@@ -31,12 +31,12 @@ class ImageModel {
     }
   }  
 
-  static async create({ image, plant_id }) {
+  static async create({ image, id_Plant }) {
     try {
       const imageBuffer = Buffer.from(image, 'base64'); // Convertir base64 en Buffer
       const result = await pool.query(
-        "INSERT INTO Image (Image, PlantId) VALUES ($1, $2) RETURNING *",
-        [imageBuffer, plant_id]
+        "INSERT INTO Image (Image, id_Plant) VALUES ($1, $2) RETURNING *",
+        [imageBuffer, id_Plant]
       );
       return result.rows[0];
     } catch (err) {

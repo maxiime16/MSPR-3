@@ -16,14 +16,14 @@ const imageController = require("../controllers/imageController");
  *     type: object
  *     required:
  *       - image
- *       - plant_id
+ *       - id_plant
  *     properties:
  *       id:
  *         type: integer
  *       image:
  *         type: string
  *         format: base64
- *       plant_id:
+ *       id_plant:
  *         type: integer
  */
 
@@ -74,13 +74,13 @@ router.get("/:id", imageController.getImageById);
 
 /**
  * @swagger
- * /api/image/plant/{plant_id}:
+ * /api/image/plant/{id_plant}:
  *   get:
  *     summary: Retrieve images by plant ID
  *     tags: [Images]
  *     parameters:
  *       - in: path
- *         name: plant_id
+ *         name: id_plant
  *         required: true
  *         schema:
  *           type: integer
@@ -99,7 +99,7 @@ router.get("/:id", imageController.getImageById);
  *       500:
  *         description: Server error
  */
-router.get("/plant/:plant_id", imageController.getImagesByPlantId);
+router.get("/plant/:id_plant", imageController.getImagesByPlantId);
 
 /**
  * @swagger

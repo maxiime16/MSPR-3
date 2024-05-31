@@ -1,0 +1,10 @@
+{
+  "data": {
+    "attributes": {
+      "email": "Maxime@gmail.com",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Ik1heGltZUBnbWFpbC5jb20iLCJpYXQiOjE3MTcwNzA1MDd9.vkRIxrQPYTKB33eZ67_7uXZ4lSkj8qmzkjCAtPNF7Yg"
+    },
+    "id": 1,
+    "type": "user"
+  }
+}

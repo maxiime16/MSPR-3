@@ -3,10 +3,10 @@ const subCategorySchema = require("../schemas/subCategorySchema");
 
 const formatSubCategory = (subCategory) => ({
   type: "sub_categories",
-  id: subCategory.subcategoryid,
+  id: subCategory.id,
   attributes: {
     name: subCategory.name,
-    category_id: subCategory.categoryid,
+    category_id: subCategory.id_category,
   },
 });
 

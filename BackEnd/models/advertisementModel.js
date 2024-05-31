@@ -15,7 +15,7 @@ class AdvertisementModel {
   static async getById(advertisementID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement WHERE AdvertisementId = $1",
+        "SELECT * FROM Advertisement WHERE Advertisement.id = $1",
         [advertisementID]
       );
       if (advertisementDataResult.rows.length === 0) {
@@ -30,7 +30,7 @@ class AdvertisementModel {
   static async getByUserId(userID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement WHERE UserId = $1",
+        "SELECT * FROM Advertisement WHERE Advertisement.id_User = $1",
         [userID]
       );
       if (advertisementDataResult.rows.length === 0) {
@@ -47,7 +47,7 @@ class AdvertisementModel {
   static async getByAddressId(addressID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement WHERE AddressId = $1",
+        "SELECT * FROM Advertisement WHERE Advertisement.id_Address = $1",
         [addressID]
       );
       if (advertisementDataResult.rows.length === 0) {
@@ -64,7 +64,7 @@ class AdvertisementModel {
   static async create({ title, start_date, end_date, user_id, address_id }) {
     try {
       const newAdvertisementDataResult = await pool.query(
-        "INSERT INTO Advertisement (Title, StartDate, EndDate, UserId, AddressId) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        "INSERT INTO Advertisement (Title, start_date, End_date, id_User, id_Address) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [title, start_date, end_date, user_id, address_id]
       );
 
@@ -77,7 +77,7 @@ class AdvertisementModel {
   static async delete(advertisementId) {
     try {
       const result = await pool.query(
-        "DELETE FROM Advertisement WHERE AdvertisementId = $1 RETURNING *",
+        "DELETE FROM Advertisement WHERE Advertisement.id = $1 RETURNING *",
         [advertisementId]
       );
       if (result.rows.length === 0) {
@@ -89,6 +89,7 @@ class AdvertisementModel {
     }
   }
 
+  // a modifier
   static async update(
     advertisementId,
     { title, start_date, end_date, user_id, address_id }
@@ -113,29 +114,29 @@ class AdvertisementModel {
     try {
       const query = `
       SELECT 
-      Advertisement.AdvertisementId,
+      Advertisement.id,
       Advertisement.Title AS AdvertisementTitle,
-      Advertisement.StartDate,
-      Advertisement.EndDate,
+      Advertisement.start_date,
+      Advertisement.end_date,
+      Advertisement.creation_date,
       Address.City,
-      Address.Postal_Code,
-      SubCategory.Name AS SubCategoryName,
-      Category.Name AS CategoryName,
-      Image.Image AS FirstImage
+      Address.Postal_code,
+      Sub_category.name AS SubCategoryName,
+      category.name AS CategoryName,
+      Image.image AS FirstImage
     FROM 
       Advertisement
     INNER JOIN 
-      Address ON Advertisement.AddressId = Address.AddressId
+      Address ON Advertisement.id_Address = Address.id
     INNER JOIN 
-      Plant ON Advertisement.AdvertisementId = Plant.AdvertisementId
+      Plant ON Advertisement.id = Plant.id_Advertisement
     INNER JOIN 
-      SubCategory ON Plant.SubCategoryId = SubCategory.SubCategoryId
+      Sub_category ON Plant.id_Sub_category = Sub_category.id
     INNER JOIN 
-      Category ON SubCategory.CategoryId = Category.CategoryId
+      category ON Sub_category.id_category = category.id
     LEFT JOIN
-      (SELECT DISTINCT ON (PlantId) Image.Image, PlantId FROM Image ORDER BY PlantId, ImageId) AS Image
-      ON Plant.PlantId = Image.PlantId;
-    
+      (SELECT DISTINCT ON (id_Plant) image, id_Plant FROM Image ORDER BY id_Plant, id) AS Image
+    ON Plant.id = Image.id_Plant;    
       `;
       const { rows } = await pool.query(query);
       return rows;

@@ -3,7 +3,7 @@ const addressSchema = require("../schemas/addressSchema");
 
 const formatAddress = (address) => ({
   type: "addresses",
-  id: address.addressid,
+  id: address.id,
   attributes: {
     city: address.city,
     postal_code: address.postal_code,

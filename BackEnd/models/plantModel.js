@@ -13,7 +13,7 @@ class PlantModel {
   static async getById(plantId) {
     try {
       const plantDataResult = await pool.query(
-        "SELECT * FROM Plant WHERE PlantId = $1",
+        "SELECT * FROM Plant WHERE Plant.id = $1",
         [plantId]
       );
       if (plantDataResult.rows.length === 0) {
@@ -28,7 +28,7 @@ class PlantModel {
   static async create({ name_plant, description, advertisement_id, subcategory_id }) {
     try {
       const newPlantDataResult = await pool.query(
-        "INSERT INTO Plant (Name_Plant, Description, AdvertisementId, SubCategoryId) VALUES ($1, $2, $3, $4) RETURNING *",
+        "INSERT INTO Plant (Name_plant, Description, id_Advertisement, id_Sub_category) VALUES ($1, $2, $3, $4) RETURNING *",
         [name_plant, description, advertisement_id, subcategory_id]
       );
 
@@ -74,11 +74,11 @@ class PlantModel {
       const plantDataResult = await pool.query(
         `
       SELECT 
-        p.PlantId
+        p.id
       FROM 
         Plant p
       WHERE 
-        p.AdvertisementId = $1;
+        p.id_Advertisement = $1;
     `,
         [advertisementId]
       );

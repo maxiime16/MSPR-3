@@ -40,7 +40,7 @@ exports.getImageById = async (req, res) => {
 };
 
 exports.getImagesByPlantId = async (req, res) => {
-  const plantId = req.params.plant_id;
+  const plantId = req.params.id_Plant;
   if (!plantId) {
     return res.status(400).json({ errors: [{ message: "Missing plant ID" }] });
   }
@@ -66,6 +66,8 @@ exports.getImagesByPlantId = async (req, res) => {
 };
 
 exports.createImage = async (req, res) => {
+  const { image, id_Plant } = req.body;
+  console.log('image:',image,'\nid_plant,',id_Plant)
   const { error } = imageSchema.validate(req.body);
   if (error) {
     return res
@@ -73,12 +75,12 @@ exports.createImage = async (req, res) => {
       .json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { image, plant_id } = req.body;
+  console.log('image:',image,'\nid_plant,',id_Plant)
 
   try {
     const newImage = await ImageModel.create({
       image,
-      plant_id,
+      id_Plant,
     });
 
     console.log('New image created:', newImage);

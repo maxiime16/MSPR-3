@@ -48,11 +48,11 @@ class AdviceModel {
     }
   }
 
-  static async create({ content, user_id, plant_id }) {
+  static async create({ content, user_id, id_plant }) {
     try {
       const newAdviceDataResult = await pool.query(
         "INSERT INTO Advice (Content, UserId, PlantId) VALUES ($1, $2, $3) RETURNING *",
-        [content, user_id, plant_id]
+        [content, user_id, id_plant]
       );
 
       return newAdviceDataResult.rows[0];
@@ -75,11 +75,11 @@ class AdviceModel {
     }
   }
 
-  static async update(adviceId, { content, user_id, plant_id }) {
+  static async update(adviceId, { content, user_id, id_plant }) {
     try {
       const updatedAdviceDataResult = await pool.query(
         "UPDATE Advice SET Content = $1, UserId = $2, PlantId = $3 WHERE AdviceId = $4 RETURNING *",
-        [content, user_id, plant_id, adviceId]
+        [content, user_id, id_plant, adviceId]
       );
 
       if (updatedAdviceDataResult.rows.length === 0) {

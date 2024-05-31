@@ -32,7 +32,7 @@ describe("UserModel", () => {
       const result = await UserModel.getAll();
 
       expect(result).toEqual(users);
-      expect(pool.query).toHaveBeenCalledWith("SELECT * FROM users");
+      expect(pool.query).toHaveBeenCalledWith("SELECT * FROM Users");
     });
 
     it("should throw an error if query fails", async () => {
@@ -57,7 +57,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(user);
       expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM "users" WHERE email = $1',
+        'SELECT * FROM Users WHERE Email = $1',
         ["john@example.com"]
       );
     });
@@ -86,7 +86,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(user);
       expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM "users" WHERE id = $1',
+        'SELECT * FROM Users WHERE Users.id = $1',
         [1]
       );
     });
@@ -116,7 +116,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(newUser);
       expect(pool.query).toHaveBeenCalledWith(
-        "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
+        "INSERT INTO Users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
         ["John", "Doe", "john@example.com", "hashedpassword"]
       );
     });
@@ -155,7 +155,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(updatedUser);
       expect(pool.query).toHaveBeenCalledWith(
-        'UPDATE "users" SET email = $1, first_name = $2, last_name = $3 WHERE id = $4 RETURNING *',
+        'UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *',
         ["john_updated@example.com", "John", "Doe", 1]
       );
     });
@@ -180,7 +180,7 @@ describe("UserModel", () => {
 
       await expect(UserModel.delete(1)).resolves.not.toThrow();
       expect(pool.query).toHaveBeenCalledWith(
-        "DELETE FROM users WHERE id = $1",
+        "DELETE FROM Users WHERE Users.id = $1",
         [1]
       );
     });

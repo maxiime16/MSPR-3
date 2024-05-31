@@ -13,7 +13,7 @@ class CategoryModel {
   static async getById(categoryId) {
     try {
       const categoryDataResult = await pool.query(
-        "SELECT * FROM Category WHERE CategoryId = $1",
+        "SELECT * FROM Category WHERE Category.id = $1",
         [categoryId]
       );
       if (categoryDataResult.rows.length === 0) {
@@ -40,7 +40,7 @@ class CategoryModel {
 
   static async delete(categoryId) {
     try {
-      const result = await pool.query("DELETE FROM Category WHERE CategoryId = $1 RETURNING *", [
+      const result = await pool.query("DELETE FROM Category WHERE Category.id = $1 RETURNING *", [
         categoryId,
       ]);
       if (result.rows.length === 0) {
@@ -55,7 +55,7 @@ class CategoryModel {
   static async update(categoryId, { name }) {
     try {
       const updatedCategoryDataResult = await pool.query(
-        "UPDATE Category SET Name = $1 WHERE CategoryId = $2 RETURNING *",
+        "UPDATE Category SET Category.Name = $1 WHERE Category.id = $2 RETURNING *",
         [name, categoryId]
       );
 

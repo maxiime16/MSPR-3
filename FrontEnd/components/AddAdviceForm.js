@@ -48,7 +48,7 @@ const AddAdviceForm = ({ plantId, onAddAdvice }) => {
         body: JSON.stringify({
           content,
           user_id: userId, // Utilisez l'ID de l'utilisateur récupéré
-          plant_id: plantId,
+          id_plant: plantId,
         }),
       });
 

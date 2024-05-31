@@ -7,7 +7,7 @@ const formatAdvice = (advice) => ({
   attributes: {
     content: advice.content,
     user_id: advice.userid,
-    plant_id: advice.plantid,
+    id_plant: advice.plantid,
   },
 });
 
@@ -37,7 +37,7 @@ exports.getAdviceById = async (req, res) => {
 };
 
 exports.getAdviceByPlantId = async (req, res) => {
-  const plantId = req.params.plant_id;
+  const plantId = req.params.id_plant;
   if (!plantId) {
     return res.status(400).json({ errors: [{ message: "Missing plant ID" }] });
   }
@@ -56,10 +56,10 @@ exports.createAdvice = async (req, res) => {
     return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { content, user_id, plant_id } = req.body;
+  const { content, user_id, id_plant } = req.body;
 
   try {
-    const newAdvice = await AdviceModel.create({ content, user_id, plant_id });
+    const newAdvice = await AdviceModel.create({ content, user_id, id_plant });
     res.status(201).json({ data: formatAdvice(newAdvice) });
   } catch (err) {
     console.error(`Error creating advice: ${err.message}`);
@@ -90,14 +90,14 @@ exports.updateAdvice = async (req, res) => {
     return res.status(400).json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { content, user_id, plant_id } = req.body;
+  const { content, user_id, id_plant } = req.body;
 
   if (!adviceId) {
     return res.status(400).json({ errors: [{ message: "Missing advice ID" }] });
   }
 
   try {
-    const updatedAdvice = await AdviceModel.update(adviceId, { content, user_id, plant_id });
+    const updatedAdvice = await AdviceModel.update(adviceId, { content, user_id, id_plant });
 
     if (!updatedAdvice) {
       return res.status(404).json({ errors: [{ message: "Advice not found" }] });

@@ -17,7 +17,7 @@ const adviceController = require("../controllers/adviceController");
  *     required:
  *       - content
  *       - user_id
- *       - plant_id
+ *       - id_plant
  *     properties:
  *       id:
  *         type: integer
@@ -28,7 +28,7 @@ const adviceController = require("../controllers/adviceController");
  *         format: date
  *       user_id:
  *         type: integer
- *       plant_id:
+ *       id_plant:
  *         type: integer
  */
 
@@ -79,13 +79,13 @@ router.get("/:id", adviceController.getAdviceById);
 
 /**
  * @swagger
- * /api/advice/plant/{plant_id}:
+ * /api/advice/plant/{id_plant}:
  *   get:
  *     summary: Retrieve advice by plant ID
  *     tags: [Advice]
  *     parameters:
  *       - in: path
- *         name: plant_id
+ *         name: id_plant
  *         required: true
  *         schema:
  *           type: integer
@@ -104,7 +104,7 @@ router.get("/:id", adviceController.getAdviceById);
  *       500:
  *         description: Server error
  */
-router.get("/plant/:plant_id", adviceController.getAdviceByPlantId);
+router.get("/plant/:id_plant", adviceController.getAdviceByPlantId);
 
 /**
  * @swagger
