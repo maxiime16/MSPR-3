@@ -1,225 +1,396 @@
+const UserController = require("../controllers/userController");
 const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-const Joi = require("joi");
+const { mockRequest, mockResponse } = require("../utils/testUtils");
 
-dotenv.config();
+jest.mock("../models/userModel");
+jest.mock("bcrypt");
+jest.mock("jsonwebtoken");
 
-// Schémas de validation
-const userSchema = Joi.object({
-  first_name: Joi.string().min(1).max(50).required(),
-  last_name: Joi.string().min(1).max(50).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-});
+describe("User Controller", () => {
+  let req, res;
+  let consoleErrorMock;
 
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
-});
-
-// Contrôleurs
-
-exports.getAll = async (req, res) => {
-  try {
-    const users = await UserModel.getAll();
-    const responseData = users.map((user) => ({
-      type: "user",
-      id: user.userid,
-      attributes: {
-        first_name: user.firstname,
-        last_name: user.lastname,
-        email: user.email,
-      },
-    }));
-    res.status(200).json({ data: responseData });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ errors: [{ message: "Server Error" }] });
-  }
-};
-
-exports.getUserByEmail = async (req, res) => {
-  const { email } = req.params;
-  try {
-    const user = await UserModel.getByEmail(email);
-    if (!user) {
-      return res.status(404).json({ errors: [{ title: "User not found." }] });
-    }
-    res.status(200).json({
-      data: {
-        type: "user",
-        id: user.userid,
-        attributes: {
-          first_name: user.firstname,
-          last_name: user.lastname,
-          email: user.email,
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Error getting user by email:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
-
-exports.getUserById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await UserModel.getById(id);
-    if (!user) {
-      return res.status(404).json({ errors: [{ title: "User not found." }] });
-    }
-    res.status(200).json({
-      data: {
-        type: "user",
-        id: user.userid,
-        attributes: {
-          first_name: user.firstname,
-          last_name: user.lastname,
-          email: user.email,
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Error getting user by ID:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
-
-exports.createUser = async (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
-
-  // Valider les entrées
-  const { error } = userSchema.validate({
-    first_name,
-    last_name,
-    email,
-    password,
+  beforeEach(() => {
+    req = mockRequest();
+    res = mockResponse();
+    jest.clearAllMocks();
+    consoleErrorMock = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
   });
-  if (error) {
-    return res
-      .status(400)
-      .json({ errors: [{ title: error.details[0].message }] });
-  }
 
-  try {
-    // Vérifier si l'utilisateur existe déjà
-    const existingUser = await UserModel.getByEmail(email);
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ errors: [{ title: "User with this email already exists." }] });
-    }
+  afterEach(() => {
+    consoleErrorMock.mockRestore();
+  });
 
-    // Hashage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
+  describe("getAll", () => {
+    it("devrait retourner 200 avec la liste des utilisateurs", async () => {
+      const users = [
+        {
+          id: 1,
+          firstname: "John",
+          lastname: "Doe",
+          email: "john@example.com",
+        },
+        {
+          id: 2,
+          firstname: "Jane",
+          lastname: "Doe",
+          email: "jane@example.com",
+        },
+      ];
+      UserModel.getAll.mockResolvedValue(users);
 
-    const newUser = await UserModel.createUser({
-      first_name,
-      last_name,
-      email,
-      password: hashedPassword, // Utiliser le mot de passe haché
+      await UserController.getAll(req, res);
+
+      expect(UserModel.getAll).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: users.map((user) => ({
+          type: "user",
+          id: user.id,
+          attributes: {
+            first_name: user.firstname,
+            last_name: user.lastname,
+            email: user.email,
+          },
+        })),
+      });
     });
-    res
-      .status(201)
-      .json({ data: { message: "Utilisateur créé avec succès." } });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
+  });
 
-exports.updateUser = async (req, res) => {
-  const { id } = req.params;
-  const userData = req.body;
+  describe("getUserByEmail", () => {
+    it("devrait retourner 200 si l'utilisateur est trouvé", async () => {
+      const user = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+      };
+      UserModel.getByEmail.mockResolvedValue(user);
+      req.params.email = "john@example.com";
 
-  // Optionnel : valider les données mises à jour si vous avez un schéma de validation
+      await UserController.getUserByEmail(req, res);
 
-  try {
-    // Vérifier si l'utilisateur existe
-    const existingUser = await UserModel.getById(id);
-    if (!existingUser) {
-      return res.status(404).json({ errors: [{ title: "User not found." }] });
-    }
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          type: "user",
+          id: user.id,
+          attributes: {
+            first_name: user.firstname,
+            last_name: user.lastname,
+            email: user.email,
+          },
+        },
+      });
+    });
 
-    const updatedUser = await UserModel.update(id, userData);
-    res.status(200).json({ data: updatedUser });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
+    it("devrait retourner 404 si l'utilisateur n'est pas trouvé", async () => {
+      UserModel.getByEmail.mockResolvedValue(null);
+      req.params.email = "unknown@example.com";
 
-exports.deleteUser = async (req, res) => {
-  const { id } = req.params;
-  try {
-    await UserModel.delete(id);
-    res.status(200).json({ data: { message: "User deleted successfully." } });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
+      await UserController.getUserByEmail(req, res);
 
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("unknown@example.com");
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "User not found." }],
+      });
+    });
+  });
 
-  // Valider les entrées
-  const { error } = loginSchema.validate({ email, password });
-  if (error) {
-    return res
-      .status(400)
-      .json({ errors: [{ title: error.details[0].message }] });
-  }
+  describe("getUserById", () => {
+    it("devrait retourner 200 si l'utilisateur est trouvé", async () => {
+      const user = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+      };
+      UserModel.getById.mockResolvedValue(user);
+      req.params.id = 1;
 
-  try {
-    // Recherche de l'utilisateur par email
-    const user = await UserModel.getByEmail(email);
+      await UserController.getUserById(req, res);
 
-    if (!user) {
-      return res
-        .status(401)
-        .json({ errors: [{ title: "Invalid email or password." }] });
-    }
+      expect(UserModel.getById).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          type: "user",
+          id: user.id,
+          attributes: {
+            first_name: user.firstname,
+            last_name: user.lastname,
+            email: user.email,
+          },
+        },
+      });
+    });
 
-    // Vérification du mot de passe
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    it("devrait retourner 404 si l'utilisateur n'est pas trouvé", async () => {
+      UserModel.getById.mockResolvedValue(null);
+      req.params.id = 1;
 
-    if (!passwordMatch) {
-      return res
-        .status(401)
-        .json({ errors: [{ title: "Invalid email or password." }] });
-    }
+      await UserController.getUserById(req, res);
 
-    // Si le mot de passe est correct, créer un JWT
-    const token = jwt.sign(
-      {
-        id: user.userid,
-        email: user.email,
-        first_name: user.firstname,
-        last_name: user.lastname,
-      },
-      process.env.JWT_SECRET // Clé secrète pour signer le token
-      // { expiresIn: '1h' } // Expiration du token
-    );
+      expect(UserModel.getById).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "User not found." }],
+      });
+    });
+  });
 
-    // Retourner les informations de l'utilisateur et le token JWT
-    res.status(200).json({
-      data: {
-        id: user.userid,
-        type: "user",
-        attributes: {
+  describe("createUser", () => {
+    it("devrait retourner 201 et créer un utilisateur", async () => {
+      const newUser = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+        password: "hashedpassword",
+      };
+      UserModel.getByEmail.mockResolvedValue(null);
+      UserModel.createUser.mockResolvedValue(newUser);
+      bcrypt.hash.mockResolvedValue("hashedpassword");
+      req.body = {
+        first_name: "John",
+        last_name: "Doe",
+        email: "john@example.com",
+        password: "password123",
+      };
+
+      await UserController.createUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(bcrypt.hash).toHaveBeenCalledWith("password123", 10);
+      expect(UserModel.createUser).toHaveBeenCalledWith({
+        first_name: "John",
+        last_name: "Doe",
+        email: "john@example.com",
+        password: "hashedpassword",
+      });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        data: { message: "Utilisateur créé avec succès." },
+      });
+    });
+
+    it("devrait retourner 400 si l'utilisateur existe déjà", async () => {
+      const existingUser = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+      };
+      UserModel.getByEmail.mockResolvedValue(existingUser);
+      req.body = {
+        first_name: "John",
+        last_name: "Doe",
+        email: "john@example.com",
+        password: "password123",
+      };
+
+      await UserController.createUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "User with this email already exists." }],
+      });
+    });
+  });
+
+  describe("updateUser", () => {
+    it("devrait retourner 200 et mettre à jour l'utilisateur", async () => {
+      const existingUser = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+      };
+      const updatedUser = {
+        id: 1,
+        firstname: "Johnny",
+        lastname: "Doe",
+        email: "john@example.com",
+      };
+      UserModel.getById.mockResolvedValue(existingUser);
+      UserModel.update.mockResolvedValue(updatedUser);
+      req.params.id = 1;
+      req.body = {
+        first_name: "Johnny",
+        last_name: "Doe",
+        email: "john@example.com",
+      };
+
+      await UserController.updateUser(req, res);
+
+      expect(UserModel.getById).toHaveBeenCalledWith(1);
+      expect(UserModel.update).toHaveBeenCalledWith(1, {
+        first_name: "Johnny",
+        last_name: "Doe",
+        email: "john@example.com",
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          type: "user",
+          id: updatedUser.id,
+          attributes: {
+            first_name: updatedUser.firstname,
+            last_name: updatedUser.lastname,
+            email: updatedUser.email,
+          },
+        },
+      });
+    });
+
+    it("devrait retourner 404 si l'utilisateur n'existe pas", async () => {
+      UserModel.getById.mockResolvedValue(null);
+      req.params.id = 1;
+      req.body = {
+        first_name: "Johnny",
+        last_name: "Doe",
+        email: "john@example.com",
+      };
+
+      await UserController.updateUser(req, res);
+
+      expect(UserModel.getById).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "User not found." }],
+      });
+    });
+  });
+
+  describe("deleteUser", () => {
+    it("devrait retourner 200 et supprimer l'utilisateur", async () => {
+      UserModel.delete.mockResolvedValue();
+      req.params.id = 1;
+
+      await UserController.deleteUser(req, res);
+
+      expect(UserModel.delete).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: { message: "User deleted successfully." },
+      });
+    });
+
+    it("devrait retourner 500 en cas d'erreur", async () => {
+      UserModel.delete.mockRejectedValue(new Error("Error deleting user"));
+      req.params.id = 1;
+
+      await UserController.deleteUser(req, res);
+
+      expect(UserModel.delete).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "Server Error" }],
+      });
+    });
+  });
+
+  describe("loginUser", () => {
+    it("devrait retourner 200 et un token JWT si les identifiants sont valides", async () => {
+      const user = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+        password: "hashedpassword",
+      };
+      UserModel.getByEmail.mockResolvedValue(user);
+      bcrypt.compare.mockResolvedValue(true);
+      jwt.sign.mockReturnValue("valid.jwt.token");
+      req.body = { email: "john@example.com", password: "password123" };
+
+      await UserController.loginUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        "password123",
+        "hashedpassword"
+      );
+      expect(jwt.sign).toHaveBeenCalledWith(
+        {
+          id: user.id,
+          email: user.email,
           first_name: user.firstname,
           last_name: user.lastname,
-          email: user.email,
-          token: token,
         },
-      },
+        process.env.JWT_SECRET
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          id: user.id,
+          type: "user",
+          attributes: {
+            first_name: user.firstname,
+            last_name: user.lastname,
+            email: user.email,
+            token: "valid.jwt.token",
+          },
+        },
+      });
     });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ errors: [{ title: "Server Error" }] });
-  }
-};
+
+    it("devrait retourner 401 si l'email est invalide", async () => {
+      UserModel.getByEmail.mockResolvedValue(null);
+      req.body = { email: "unknown@example.com", password: "password123" };
+
+      await UserController.loginUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("unknown@example.com");
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "Invalid email or password." }],
+      });
+    });
+
+    it("devrait retourner 401 si le mot de passe est invalide", async () => {
+      const user = {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        email: "john@example.com",
+        password: "hashedpassword",
+      };
+      UserModel.getByEmail.mockResolvedValue(user);
+      bcrypt.compare.mockResolvedValue(false);
+      req.body = { email: "john@example.com", password: "invalidpassword" };
+
+      await UserController.loginUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        "invalidpassword",
+        "hashedpassword"
+      );
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "Invalid email or password." }],
+      });
+    });
+
+    it("devrait retourner 500 en cas d'erreur lors de la connexion", async () => {
+      UserModel.getByEmail.mockRejectedValue(new Error("Error during login"));
+      req.body = { email: "john@example.com", password: "password123" };
+
+      await UserController.loginUser(req, res);
+
+      expect(UserModel.getByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ title: "Server Error" }],
+      });
+    });
+  });
+});

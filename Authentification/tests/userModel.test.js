@@ -57,7 +57,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(user);
       expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM Users WHERE Email = $1',
+        "SELECT * FROM Users WHERE Email = $1",
         ["john@example.com"]
       );
     });
@@ -86,7 +86,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(user);
       expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM Users WHERE Users.id = $1',
+        "SELECT * FROM Users WHERE Users.id = $1",
         [1]
       );
     });
@@ -155,7 +155,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(updatedUser);
       expect(pool.query).toHaveBeenCalledWith(
-        'UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *',
+        "UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *",
         ["john_updated@example.com", "John", "Doe", 1]
       );
     });

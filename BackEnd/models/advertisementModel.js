@@ -148,11 +148,11 @@ class AdvertisementModel {
   static async getAdvertisementDetailsById(advertisementID) {
     try {
       const advertisementDataResult = await pool.query(`
-      SELECT a.Title AS AdvertisementTitle, a.StartDate, a.EndDate, u.FirstName, u.LastName, u.Email, ad.City, ad.Postal_Code, ad.Longitude, ad.Latitude 
+      SELECT a.Title AS AdvertisementTitle, a.start_date, a.end_date, a.creation_date, u.first_name, u.last_name, u.email, ad.City, ad.Postal_Code, ad.Longitude, ad.Latitude 
       FROM Advertisement a 
-      JOIN Users u ON a.UserId = u.UserId 
-      JOIN Address ad ON a.AddressId = ad.AddressId 
-      WHERE a.AdvertisementId = $1;`,
+      JOIN Users u ON a.id_User = u.id 
+      JOIN Address ad ON a.id_Address = ad.id 
+      WHERE a.id = $1;`,
         [advertisementID]
       );
       if (advertisementDataResult.rows.length === 0) {

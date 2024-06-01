@@ -6,36 +6,36 @@ jest.mock("jsonwebtoken");
 
 describe("JWT Model", () => {
   describe("verifyToken", () => {
-    it("should return decoded token if valid", async () => {
+    it("devrait retourner le token décodé s'il est valide", async () => {
       const decoded = { id: 1, email: "test@example.com" };
       jwt.verify.mockImplementation((token, secret, callback) => {
         callback(null, decoded);
       });
 
-      const result = await JWTModel.verifyToken("Bearer valid.token.here");
+      const result = await JWTModel.verifyToken("valid.token.here");
 
       expect(result).toEqual(decoded);
     });
 
-    it("should throw an error if token is invalid", async () => {
+    it("devrait renvoyer une erreur si le token est invalide", async () => {
       jwt.verify.mockImplementation((token, secret, callback) => {
-        callback(new Error("Invalid token"));
+        callback({ name: "JsonWebTokenError" });
       });
 
-      await expect(
-        JWTModel.verifyToken("Bearer invalid.token.here")
-      ).rejects.toThrow("Invalid token");
+      await expect(JWTModel.verifyToken("invalid.token.here")).rejects.toThrow(
+        "Token invalide."
+      );
     });
 
-    it("should throw an error if jwt.verify throws", async () => {
+    it("devrait renvoyer une erreur si jwt.verify renvoie une erreur différente", async () => {
       const error = new Error("Something went wrong");
       jwt.verify.mockImplementation((token, secret, callback) => {
         callback(error);
       });
 
-      await expect(
-        JWTModel.verifyToken("Bearer valid.token.here")
-      ).rejects.toThrow("Something went wrong");
+      await expect(JWTModel.verifyToken("valid.token.here")).rejects.toThrow(
+        "Erreur lors de la vérification du token."
+      );
     });
   });
 });

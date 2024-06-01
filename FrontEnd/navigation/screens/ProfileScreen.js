@@ -20,10 +20,17 @@ const ProfileScreen = ({ onLogout }) => {
       try {
         const jsonValue = await AsyncStorage.getItem("userData");
         if (jsonValue !== null) {
-          const userData = JSON.parse(jsonValue).data.attributes;
-          const userId = JSON.parse(jsonValue).data.id;
-          setUserData(userData);
+          const parsedUserData = JSON.parse(jsonValue);
+          const userId = parsedUserData.data.id;
           setUserId(userId);
+
+          // Fetch user details by ID
+          const userResponse = await fetch(`${IP}/user/${userId}`);
+          if (!userResponse.ok) {
+            throw new Error("Failed to fetch user details");
+          }
+          const userData = await userResponse.json();
+          setUserData(userData.data.attributes);
 
           const fetchUserAds = async () => {
             try {
@@ -67,7 +74,6 @@ const ProfileScreen = ({ onLogout }) => {
         },
         body: JSON.stringify(userForm),
       });
-
       if (!response.ok) {
         throw new Error("Failed to update user information");
       }
@@ -106,7 +112,7 @@ const ProfileScreen = ({ onLogout }) => {
 
   const confirmDeleteAccount = async () => {
     try {
-      const response = await fetch(`${IP}/users/${userData.id}`, {
+      const response = await fetch(`${IP}/users/${userId}`, {
         method: "DELETE",
       });
 
@@ -125,22 +131,19 @@ const ProfileScreen = ({ onLogout }) => {
 
   const confirmDeleteAd = async () => {
     try {
-      
-      // Fetch all plants associated with the advertisement
       const plantsResponse = await fetch(`${IP_Back}/plant/advertisement/${deletingAdId}`);
       if (!plantsResponse.ok) {
         throw new Error("Failed to fetch plants associated with advertisement");
       }
       const plantsData = await plantsResponse.json();
-  
-      // Delete each plant and its associated images
+
       for (const plant of plantsData.data) {
         const imagesResponse = await fetch(`${IP_Back}/image/plant/${plant.plantid}`);
         if (!imagesResponse.ok) {
           throw new Error(`Failed to fetch images for plant ${plant.plantid}`);
         }
         const imagesData = await imagesResponse.json();
-  
+
         for (const image of imagesData.data) {
           const deleteImageResponse = await fetch(`${IP_Back}/image/${image.imageid}`, {
             method: "DELETE",
@@ -149,7 +152,7 @@ const ProfileScreen = ({ onLogout }) => {
             throw new Error(`Failed to delete image ${image.imageid}`);
           }
         }
-  
+
         const deletePlantResponse = await fetch(`${IP_Back}/plant/${plant.plantid}`, {
           method: "DELETE",
         });
@@ -157,17 +160,15 @@ const ProfileScreen = ({ onLogout }) => {
           throw new Error(`Failed to delete plant ${plant.plantid}`);
         }
       }
-  
-      // Delete the advertisement
+
       const response = await fetch(`${IP_Back}/advertisement/${deletingAdId}`, {
         method: "DELETE",
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to delete advertisement");
       }
-  
-      // Update the user's ads list
+
       const updatedUserAds = userAds.filter(ad => ad.id !== deletingAdId);
       setUserAds(updatedUserAds);
     } catch (error) {
@@ -176,7 +177,7 @@ const ProfileScreen = ({ onLogout }) => {
       setDeleteAdModalVisible(false);
     }
   };
-  
+
   return (
     <ScrollView>
       <View style={styles.container}>

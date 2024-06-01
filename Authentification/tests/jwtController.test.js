@@ -14,20 +14,22 @@ describe("JWT Controller", () => {
   });
 
   describe("verifyToken", () => {
-    it("should return 200 if token is valid", async () => {
+    it("devrait retourner 200 si le token est valide", async () => {
       req.headers.authorization = "Bearer valid.token.here";
-      JWTModel.verifyToken.mockResolvedValue(true);
+      const decodedToken = { id: 1, email: "test@example.com" };
+      JWTModel.verifyToken.mockResolvedValue(decodedToken);
 
       await JWTController.verifyToken(req, res);
 
-      expect(JWTModel.verifyToken).toHaveBeenCalledWith(
-        "Bearer valid.token.here"
-      );
+      expect(JWTModel.verifyToken).toHaveBeenCalledWith("valid.token.here");
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: "Token JWT valide." });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Token JWT valide.",
+        user: decodedToken,
+      });
     });
 
-    it("should return 401 if token is not provided", async () => {
+    it("devrait retourner 401 si le token n'est pas fourni", async () => {
       req.headers.authorization = "";
 
       await JWTController.verifyToken(req, res);
@@ -36,20 +38,18 @@ describe("JWT Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ error: "Token JWT non fourni." });
     });
 
-    it("should return 401 if token is invalid", async () => {
+    it("devrait retourner 401 si le token est invalide", async () => {
       req.headers.authorization = "Bearer invalid.token.here";
-      JWTModel.verifyToken.mockResolvedValue(false); // Résoudre avec false pour indiquer un token invalide
+      JWTModel.verifyToken.mockRejectedValue(new Error("Token invalide."));
 
       await JWTController.verifyToken(req, res);
 
-      expect(JWTModel.verifyToken).toHaveBeenCalledWith(
-        "Bearer invalid.token.here"
-      );
+      expect(JWTModel.verifyToken).toHaveBeenCalledWith("invalid.token.here");
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: "Token JWT invalide." });
+      expect(res.json).toHaveBeenCalledWith({ error: "Token invalide." });
     });
 
-    it("should handle errors", async () => {
+    it("devrait gérer les erreurs", async () => {
       const error = new Error("Something went wrong");
       req.headers.authorization = "Bearer valid.token.here";
       JWTModel.verifyToken.mockRejectedValue(error);
@@ -57,7 +57,10 @@ describe("JWT Controller", () => {
       await JWTController.verifyToken(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Internal Server Error",
+        detail: "Something went wrong",
+      });
     });
   });
 });

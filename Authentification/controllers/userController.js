@@ -3,24 +3,24 @@ const { userSchema, loginSchema } = require("../schemas/userSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const Joi = require("joi");
 
 dotenv.config();
 
-// Contrôleurs
+// Fonction utilitaire pour formater les données utilisateur
+const formatUserData = (user) => ({
+  type: "user",
+  id: user.id,
+  attributes: {
+    first_name: user.firstname,
+    last_name: user.lastname,
+    email: user.email,
+  },
+});
 
 exports.getAll = async (req, res) => {
   try {
     const users = await UserModel.getAll();
-    const responseData = users.map((user) => ({
-      type: "user",
-      id: user.userid,
-      attributes: {
-        first_name: user.firstname,
-        last_name: user.lastname,
-        email: user.email,
-      },
-    }));
+    const responseData = users.map(formatUserData);
     res.status(200).json({ data: responseData });
   } catch (err) {
     console.error(err.message);
@@ -35,17 +35,7 @@ exports.getUserByEmail = async (req, res) => {
     if (!user) {
       return res.status(404).json({ errors: [{ title: "User not found." }] });
     }
-    res.status(200).json({
-      data: {
-        type: "user",
-        id: user.userid,
-        attributes: {
-          first_name: user.firstname,
-          last_name: user.lastname,
-          email: user.email,
-        },
-      },
-    });
+    res.status(200).json({ data: formatUserData(user) });
   } catch (error) {
     console.error("Error getting user by email:", error);
     res.status(500).json({ errors: [{ title: "Server Error" }] });
@@ -59,17 +49,7 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ errors: [{ title: "User not found." }] });
     }
-    res.status(200).json({
-      data: {
-        type: "user",
-        id: user.userid,
-        attributes: {
-          first_name: user.firstname,
-          last_name: user.lastname,
-          email: user.email,
-        },
-      },
-    });
+    res.status(200).json({ data: formatUserData(user) });
   } catch (error) {
     console.error("Error getting user by ID:", error);
     res.status(500).json({ errors: [{ title: "Server Error" }] });
@@ -79,7 +59,6 @@ exports.getUserById = async (req, res) => {
 exports.createUser = async (req, res) => {
   const { first_name, last_name, email, password } = req.body;
 
-  // Valider les entrées
   const { error } = userSchema.validate({
     first_name,
     last_name,
@@ -93,7 +72,6 @@ exports.createUser = async (req, res) => {
   }
 
   try {
-    // Vérifier si l'utilisateur existe déjà
     const existingUser = await UserModel.getByEmail(email);
     if (existingUser) {
       return res
@@ -101,14 +79,13 @@ exports.createUser = async (req, res) => {
         .json({ errors: [{ title: "User with this email already exists." }] });
     }
 
-    // Hashage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await UserModel.createUser({
       first_name,
       last_name,
       email,
-      password: hashedPassword, 
+      password: hashedPassword,
     });
     res
       .status(201)
@@ -123,17 +100,14 @@ exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
 
-  // Optionnel : valider les données mises à jour si vous avez un schéma de validation
-
   try {
-    // Vérifier si l'utilisateur existe
     const existingUser = await UserModel.getById(id);
     if (!existingUser) {
       return res.status(404).json({ errors: [{ title: "User not found." }] });
     }
 
     const updatedUser = await UserModel.update(id, userData);
-    res.status(200).json({ data: updatedUser });
+    res.status(200).json({ data: formatUserData(updatedUser) });
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ errors: [{ title: "Server Error" }] });
@@ -154,7 +128,6 @@ exports.deleteUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  // Valider les entrées
   const { error } = loginSchema.validate({ email, password });
   if (error) {
     return res
@@ -163,7 +136,6 @@ exports.loginUser = async (req, res) => {
   }
 
   try {
-    // Recherche de l'utilisateur par email
     const user = await UserModel.getByEmail(email);
 
     if (!user) {
@@ -172,7 +144,6 @@ exports.loginUser = async (req, res) => {
         .json({ errors: [{ title: "Invalid email or password." }] });
     }
 
-    // Vérification du mot de passe
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -181,19 +152,16 @@ exports.loginUser = async (req, res) => {
         .json({ errors: [{ title: "Invalid email or password." }] });
     }
 
-    // Si le mot de passe est correct, créer un JWT
     const token = jwt.sign(
       {
-        id: user.userid,
+        id: user.id,
         email: user.email,
         first_name: user.firstname,
         last_name: user.lastname,
       },
-      process.env.JWT_SECRET // Clé secrète pour signer le token
-      // { expiresIn: '1h' } // Expiration du token
+      process.env.JWT_SECRET
     );
 
-    // Retourner les informations de l'utilisateur et le token JWT
     res.status(200).json({
       data: {
         id: user.id,
