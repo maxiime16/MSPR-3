@@ -1,6 +1,12 @@
 const pool = require("../config/db");
 
 class CategoryModel {
+  /**
+   * Methode GetAll
+   * Permet de récupérer toutes les catégories
+   *
+   * Utilisé dans le front
+   */
   static async getAll() {
     try {
       const categoryDataResult = await pool.query("SELECT * FROM Category");
@@ -10,6 +16,12 @@ class CategoryModel {
     }
   }
 
+  /**
+   * Methode GetById
+   * Permet de récupérer une catégorie par son id
+   *
+   * Pas utilisé dans le front
+   */
   static async getById(categoryId) {
     try {
       const categoryDataResult = await pool.query(
@@ -25,6 +37,12 @@ class CategoryModel {
     }
   }
 
+  /**
+   * Methode Create
+   * Permet de créer une catégorie
+   *
+   * Pas utilisé dans le front
+   */
   static async create({ name }) {
     try {
       const newCategoryDataResult = await pool.query(
@@ -38,9 +56,15 @@ class CategoryModel {
     }
   }
 
+  /**
+   * Methode Delete
+   * Permet de supprimer une catégorie par son id
+   *
+   * Pas utilisé dans le front
+   */
   static async delete(categoryId) {
     try {
-      const result = await pool.query("DELETE FROM Category WHERE Category.id = $1 RETURNING *", [
+      const result = await pool.query("DELETE FROM Category C WHERE C.id = $1 RETURNING *", [
         categoryId,
       ]);
       if (result.rows.length === 0) {
@@ -52,10 +76,16 @@ class CategoryModel {
     }
   }
 
+  /**
+   * Methode Update
+   * Permet de modifier une catégorie
+   *
+   * Pas utilisé dans le front
+   */
   static async update(categoryId, { name }) {
     try {
       const updatedCategoryDataResult = await pool.query(
-        "UPDATE Category SET Category.Name = $1 WHERE Category.id = $2 RETURNING *",
+        "UPDATE Category C SET C.Name = $1 WHERE C.id = $2 RETURNING *",
         [name, categoryId]
       );
 

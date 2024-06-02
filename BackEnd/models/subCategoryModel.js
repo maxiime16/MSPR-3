@@ -12,7 +12,7 @@ class SubCategoryModel {
 
   static async getById(subCategoryID) {
     try {
-      const subCategoryDataResult = await pool.query('SELECT * FROM Sub_category WHERE Sub_category.id = $1', [subCategoryID]);
+      const subCategoryDataResult = await pool.query('SELECT * FROM Sub_category Sc WHERE Sc.id = $1', [subCategoryID]);
       if (subCategoryDataResult.rows.length === 0) {
         throw new Error( "Sub-category not found" );
       }
@@ -24,7 +24,7 @@ class SubCategoryModel {
 
   static async getByCategoryId(categoryID) {
     try {
-      const subCategoryDataResult = await pool.query('SELECT * FROM Sub_category WHERE Sub_category.id_category = $1', [categoryID]);
+      const subCategoryDataResult = await pool.query('SELECT * FROM Sub_category Sc WHERE Sc.id_category = $1', [categoryID]);
       return subCategoryDataResult.rows;
     } catch (err) {
       throw new Error(`Error retrieving sub-categories by category: ${err.message}`);
@@ -34,7 +34,7 @@ class SubCategoryModel {
   static async getByCategoryIdAndSubCategoryId(categoryID, subCategoryID) {
     try {
       const subCategoryDataResult = await pool.query(
-        'SELECT * FROM Sub_category WHERE Sub_category.id_category = $1 AND Sub_category.id = $2',
+        'SELECT * FROM Sub_category Sc WHERE Sc.id_category = $1 AND Sc.id = $2',
         [categoryID, subCategoryID]
       );
       if (subCategoryDataResult.rows.length === 0) {
@@ -60,7 +60,7 @@ class SubCategoryModel {
 
   static async delete(subCategoryID) {
     try {
-      const result = await pool.query('DELETE FROM Sub_category WHERE SubCategoryId = $1 RETURNING *', [subCategoryID]);
+      const result = await pool.query('DELETE FROM Sub_category Sc WHERE Sc.id = $1 RETURNING *', [subCategoryID]);
       if (result.rows.length === 0) {
         throw new Error( "Sub-category not found" );
       }
@@ -73,7 +73,7 @@ class SubCategoryModel {
   static async update(subCategoryID, { name, category_id }) {
     try {
       const updateSubCategoryDataResult = await pool.query(
-        'UPDATE Sub_category SET Sub_category.name = $1, Sub_category.id_category = $2 WHERE Sub_category.id = $3 RETURNING *',
+        'UPDATE Sub_category Sc SET Sc.name = $1, Sc.id_category = $2 WHERE Sc.id = $3 RETURNING *',
         [name, category_id, subCategoryID]
       );
 

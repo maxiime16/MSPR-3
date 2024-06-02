@@ -13,7 +13,7 @@ class PlantModel {
   static async getById(plantId) {
     try {
       const plantDataResult = await pool.query(
-        "SELECT * FROM Plant WHERE Plant.id = $1",
+        "SELECT * FROM Plant P WHERE P.id = $1",
         [plantId]
       );
       if (plantDataResult.rows.length === 0) {

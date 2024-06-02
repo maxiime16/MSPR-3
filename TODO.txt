@@ -2,9 +2,6 @@ BackEnd:
 
     - Adress:
         - Problème erreur 500 au lieu de 400 pour les méthodes getById, Update et Delete quand on met un id qui n'existe pas
-        => corections à faire dans le controller 
-
-        - Faire les tests apres avoir corrigé ça
 
     - Advertisement:
         - Probleme d'affichage des données recupéré dans le GetAll, GetById, GetByIdUSer, GetByIdAdress il manque certaine infos dans le retour JSON (start_date,end_date,creation_date,id_Address,id_User)
@@ -20,6 +17,26 @@ BackEnd:
 
         - Probleme erreur 500 au lieu de 400 pour les méthodes GetById, GetByIdPlant, Update et Delete quand on met un id qui n'existe pas
 
-Pas eu le temps de finir mais toutes les mothodes on un pb avec l'erreur 500 au lieu de 400
-+ Probleme de swagger pour les create où il n'y a pas de Body
-+ vérifier que le swagger renvoit bien toutes les données
+    - Category:
+        - Pas de Body dans le Create pour le swagger
+
+        - Probleme erreur 500 au lieu de 400 pour les méthodes GetById, Update et Delete quand on met un id qui n'existe pas
+    
+    - Image: 
+        - Pas de Body dans le Create pour le swagger
+
+        - Probleme erreur 500 au lieu de 400 pour les méthodes GetById, GetByIdPlant Update et Delete quand on met un id qui n'existe pas
+
+        - Prbleme GetByIdPlant renvoi une erreur 400 alors que l'id existe
+    
+    - Plant:
+        - Probleme erreur 500 au lieu de 400 pour les méthodes GetById, Update, getPlantsByAdvertisementId et Delete quand on met un id qui n'existe pas
+
+        - Probleme d'affichage des données recupéré, il manque certaine infos dans le retour JSON (id_Advertisement, id_Sub_category)
+                
+        - Pas de Body dans le Create pour le swagger
+
+    - Sub_category:
+        - Pas de Body dans le Create pour le swagger
+
+        - Probleme erreur 500 au lieu de 400 pour les méthodes GetById, Update, getByCategoryId,getByCategoryIdAndSubCategoryId  et Delete quand on met un id qui n'existe pas

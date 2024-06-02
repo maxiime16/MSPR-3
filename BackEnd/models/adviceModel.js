@@ -1,6 +1,12 @@
 const pool = require("../config/db");
 
 class AdviceModel {
+  /**
+   * Methode GetAll
+   * Permet de récupérer tous les conseils
+   *
+   * Pas utilisé dans le front
+   */
   static async getAll() {
     try {
       const adviceDataResult = await pool.query("SELECT * FROM Advice");
@@ -10,6 +16,12 @@ class AdviceModel {
     }
   }
 
+  /**
+   * Methode GetById
+   * Permet de récupérer un conseil par son id
+   *
+   * Pas utilisé dans le front
+   */
   static async getById(adviceId) {
     try {
       const adviceDataResult = await pool.query(
@@ -25,6 +37,12 @@ class AdviceModel {
     }
   }
 
+  /**
+   * Methode GetByPlantId
+   * Permet de récupérer un conseil + nom, prénom de l'auteur par son id plant 
+   *
+   * Utilisé dans le front
+   */
   static async getByPlantId(plantId) {
     try {
       const adviceDataResult = await pool.query(
@@ -48,6 +66,12 @@ class AdviceModel {
     }
   }
 
+  /**
+   * Methode Create
+   * Permet de créer un conseil
+   *
+   * Utilisé dans le front
+   */
   static async create({ content, user_id, id_plant }) {
     try {
       const newAdviceDataResult = await pool.query(
@@ -61,6 +85,13 @@ class AdviceModel {
     }
   }
 
+  /**
+   * Methode Delete
+   * Permet de supprimer un conseil par son id
+   *
+   * A FAIRE dans le front
+   * Utilisé dans le front
+   */
   static async delete(adviceId) {
     try {
       const result = await pool.query("DELETE FROM Advice A WHERE A.id = $1 RETURNING *", [
@@ -75,6 +106,13 @@ class AdviceModel {
     }
   }
 
+  /**
+   * Methode Update
+   * Permet de modifier un conseil par son id
+   *
+   * A FAIRE dans le front
+   * Utilisé dans le front
+   */
   static async update(adviceId, { content, user_id, id_plant }) {
     try {
       const updatedAdviceDataResult = await pool.query(
