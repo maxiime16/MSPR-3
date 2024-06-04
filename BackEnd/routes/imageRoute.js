@@ -67,6 +67,8 @@ router.get("/", imageController.getAllImages);
  *               $ref: '#/definitions/Image'
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Image not found
  *       500:
  *         description: Server error
  */
@@ -96,6 +98,8 @@ router.get("/:id", imageController.getImageById);
  *                 $ref: '#/definitions/Image'
  *       400:
  *         description: Missing or invalid plant ID
+ *       404:
+ *         description: Images not found for this plant
  *       500:
  *         description: Server error
  */
@@ -107,12 +111,18 @@ router.get("/plant/:id_plant", imageController.getImagesByPlantId);
  *   post:
  *     summary: Create a new image
  *     tags: [Images]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Image'
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             image:
+ *               type: string
+ *               format: base64
+ *             id_plant:
+ *               type: integer
  *     responses:
  *       201:
  *         description: Image created
@@ -145,6 +155,8 @@ router.post("/", imageController.createImage);
  *         description: Image deleted
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Image not found
  *       500:
  *         description: Server error
  */

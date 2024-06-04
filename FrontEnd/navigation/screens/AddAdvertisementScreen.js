@@ -106,9 +106,13 @@ export default function AddAdvertisementScreen({ navigation }) {
       if (!coordinates) {
         throw new Error("Les coordonnées ne sont pas définies");
       }
-      if (!userId) {
-        throw new Error("User ID not found");
+  
+      const userDataString = await AsyncStorage.getItem("userData");
+      if (!userDataString) {
+        throw new Error("User data not found in AsyncStorage");
       }
+  
+      const userData = JSON.parse(userDataString);
   
       // Step 1: Add the address to the database
       console.log("=== Step 1 ===");
@@ -128,8 +132,8 @@ export default function AddAdvertisementScreen({ navigation }) {
         title,
         start_date: selectedStartDate,
         end_date: selectedEndDate,
-        user_id: userId,
-        address_id: addressId,
+        id_user: userData.data.id, // Use id_user instead of user_id
+        id_address: addressId,
       });
   
       const advertisementId = advertisementResponse.data.data.id;
@@ -147,6 +151,7 @@ export default function AddAdvertisementScreen({ navigation }) {
   
         const plantId = plantResponse.data.data.id;
         console.log("Plant added:", plantResponse.data);
+  
         // Step 4: Add each image for the plant with the plant ID
         console.log("=== Step 4 ===");
         for (const image of plant.images) {
@@ -172,6 +177,7 @@ export default function AddAdvertisementScreen({ navigation }) {
       // Show error message to the user
     }
   };
+  
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>

@@ -23,10 +23,17 @@ exports.getAllCategories = async (req, res) => {
 exports.getCategoryById = async (req, res) => {
   const categoryId = req.params.id;
   if (!categoryId) {
-    return res.status(400).json({ errors: [{ message: "Missing category ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing category ID" }] });
   }
   try {
     const category = await CategoryModel.getById(categoryId);
+    if (!category) {
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Category not found" }] });
+    }
     res.status(200).json({ data: formatCategory(category) });
   } catch (err) {
     console.error(`Error fetching category by ID: ${err.message}`);
@@ -37,7 +44,9 @@ exports.getCategoryById = async (req, res) => {
 exports.createCategory = async (req, res) => {
   const { error } = categorySchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   const { name } = req.body;
@@ -55,11 +64,18 @@ exports.deleteCategory = async (req, res) => {
   const categoryId = req.params.id;
 
   if (!categoryId) {
-    return res.status(400).json({ errors: [{ message: "Missing category ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing category ID" }] });
   }
 
   try {
     const deletedCategory = await CategoryModel.delete(categoryId);
+    if (!deletedCategory) {
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Category not found" }] });
+    }
     res.status(204).json();
   } catch (err) {
     console.error(`Error deleting category: ${err.message}`);
@@ -71,20 +87,26 @@ exports.updateCategory = async (req, res) => {
   const categoryId = req.params.id;
   const { error } = categorySchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   const { name } = req.body;
 
   if (!categoryId) {
-    return res.status(400).json({ errors: [{ message: "Missing category ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing category ID" }] });
   }
 
   try {
     const updatedCategory = await CategoryModel.update(categoryId, { name });
 
     if (!updatedCategory) {
-      return res.status(404).json({ errors: [{ message: "Category not found" }] });
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Category not found" }] });
     }
 
     res.status(200).json({ data: formatCategory(updatedCategory) });

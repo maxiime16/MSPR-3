@@ -4,12 +4,12 @@ const imageSchema = require("../schemas/imageSchema");
 exports.getAllImages = async (req, res) => {
   try {
     const images = await ImageModel.getAll();
-    const imagesWithBase64 = images.map(image => {
+    const imagesWithBase64 = images.map((image) => {
       if (image.image) {
-        const base64Image = Buffer.from(image.image).toString('base64');
+        const base64Image = Buffer.from(image.image).toString("base64");
         return {
           ...image,
-          image: base64Image
+          image: base64Image,
         };
       }
       return image;
@@ -21,7 +21,6 @@ exports.getAllImages = async (req, res) => {
   }
 };
 
-
 exports.getImageById = async (req, res) => {
   const imageId = req.params.id;
   if (!imageId) {
@@ -29,8 +28,11 @@ exports.getImageById = async (req, res) => {
   }
   try {
     const image = await ImageModel.getById(imageId);
+    if (!image) {
+      return res.status(404).json({ errors: [{ message: "Image not found" }] });
+    }
     if (image && image.image) {
-      image.image = Buffer.from(image.image).toString('base64');
+      image.image = Buffer.from(image.image).toString("base64");
     }
     res.status(200).json({ data: image });
   } catch (err) {
@@ -40,19 +42,23 @@ exports.getImageById = async (req, res) => {
 };
 
 exports.getImagesByPlantId = async (req, res) => {
-  const plantId = req.params.id_Plant;
+  const plantId = req.params.id_plant;
   if (!plantId) {
     return res.status(400).json({ errors: [{ message: "Missing plant ID" }] });
   }
   try {
     const images = await ImageModel.getByPlantId(plantId);
-    
-    const imagesWithBase64 = images.map(image => {
+    if (images.length === 0) {
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Images not found for this plant" }] });
+    }
+    const imagesWithBase64 = images.map((image) => {
       if (image.image) {
-        const base64Image = Buffer.from(image.image).toString('base64');
+        const base64Image = Buffer.from(image.image).toString("base64");
         return {
           ...image,
-          image: base64Image
+          image: base64Image,
         };
       }
       return image;
@@ -67,7 +73,6 @@ exports.getImagesByPlantId = async (req, res) => {
 
 exports.createImage = async (req, res) => {
   const { image, id_Plant } = req.body;
-  console.log('image:',image,'\nid_plant,',id_Plant)
   const { error } = imageSchema.validate(req.body);
   if (error) {
     return res
@@ -75,15 +80,11 @@ exports.createImage = async (req, res) => {
       .json({ errors: [{ message: error.details[0].message }] });
   }
 
-  console.log('image:',image,'\nid_plant,',id_Plant)
-
   try {
     const newImage = await ImageModel.create({
       image,
       id_Plant,
     });
-
-    console.log('New image created:', newImage);
 
     res.status(201).json({ success: true, data: newImage });
   } catch (err) {
@@ -92,18 +93,18 @@ exports.createImage = async (req, res) => {
   }
 };
 
-
 exports.deleteImage = async (req, res) => {
   const imageId = req.params.id;
 
   if (!imageId) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing image ID" }] });
+    return res.status(400).json({ errors: [{ message: "Missing image ID" }] });
   }
 
   try {
-    await ImageModel.delete(imageId);
+    const deletedImage = await ImageModel.delete(imageId);
+    if (!deletedImage) {
+      return res.status(404).json({ errors: [{ message: "Image not found" }] });
+    }
     res.status(204).json();
   } catch (err) {
     console.error(`Error deleting image: ${err.message}`);

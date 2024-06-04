@@ -29,7 +29,7 @@ class AdviceModel {
         [adviceId]
       );
       if (adviceDataResult.rows.length === 0) {
-        throw new Error("Advice not found");
+        return null; // Retourne null si aucun conseil n'est trouvé
       }
       return adviceDataResult.rows[0];
     } catch (err) {
@@ -39,7 +39,7 @@ class AdviceModel {
 
   /**
    * Methode GetByPlantId
-   * Permet de récupérer un conseil + nom, prénom de l'auteur par son id plant 
+   * Permet de récupérer un conseil + nom, prénom de l'auteur par son id plant
    *
    * Utilisé dans le front
    */
@@ -72,11 +72,11 @@ class AdviceModel {
    *
    * Utilisé dans le front
    */
-  static async create({ content, user_id, id_plant }) {
+  static async create({ content, id_user, id_plant }) {
     try {
       const newAdviceDataResult = await pool.query(
         "INSERT INTO Advice (Content, id_User, id_Plant) VALUES ($1, $2, $3) RETURNING *",
-        [content, user_id, id_plant]
+        [content, id_user, id_plant]
       );
 
       return newAdviceDataResult.rows[0];
@@ -94,11 +94,12 @@ class AdviceModel {
    */
   static async delete(adviceId) {
     try {
-      const result = await pool.query("DELETE FROM Advice A WHERE A.id = $1 RETURNING *", [
-        adviceId,
-      ]);
+      const result = await pool.query(
+        "DELETE FROM Advice A WHERE A.id = $1 RETURNING *",
+        [adviceId]
+      );
       if (result.rows.length === 0) {
-        throw new Error("Advice not found");
+        return null; // Retourne null si aucun conseil n'est trouvé
       }
       return result.rows[0];
     } catch (err) {
@@ -113,15 +114,15 @@ class AdviceModel {
    * A FAIRE dans le front
    * Utilisé dans le front
    */
-  static async update(adviceId, { content, user_id, id_plant }) {
+  static async update(adviceId, { content, id_user, id_plant }) {
     try {
       const updatedAdviceDataResult = await pool.query(
         "UPDATE Advice SET Content = $1, id_User = $2, id_Plant = $3 WHERE id = $4 RETURNING *",
-        [content, user_id, id_plant, adviceId]
+        [content, id_user, id_plant, adviceId]
       );
 
       if (updatedAdviceDataResult.rows.length === 0) {
-        throw new Error("Advice not found");
+        return null; // Retourne null si aucun conseil n'est trouvé
       }
 
       return updatedAdviceDataResult.rows[0];

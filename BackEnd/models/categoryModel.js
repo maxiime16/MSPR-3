@@ -29,7 +29,7 @@ class CategoryModel {
         [categoryId]
       );
       if (categoryDataResult.rows.length === 0) {
-        throw new Error("Category not found");
+        return null; // Retourne null si aucune catégorie n'est trouvée
       }
       return categoryDataResult.rows[0];
     } catch (err) {
@@ -37,12 +37,6 @@ class CategoryModel {
     }
   }
 
-  /**
-   * Methode Create
-   * Permet de créer une catégorie
-   *
-   * Pas utilisé dans le front
-   */
   static async create({ name }) {
     try {
       const newCategoryDataResult = await pool.query(
@@ -64,11 +58,12 @@ class CategoryModel {
    */
   static async delete(categoryId) {
     try {
-      const result = await pool.query("DELETE FROM Category C WHERE C.id = $1 RETURNING *", [
-        categoryId,
-      ]);
+      const result = await pool.query(
+        "DELETE FROM Category C WHERE C.id = $1 RETURNING *",
+        [categoryId]
+      );
       if (result.rows.length === 0) {
-        throw new Error("Category not found");
+        return null; // Retourne null si aucune catégorie n'est trouvée
       }
       return result.rows[0];
     } catch (err) {
@@ -90,7 +85,7 @@ class CategoryModel {
       );
 
       if (updatedCategoryDataResult.rows.length === 0) {
-        throw new Error("Category not found");
+        return null; // Retourne null si aucune catégorie n'est trouvée
       }
 
       return updatedCategoryDataResult.rows[0];

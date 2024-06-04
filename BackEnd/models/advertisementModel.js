@@ -27,11 +27,11 @@ class AdvertisementModel {
   static async getById(advertisementID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement A WHERE A.id = $1",
+        "SELECT * FROM Advertisement WHERE id = $1",
         [advertisementID]
       );
       if (advertisementDataResult.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return null;
       }
       return advertisementDataResult.rows[0];
     } catch (err) {
@@ -48,11 +48,11 @@ class AdvertisementModel {
   static async getByUserId(userID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement A WHERE A.id_User = $1",
+        "SELECT * FROM Advertisement WHERE id_User = $1",
         [userID]
       );
       if (advertisementDataResult.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return [];
       }
       return advertisementDataResult.rows;
     } catch (err) {
@@ -71,11 +71,11 @@ class AdvertisementModel {
   static async getByAddressId(addressID) {
     try {
       const advertisementDataResult = await pool.query(
-        "SELECT * FROM Advertisement A WHERE A.id_Address = $1",
+        "SELECT * FROM Advertisement WHERE id_Address = $1",
         [addressID]
       );
       if (advertisementDataResult.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return [];
       }
       return advertisementDataResult.rows;
     } catch (err) {
@@ -85,17 +85,11 @@ class AdvertisementModel {
     }
   }
 
-  /**
-   * Methode Create
-   * Permet de créer une annonce
-   *
-   * Utilisé dans le front
-   */
-  static async create({ title, start_date, end_date, user_id, address_id }) {
+  static async create({ title, start_date, end_date, id_user, id_address }) {
     try {
       const newAdvertisementDataResult = await pool.query(
-        "INSERT INTO Advertisement (Title, start_date, End_date, id_User, id_Address) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [title, start_date, end_date, user_id, address_id]
+        "INSERT INTO Advertisement (Title, start_date, end_date, id_User, id_Address) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [title, start_date, end_date, id_user, id_address]
       );
 
       return newAdvertisementDataResult.rows[0];
@@ -113,11 +107,11 @@ class AdvertisementModel {
   static async delete(advertisementId) {
     try {
       const result = await pool.query(
-        "DELETE FROM Advertisement WHERE Advertisement.id = $1 RETURNING *",
+        "DELETE FROM Advertisement WHERE id = $1 RETURNING *",
         [advertisementId]
       );
       if (result.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return null;
       }
       return result.rows[0];
     } catch (err) {
@@ -127,23 +121,22 @@ class AdvertisementModel {
 
   /**
    * Methode Update
-   * Permet de modifier une annonce par id
+   * Permet de modifier une annonce par son id
    *
-   * A FAIRE
-   * Pas encore utilisé dans le front
+   * Utilisé dans le front
    */
   static async update(
     advertisementId,
-    { title, start_date, end_date, user_id, address_id }
+    { title, start_date, end_date, id_user, id_address }
   ) {
     try {
       const updatedAdvertisementDataResult = await pool.query(
-        "UPDATE Advertisement A SET Title = $1, start_date = $2, end_date = $3, id_User = $4, id_Address = $5 WHERE A.id = $6 RETURNING *",
-        [title, start_date, end_date, user_id, address_id, advertisementId]
+        "UPDATE Advertisement SET Title = $1, start_date = $2, end_date = $3, id_User = $4, id_Address = $5 WHERE id = $6 RETURNING *",
+        [title, start_date, end_date, id_user, id_address, advertisementId]
       );
 
       if (updatedAdvertisementDataResult.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return null;
       }
 
       return updatedAdvertisementDataResult.rows[0];
@@ -162,29 +155,29 @@ class AdvertisementModel {
     try {
       const query = `
       SELECT 
-      A.id,
-      A.Title AS AdvertisementTitle,
-      A.start_date,
-      A.end_date,
-      A.creation_date,
-      Ad.City,
-      Ad.Postal_code,
-      Sc.name AS SubCategoryName,
-      C.name AS CategoryName,
-      I.image AS FirstImage
-    FROM 
-      Advertisement A
-    INNER JOIN 
-      Address Ad ON A.id_Address = Ad.id
-    INNER JOIN 
-      Plant P ON A.id = P.id_Advertisement
-    INNER JOIN 
-      Sub_category Sc ON P.id_Sub_category = Sc.id
-    INNER JOIN 
-      Category C ON Sc.id_category = C.id
-    LEFT JOIN
-      (SELECT DISTINCT ON (id_Plant) image, id_Plant FROM Image I ORDER BY id_Plant, id) AS Image
-    ON P.id = I.id_Plant;    
+        A.id,
+        A.Title AS AdvertisementTitle,
+        A.start_date,
+        A.end_date,
+        A.creation_date,
+        Ad.City,
+        Ad.Postal_code,
+        Sc.name AS SubCategoryName,
+        C.name AS CategoryName,
+        I.image AS FirstImage
+      FROM 
+        Advertisement A
+      INNER JOIN 
+        Address Ad ON A.id_Address = Ad.id
+      INNER JOIN 
+        Plant P ON A.id = P.id_Advertisement
+      INNER JOIN 
+        Sub_category Sc ON P.id_Sub_category = Sc.id
+      INNER JOIN 
+        Category C ON Sc.id_category = C.id
+      LEFT JOIN
+        (SELECT DISTINCT ON (id_Plant) image, id_Plant FROM Image ORDER BY id_Plant, id) AS I
+      ON P.id = I.id_Plant;
       `;
       const { rows } = await pool.query(query);
       return rows;
@@ -211,7 +204,7 @@ class AdvertisementModel {
         [advertisementID]
       );
       if (advertisementDataResult.rows.length === 0) {
-        throw new Error("Advertisement not found");
+        return null;
       }
       return advertisementDataResult.rows[0];
     } catch (err) {

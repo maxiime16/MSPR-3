@@ -63,6 +63,8 @@ router.get("/", categoryController.getAllCategories);
  *               $ref: '#/definitions/Category'
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Category not found
  *       500:
  *         description: Server error
  */
@@ -74,12 +76,15 @@ router.get("/:id", categoryController.getCategoryById);
  *   post:
  *     summary: Create a new category
  *     tags: [Categories]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Category'
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
  *     responses:
  *       201:
  *         description: Category created
@@ -107,12 +112,14 @@ router.post("/", categoryController.createCategory);
  *         schema:
  *           type: integer
  *         description: The ID of the category to update
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Category'
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
  *     responses:
  *       200:
  *         description: Category updated
@@ -122,6 +129,8 @@ router.post("/", categoryController.createCategory);
  *               $ref: '#/definitions/Category'
  *       400:
  *         description: Invalid input
+ *       404:
+ *         description: Category not found
  *       500:
  *         description: Server error
  */
@@ -145,6 +154,8 @@ router.put("/:id", categoryController.updateCategory);
  *         description: Category deleted
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Category not found
  *       500:
  *         description: Server error
  */

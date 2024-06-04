@@ -112,9 +112,8 @@ router.get("/:id", addressController.getAddressById);
  *       500:
  *         description: Server error
  *
- */ 
+ */
 router.post("/", addressController.createAddress);
-
 
 /**
  * @swagger

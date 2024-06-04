@@ -16,7 +16,7 @@ const adviceController = require("../controllers/adviceController");
  *     type: object
  *     required:
  *       - content
- *       - user_id
+ *       - id_user
  *       - id_plant
  *     properties:
  *       id:
@@ -26,7 +26,7 @@ const adviceController = require("../controllers/adviceController");
  *       creation_date:
  *         type: string
  *         format: date
- *       user_id:
+ *       id_user:
  *         type: integer
  *       id_plant:
  *         type: integer
@@ -72,6 +72,8 @@ router.get("/", adviceController.getAllAdvice);
  *               $ref: '#/definitions/Advice'
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Advice not found
  *       500:
  *         description: Server error
  */
@@ -101,6 +103,8 @@ router.get("/:id", adviceController.getAdviceById);
  *                 $ref: '#/definitions/Advice'
  *       400:
  *         description: Missing or invalid plant ID
+ *       404:
+ *         description: Advice not found for this plant
  *       500:
  *         description: Server error
  */
@@ -112,12 +116,19 @@ router.get("/plant/:id_plant", adviceController.getAdviceByPlantId);
  *   post:
  *     summary: Create new advice
  *     tags: [Advice]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Advice'
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             content:
+ *               type: string
+ *             id_user:
+ *               type: integer
+ *             id_plant:
+ *               type: integer
  *     responses:
  *       201:
  *         description: Advice created
@@ -145,12 +156,18 @@ router.post("/", adviceController.createAdvice);
  *         schema:
  *           type: integer
  *         description: The ID of the advice to update
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Advice'
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             content:
+ *               type: string
+ *             id_user:
+ *               type: integer
+ *             id_plant:
+ *               type: integer
  *     responses:
  *       200:
  *         description: Advice updated
@@ -160,6 +177,8 @@ router.post("/", adviceController.createAdvice);
  *               $ref: '#/definitions/Advice'
  *       400:
  *         description: Invalid input
+ *       404:
+ *         description: Advice not found
  *       500:
  *         description: Server error
  */
@@ -183,6 +202,8 @@ router.put("/:id", adviceController.updateAdvice);
  *         description: Advice deleted
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Advice not found
  *       500:
  *         description: Server error
  */

@@ -18,8 +18,8 @@ const advertisementController = require("../controllers/advertisementController"
  *       - title
  *       - start_date
  *       - end_date
- *       - user_id
- *       - address_id
+ *       - id_user
+ *       - id_address
  *     properties:
  *       id:
  *         type: integer
@@ -27,15 +27,15 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: string
  *       start_date:
  *         type: string
- *         format: date-time
+ *         format: date
  *       end_date:
  *         type: string
- *         format: date-time
- *       user_id:
+ *         format: date
+ *       id_user:
  *         type: integer
- *       address_id:
+ *       id_address:
  *         type: integer
- * 
+ *
  *   AdvertisementDetail:
  *     type: object
  *     required:
@@ -63,10 +63,10 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: number
  *       start_date:
  *         type: string
- *         format: date-time
+ *         format: date
  *       end_date:
  *         type: string
- *         format: date-time
+ *         format: date
  *       city:
  *         type: string
  *       postal_code:
@@ -77,7 +77,7 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: integer
  *       sub_category_id:
  *         type: integer
- * 
+ *
  *   AdvertisementDetailById:
  *     type: object
  *     required:
@@ -96,10 +96,10 @@ const advertisementController = require("../controllers/advertisementController"
  *         type: string
  *       start_date:
  *         type: string
- *         format: date-time
+ *         format: date
  *       end_date:
  *         type: string
- *         format: date-time
+ *         format: date
  *       city:
  *         type: string
  *       postal_code:
@@ -179,6 +179,8 @@ router.get("/", advertisementController.getAllAdvertisements);
  *               $ref: '#/definitions/Advertisement'
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Advertisement not found
  *       500:
  *         description: Server error
  */
@@ -208,6 +210,8 @@ router.get("/:id", advertisementController.getAdvertisementById);
  *                 $ref: '#/definitions/Advertisement'
  *       400:
  *         description: Missing or invalid user ID
+ *       404:
+ *         description: Advertisements not found for this user
  *       500:
  *         description: Server error
  */
@@ -237,10 +241,15 @@ router.get("/user/:user_id", advertisementController.getAdvertisementByUserId);
  *                 $ref: '#/definitions/Advertisement'
  *       400:
  *         description: Missing or invalid address ID
+ *       404:
+ *         description: Advertisements not found for this address
  *       500:
  *         description: Server error
  */
-router.get("/address/:address_id", advertisementController.getAdvertisementByAddressId);
+router.get(
+  "/address/:address_id",
+  advertisementController.getAdvertisementByAddressId
+);
 
 /**
  * @swagger
@@ -248,12 +257,30 @@ router.get("/address/:address_id", advertisementController.getAdvertisementByAdd
  *   post:
  *     summary: Create a new advertisement
  *     tags: [Advertisements]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Advertisement'
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             title:
+ *               type: string
+ *               example: "Titre test"
+ *             start_date:
+ *               type: string
+ *               format: date
+ *               example: "2023-06-15"
+ *             end_date:
+ *               type: string
+ *               format: date
+ *               example: "2023-07-15"
+ *             id_user:
+ *               type: integer
+ *               example: 1
+ *             id_address:
+ *               type: integer
+ *               example: 1
  *     responses:
  *       201:
  *         description: Advertisement created
@@ -281,12 +308,29 @@ router.post("/", advertisementController.createAdvertisement);
  *         schema:
  *           type: integer
  *         description: The ID of the advertisement to update
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Advertisement'
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             title:
+ *               type: string
+ *               example: "Titre test"
+ *             start_date:
+ *               type: string
+ *               format: date
+ *               example: "2023-06-15"
+ *             end_date:
+ *               type: string
+ *               format: date
+ *               example: "2023-07-15"
+ *             id_user:
+ *               type: integer
+ *               example: 1
+ *             id_address:
+ *               type: integer
+ *               example: 1
  *     responses:
  *       200:
  *         description: Advertisement updated
@@ -296,6 +340,8 @@ router.post("/", advertisementController.createAdvertisement);
  *               $ref: '#/definitions/Advertisement'
  *       400:
  *         description: Invalid input
+ *       404:
+ *         description: Advertisement not found
  *       500:
  *         description: Server error
  */
@@ -319,6 +365,8 @@ router.put("/:id", advertisementController.updateAdvertisement);
  *         description: Advertisement deleted
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: Advertisement not found
  *       500:
  *         description: Server error
  */

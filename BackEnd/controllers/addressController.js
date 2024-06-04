@@ -26,10 +26,17 @@ exports.getAllAddresses = async (req, res) => {
 exports.getAddressById = async (req, res) => {
   const addressId = req.params.id;
   if (!addressId) {
-    return res.status(400).json({ errors: [{ message: "Missing address ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing address ID" }] });
   }
   try {
     const address = await AddressModel.getById(addressId);
+    if (!address) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "Address not found" }] });
+    }
     res.status(200).json({ data: formatAddress(address) });
   } catch (err) {
     console.error(`Error fetching address by ID: ${err.message}`);
@@ -40,13 +47,20 @@ exports.getAddressById = async (req, res) => {
 exports.createAddress = async (req, res) => {
   const { error } = addressSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   const { city, postal_code, longitude, latitude } = req.body;
 
   try {
-    const newAddress = await AddressModel.create({ city, postal_code, longitude, latitude });
+    const newAddress = await AddressModel.create({
+      city,
+      postal_code,
+      longitude,
+      latitude,
+    });
     res.status(201).json({ data: formatAddress(newAddress) });
   } catch (err) {
     console.error(`Error creating address: ${err.message}`);
@@ -58,11 +72,18 @@ exports.deleteAddress = async (req, res) => {
   const addressId = req.params.id;
 
   if (!addressId) {
-    return res.status(400).json({ errors: [{ message: "Missing address ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing address ID" }] });
   }
 
   try {
     const deletedAddress = await AddressModel.delete(addressId);
+    if (!deletedAddress) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "Address not found" }] });
+    }
     res.status(204).json();
   } catch (err) {
     console.error(`Error deleting address: ${err.message}`);
@@ -74,20 +95,31 @@ exports.updateAddress = async (req, res) => {
   const addressId = req.params.id;
   const { error } = addressSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
   const { city, postal_code, longitude, latitude } = req.body;
 
   if (!addressId) {
-    return res.status(400).json({ errors: [{ message: "Missing address ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing address ID" }] });
   }
 
   try {
-    const updatedAddress = await AddressModel.update(addressId, { city, postal_code, longitude, latitude });
+    const updatedAddress = await AddressModel.update(addressId, {
+      city,
+      postal_code,
+      longitude,
+      latitude,
+    });
 
     if (!updatedAddress) {
-      return res.status(404).json({ errors: [{ message: "Address not found" }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: "Address not found" }] });
     }
 
     res.status(200).json({ data: formatAddress(updatedAddress) });
