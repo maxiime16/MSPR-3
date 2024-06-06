@@ -53,11 +53,9 @@ exports.getAdvertisementByUserId = async (req, res) => {
   try {
     const advertisements = await AdvertisementModel.getByUserId(userId);
     if (advertisements.length === 0) {
-      return res
-        .status(404)
-        .json({
-          errors: [{ message: "Advertisements not found for this user" }],
-        });
+      return res.status(404).json({
+        errors: [{ message: "Advertisements not found for this user" }],
+      });
     }
     const responseData = advertisements.map(formatAdvertisement);
     res.status(200).json({ data: responseData });
@@ -77,11 +75,9 @@ exports.getAdvertisementByAddressId = async (req, res) => {
   try {
     const advertisements = await AdvertisementModel.getByAddressId(addressId);
     if (advertisements.length === 0) {
-      return res
-        .status(404)
-        .json({
-          errors: [{ message: "Advertisements not found for this address" }],
-        });
+      return res.status(404).json({
+        errors: [{ message: "Advertisements not found for this address" }],
+      });
     }
     const responseData = advertisements.map(formatAdvertisement);
     res.status(200).json({ data: responseData });
@@ -137,7 +133,9 @@ exports.deleteAdvertisement = async (req, res) => {
         .status(404)
         .json({ errors: [{ message: "Advertisement not found" }] });
     }
-    res.status(204).json();
+    res
+      .status(204)
+      .json({ data: { message: "Advertisement deleted successfully." } });
   } catch (err) {
     console.error(`Error deleting advertisement: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });

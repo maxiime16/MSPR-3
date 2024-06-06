@@ -34,7 +34,7 @@ exports.getAddressById = async (req, res) => {
     const address = await AddressModel.getById(addressId);
     if (!address) {
       return res
-        .status(400)
+        .status(404)
         .json({ errors: [{ message: "Address not found" }] });
     }
     res.status(200).json({ data: formatAddress(address) });
@@ -81,10 +81,12 @@ exports.deleteAddress = async (req, res) => {
     const deletedAddress = await AddressModel.delete(addressId);
     if (!deletedAddress) {
       return res
-        .status(400)
+        .status(404)
         .json({ errors: [{ message: "Address not found" }] });
     }
-    res.status(204).json();
+    res
+      .status(204)
+      .json({ data: { message: "Address deleted successfully." } });
   } catch (err) {
     console.error(`Error deleting address: ${err.message}`);
     res.status(500).json({ errors: [{ message: "Server Error" }] });
@@ -118,7 +120,7 @@ exports.updateAddress = async (req, res) => {
 
     if (!updatedAddress) {
       return res
-        .status(400)
+        .status(404)
         .json({ errors: [{ message: "Address not found" }] });
     }
 

@@ -2,7 +2,8 @@ const express = require("express");
 const { specs, swaggerUi } = require("./config/swaggerConfig");
 const cors = require("cors");
 const app = express();
-const PORT = 3000;
+require("dotenv").config();
+const PORT = process.env.SERVER_PORT;
 
 // Middleware pour analyser les requêtes JSON
 app.use(
@@ -40,6 +41,20 @@ app.use("/api/plant", plantRoutes);
 const addressRoutes = require("./routes/addressRoute");
 app.use("/api/address", addressRoutes);
 
+// Route pour tester la gestion globale des erreurs
+app.get("/error", (req, res, next) => {
+  next(new Error("Test Error"));
+});
+
+// Gestion des erreurs de syntaxe JSON
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    console.error("Bad JSON");
+    return res.status(400).send({ error: "Bad JSON" }); // envoyer une réponse 400
+  }
+  next(err); // passer à l'autre middleware d'erreurs si ce n'est pas une erreur de syntaxe
+});
+
 // Gestion des erreurs globales
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -54,5 +69,7 @@ app.use((req, res) => {
 // Exporter l'application pour les tests
 module.exports = app;
 
-// Démarrer le serveur
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Démarrer le serveur uniquement si ce fichier est exécuté directement
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}

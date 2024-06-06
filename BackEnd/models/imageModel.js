@@ -12,7 +12,6 @@ class ImageModel {
       const imagesDataResult = await pool.query("SELECT * FROM Image");
       return imagesDataResult.rows;
     } catch (err) {
-      console.error(`Error retrieving images: ${err.message}`);
       throw new Error(`Error retrieving images: ${err.message}`);
     }
   }
@@ -34,7 +33,6 @@ class ImageModel {
       }
       return imageDataResult.rows[0];
     } catch (err) {
-      console.error(`Error retrieving image: ${err.message}`);
       throw new Error(`Error retrieving image: ${err.message}`);
     }
   }
@@ -53,7 +51,6 @@ class ImageModel {
       );
       return imagesDataResult.rows;
     } catch (err) {
-      console.error(`Error retrieving images: ${err.message}`);
       throw new Error(`Error retrieving images: ${err.message}`);
     }
   }
@@ -73,7 +70,6 @@ class ImageModel {
       );
       return result.rows[0];
     } catch (err) {
-      console.error(`Error creating image: ${err.message}`);
       throw new Error(`Error creating image: ${err.message}`);
     }
   }
@@ -95,7 +91,6 @@ class ImageModel {
       }
       return result.rows[0];
     } catch (err) {
-      console.error(`Error deleting image: ${err.message}`);
       throw new Error(`Error deleting image: ${err.message}`);
     }
   }
