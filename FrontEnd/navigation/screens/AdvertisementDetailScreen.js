@@ -34,6 +34,7 @@ const AdvertisementDetailScreen = () => {
       const response = await fetch(`${IP}/advertisement/details/${adId}`);
       const data = await response.json();
       setAdData(data.data);
+      console.log("adData", adData)
 
       const plantsResponse = await fetch(`${IP}/plant/advertisement/${adId}`);
       const plantsData = await plantsResponse.json();
@@ -112,8 +113,8 @@ const AdvertisementDetailScreen = () => {
       {plant.advice.length > 0 ? (
         <View style={styles.adviceContainer}>
           <Text style={styles.adviceTitle}>Conseils :</Text>
-          {plant.advice.map((advice) => (
-            <View key={advice.adviceid} style={styles.adviceCard}>
+          {plant.advice.map((advice, index) => (
+              <View key={index} style={styles.adviceCard}>
               <Text style={styles.adviceContent}>{advice.content}</Text>
               <Text style={styles.adviceAuthor}>Posté par : {formatName(advice.firstname, advice.lastname)}</Text>
               <Text style={styles.adviceDate}>Le {new Date(advice.creationdate).toLocaleDateString()}</Text>
@@ -151,8 +152,13 @@ const AdvertisementDetailScreen = () => {
               Localisation : {adData.city} - {adData.postal_code}
             </Text>
             <Text style={styles.text}>
-              Posté par : {formatName(adData.firstname, adData.lastname)}
+              Posté par : {formatName(adData.first_name, adData.last_name)}
             </Text>
+            <ButtonEdit
+                  style={styles.messageButton}
+                  theme="primary-border-small"
+                  label="message"
+                />
 
             <View style={styles.plantsContainer}>
               <Text style={styles.title}>Plantes associées :</Text>

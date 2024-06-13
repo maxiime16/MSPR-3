@@ -10,18 +10,29 @@ CREATE TABLE Users(
 )WITHOUT OIDS;
 
 -- ----- Messagerie --------
+CREATE TABLE Conversation(
+    id                SERIAL NOT NULL,
+    title             VARCHAR(50) NOT NULL,
+    user1_id          INT NOT NULL,
+    user2_id          INT NOT NULL,
+    CONSTRAINT Conversation_PK PRIMARY KEY (id),
+    CONSTRAINT Conversation_User1_FK FOREIGN KEY (user1_id) REFERENCES Users(id),
+    CONSTRAINT Conversation_User2_FK FOREIGN KEY (user2_id) REFERENCES Users(id)
+) WITHOUT OIDS;
 
 CREATE TABLE Message(
-    id                  SERIAL PRIMARY KEY,
-    message             VARCHAR(255) NOT NULL, -- Augmentation de la taille pour plus de flexibilité
+    id                  SERIAL NOT NULL,
+    message             VARCHAR(255) NOT NULL,
     send_date           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     sender_id           INT NOT NULL,
     recipient_id        INT NOT NULL,
-    advertisement_id    INT NOT NULL,
+    conversation_id     INT NOT NULL,
+    CONSTRAINT Message_PK PRIMARY KEY (id),
     CONSTRAINT Message_Sender_FK FOREIGN KEY (sender_id) REFERENCES Users(id),
     CONSTRAINT Message_Recipient_FK FOREIGN KEY (recipient_id) REFERENCES Users(id),
-    CONSTRAINT Message_Advertisement_FK FOREIGN KEY (advertisement_id) REFERENCES Advertisement(id)
+    CONSTRAINT Message_Conversation_FK FOREIGN KEY (conversation_id) REFERENCES Conversation(id)
 ) WITHOUT OIDS;
+
 
 -- ----- BackEnd --------
 CREATE TABLE  category(

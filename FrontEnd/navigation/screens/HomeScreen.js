@@ -115,7 +115,7 @@ const HomeScreen = () => {
       <FlatList
         data={item.ads || []}
         renderItem={renderAdItem}
-        keyExtractor={(ad) => `${ad.advertisementid}-${item.id}`}
+        keyExtractor={(ad, index) => ad.advertisementid ? `${ad.advertisementid}-${item.id}` : `ad-${index}-${item.id}`}
         horizontal={true}
         contentContainerStyle={styles.scrollViewContent}
       />
