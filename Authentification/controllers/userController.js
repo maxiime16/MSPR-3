@@ -156,8 +156,8 @@ exports.loginUser = async (req, res) => {
       {
         id: user.id,
         email: user.email,
-        first_name: user.firstname,
-        last_name: user.lastname,
+        first_name: user.first_name,
+        last_name: user.last_name,
       },
       process.env.JWT_SECRET
     );
@@ -167,8 +167,8 @@ exports.loginUser = async (req, res) => {
         id: user.id,
         type: "user",
         attributes: {
-          first_name: user.firstname,
-          last_name: user.lastname,
+          first_name: user.first_name,
+          last_name: user.last_name,
           email: user.email,
           token: token,
         },

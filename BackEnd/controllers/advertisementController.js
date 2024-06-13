@@ -47,17 +47,17 @@ exports.getAdvertisementById = async (req, res) => {
 
 exports.getAdvertisementByUserId = async (req, res) => {
   const userId = req.params.user_id;
+  console.log(userId)
   if (!userId) {
     return res.status(400).json({ errors: [{ message: "Missing user ID" }] });
   }
   try {
     const advertisements = await AdvertisementModel.getByUserId(userId);
     if (advertisements.length === 0) {
-      return res
-        .status(404)
-        .json({
-          errors: [{ message: "Advertisements not found for this user" }],
-        });
+      return res.status(200).json({
+        message: "No advertisements found for this user.",
+        data: []
+      });
     }
     const responseData = advertisements.map(formatAdvertisement);
     res.status(200).json({ data: responseData });
@@ -66,6 +66,7 @@ exports.getAdvertisementByUserId = async (req, res) => {
     res.status(500).json({ errors: [{ message: "Server Error" }] });
   }
 };
+
 
 exports.getAdvertisementByAddressId = async (req, res) => {
   const addressId = req.params.address_id;

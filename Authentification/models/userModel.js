@@ -36,7 +36,7 @@ class UserModel {
   static async update(userId, { first_name, last_name, email }) {
     try {
       const result = await pool.query(
-        "UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *",
+        "UPDATE users SET email = $1, first_name = $2, last_name = $3 WHERE id = $4 RETURNING *",
         [email, first_name, last_name, userId]
       );
       return result.rows[0];

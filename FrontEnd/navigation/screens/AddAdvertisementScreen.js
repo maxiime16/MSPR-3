@@ -146,7 +146,7 @@ export default function AddAdvertisementScreen({ navigation }) {
           name_plant: plant.plantName,
           description: plant.description,
           advertisement_id: advertisementId,
-          subcategory_id: plant.subCategoryValue, // ensure subCategoryValue is provided
+          subcategory_id: plant.subCategoryValue, 
         });
   
         const plantId = plantResponse.data.data.id;

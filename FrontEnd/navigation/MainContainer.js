@@ -3,8 +3,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Text } from 'react-native';
-import React from 'react';
+import React, { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Screens
 import HomeScreen from "./screens/HomeScreen";
@@ -18,7 +19,7 @@ import LogInScreen from "./screens/LogInScreen";
 import GeneralConditionsOfUse from "./screens/GeneralConditionsOfUse";
 import AddAdvertisementScreen from "./screens/AddAdvertisementScreen";
 import AdvertisementDetailScreen from "./screens/AdvertisementDetailScreen";
-import { SocketProvider } from './SocketContext';
+import { SocketProvider } from '../components/SocketContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -26,7 +27,6 @@ const Stack = createNativeStackNavigator();
 export default function MainContainer() {
 
   return (
-    <SocketProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LogInScreen} />
@@ -37,87 +37,103 @@ export default function MainContainer() {
           <Stack.Screen name="GeneralConditionsOfUse" component={GeneralConditionsOfUse} />
         </Stack.Navigator>
       </NavigationContainer>
-    </SocketProvider>
   );
 }
 
 function MainTabs() {
 
   const navigation = useNavigation();
+  const [jwtToken, setJwtToken] = React.useState(null);
+
+  useEffect(() => {
+    const fetchJwtToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        setJwtToken(token);
+        console.log("tokennnnnnn", token);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données utilisateur :", error);
+      }
+    };
+
+    fetchJwtToken();
+  }, []);
 
   return (
-    <Tab.Navigator
-      initialRouteName="Accueil"
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <SocketProvider token={jwtToken}>
+      <Tab.Navigator
+        initialRouteName="Accueil"
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
 
-          if (route.name === "Accueil") {
-            iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Rechercher") {
-            iconName = focused ? "search" : "search-outline";
-          } else if (route.name === "Ajouter") {
-            iconName = focused ? "add-circle" : "add-circle-outline";
-          } else if (route.name === "Add") {
-            iconName = focused ? "add-circle" : "add-circle-outline";
-          } else if (route.name === "Message") {
-            iconName = focused ? "chatbubbles" : "chatbubbles-outline";
-          } else if (route.name === "Profil") {
-            iconName = focused ? "person" : "person-outline";
-          }
+            if (route.name === "Accueil") {
+              iconName = focused ? "home" : "home-outline";
+            } else if (route.name === "Rechercher") {
+              iconName = focused ? "search" : "search-outline";
+            } else if (route.name === "Ajouter") {
+              iconName = focused ? "add-circle" : "add-circle-outline";
+            } else if (route.name === "Add") {
+              iconName = focused ? "add-circle" : "add-circle-outline";
+            } else if (route.name === "Message") {
+              iconName = focused ? "chatbubbles" : "chatbubbles-outline";
+            } else if (route.name === "Profil") {
+              iconName = focused ? "person" : "person-outline";
+            }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: "#A3D288",
-        tabBarInactiveTintColor: "grey",
-        tabBarLabelStyle: { paddingBottom: 0, fontSize: 10 },
-        tabBarStyle: { paddingTop: 10, height: 80 },
-      })}
-    >
-      <Tab.Screen
-        name="Accueil"
-        component={HomeScreen}
-        options={{
-          headerShown: true, // Afficher l'en-tête
-          headerStyle: { height: 110}, // Style de l'en-tête
-          headerTintColor: "white", // Couleur du texte de l'en-tête
-          headerTitle: () => (
-            <Text style={{ fontSize: 30, fontWeight: "bold"}}>A Rosa-je</Text>
-          ),
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: "#A3D288",
+          tabBarInactiveTintColor: "grey",
+          tabBarLabelStyle: { paddingBottom: 0, fontSize: 10 },
+          tabBarStyle: { paddingTop: 10, height: 80 },
+        })}
+      >
+        <Tab.Screen
+          name="Accueil"
+          component={HomeScreen}
+          options={{
+            headerShown: true, // Afficher l'en-tête
+            headerStyle: { height: 110}, // Style de l'en-tête
+            headerTintColor: "white", // Couleur du texte de l'en-tête
+            headerTitle: () => (
+              <Text style={{ fontSize: 30, fontWeight: "bold"}}>A Rosa-je</Text>
+            ),
 
-        }}
-      />
-      <Tab.Screen name="Rechercher" component={ResearchScreen} />
-      <Tab.Screen
-        name="Ajouter"
-        component={AddScreen}
-        options={{
-          headerShown: true, // Afficher l'en-tête
-          headerStyle: { height: 110}, // Style de l'en-tête
-          headerTintColor: "white", // Couleur du texte de l'en-tête
-          headerTitle: () => (
-            <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
-          ),
+          }}
+        />
+        <Tab.Screen name="Rechercher" component={ResearchScreen} />
+        <Tab.Screen
+          name="Ajouter"
+          component={AddScreen}
+          options={{
+            headerShown: true, // Afficher l'en-tête
+            headerStyle: { height: 110}, // Style de l'en-tête
+            headerTintColor: "white", // Couleur du texte de l'en-tête
+            headerTitle: () => (
+              <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
+            ),
 
-        }}
-      />
-            <Tab.Screen
-        name="Add"
-        component={AddAdvertisementScreen}
-        options={{
-          headerShown: true, // Afficher l'en-tête
-          headerStyle: { height: 110}, // Style de l'en-tête
-          headerTintColor: "white", // Couleur du texte de l'en-tête
-          headerTitle: () => (
-            <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
-          ),
+          }}
+        />
+              <Tab.Screen
+          name="Add"
+          component={AddAdvertisementScreen}
+          options={{
+            headerShown: true, // Afficher l'en-tête
+            headerStyle: { height: 110}, // Style de l'en-tête
+            headerTintColor: "white", // Couleur du texte de l'en-tête
+            headerTitle: () => (
+              <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
+            ),
 
-        }}
-      />
-      <Tab.Screen name="Message" component={ChatScreen} />
-      <Tab.Screen name="Profil">
-        {() => <ProfileScreen onLogout={() => navigation.navigate('Login')} />}
-      </Tab.Screen>
-    </Tab.Navigator>
+          }}
+        />
+        <Tab.Screen name="Message" component={ChatScreen} />
+        <Tab.Screen name="Profil">
+          {() => <ProfileScreen onLogout={() => navigation.navigate('Login')} />}
+        </Tab.Screen>
+      </Tab.Navigator>
+    </SocketProvider>
   );
 }

@@ -95,6 +95,8 @@ const LogInScreen = () => {
       console.log('======================================================')
   
       const userDataString = JSON.stringify(userData);
+      console.log("///////////////////////////")
+      console.log(userDataString)
       // Stockage JWT et data user dans AsyncStorage
       await AsyncStorage.setItem("userToken", token);
       await AsyncStorage.setItem("userData", userDataString);

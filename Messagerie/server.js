@@ -7,12 +7,13 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.SERVER_PORT;
+let connectedUsers = 0;
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5174",
+    origin: ["http://localhost:5174", "http://localhost:3000"],
     methods: ["GET", "POST"]
   }
 });
@@ -65,18 +66,18 @@ app.use((req, res) => {
   res.status(404).send("Page not found");
 });
 
-// Intégration de Socket.IO
 io.on("connection", (socket) => {
-  console.log("Un client s'est connecté");
+  connectedUsers++;
+  console.log(`Un client s'est connecté. Nombre actuel: ${connectedUsers}`);
+  io.emit('usersCount', { count: connectedUsers });
 
   socket.on("disconnect", () => {
-    console.log("Un client s'est déconnecté");
-  });
-
-  socket.on("send_message", (data) => {
-    io.emit("receive_message", data);
+    connectedUsers--;
+    console.log(`Un client s'est déconnecté. Nombre actuel: ${connectedUsers}`);
+    io.emit('usersCount', { count: connectedUsers });
   });
 });
+
 
 // Démarrer le serveur uniquement si ce fichier est exécuté directement
 if (require.main === module) {
