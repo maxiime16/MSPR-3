@@ -1,22 +1,26 @@
+// SocketContext.js
 import React, { createContext, useContext, useEffect } from 'react';
 import io from 'socket.io-client';
-import { IP_socket } from '../components/const';
+import { IP_socket } from './const';
 
 const SocketContext = createContext(null);
 
-export const SocketProvider = ({ children }) => {
-    const socket = io(IP_socket, { autoConnect: false });
-
+export const SocketProvider = ({ children, token }) => {
     useEffect(() => {
+        const socket = io(IP_socket, {
+            query: { token },
+            autoConnect: false
+        });
+
         socket.connect();
 
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [token]);
 
     return (
-        <SocketContext.Provider value={socket}>
+        <SocketContext.Provider value={{}}>
             {children}
         </SocketContext.Provider>
     );

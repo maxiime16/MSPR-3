@@ -5,55 +5,61 @@ import ButtonEdit from "../../components/button";
 import ConfirmationModal from "../../components/confirmationModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProfileScreen = ({ onLogout }) => {
+  const ProfileScreen = ({ onLogout }) => {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleteAdModalVisible, setDeleteAdModalVisible] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userAds, setUserAds] = useState([]);
   const [deletingAdId, setDeletingAdId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const IP = IP_Auth;
   const IP_Back = IP_Backend;
 
+
   useEffect(() => {
+    console.log("======Profile======");
     const fetchUserData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem("userData");
-        if (jsonValue !== null) {
-          const parsedUserData = JSON.parse(jsonValue);
-          const userId = parsedUserData.data.id;
-          setUserId(userId);
-
-          // Fetch user details by ID
-          const userResponse = await fetch(`${IP}/user/${userId}`);
-          if (!userResponse.ok) {
-            throw new Error("Failed to fetch user details");
-          }
-          const userData = await userResponse.json();
-          setUserData(userData.data.attributes);
-
-          const fetchUserAds = async () => {
-            try {
-              const response = await fetch(`${IP_Back}/advertisement/user/${userId}`);
-              if (!response.ok) {
-                throw new Error("Failed to fetch user advertisements");
-              }
-              const userAds = await response.json();
-              setUserAds(userAds.data);
-            } catch (error) {
-              console.error("Error fetching user advertisements:", error);
-            }
-          };
-
-          fetchUserAds();
+        if (jsonValue) {
+          const userDataObject = JSON.parse(jsonValue);
+          setUserData(userDataObject.data.attributes);
+          setUserId(userDataObject.data.id);
+          console.log(userData)
+        } else {
+          console.log("No user data available");
         }
       } catch (error) {
-        console.error("Erreur lors de la récupération des données utilisateur : ", error);
+        console.error("Erreur lors de la récupération des données utilisateur: ", error);
+      } finally {
+        setLoading(false); // Set loading to false regardless of result
       }
     };
 
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    const fetchUserAds = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`${IP_Back}/advertisement/user/${userId}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch user advertisements");
+          }
+          const userAds = await response.json();
+          setUserAds(userAds.data);
+        } catch (error) {
+          console.error("Error fetching user advertisements:", error);
+        }
+      }
+    };
+
+    if (!loading) { 
+      fetchUserAds();
+    }
+  }, [userId, loading]);
 
   const handleChange = (field, value) => {
     setUserData({ ...userData, [field]: value });
@@ -66,7 +72,7 @@ const ProfileScreen = ({ onLogout }) => {
         "last_name": userData.last_name,
         "email": userData.email
       };
-
+      console.log("userForm",userForm)
       const response = await fetch(`${IP}/user/${userId}`, {
         method: "PUT",
         headers: {
@@ -130,6 +136,7 @@ const ProfileScreen = ({ onLogout }) => {
   };
 
   const confirmDeleteAd = async () => {
+    console.log(deletingAdId)
     try {
       const plantsResponse = await fetch(`${IP_Back}/plant/advertisement/${deletingAdId}`);
       if (!plantsResponse.ok) {
@@ -198,13 +205,13 @@ const ProfileScreen = ({ onLogout }) => {
                         theme="just-icon"
                         icon="edit"
                         color="#4d4d4d"
-                        size={20} // Change to number
+                        size={20}
                       />
                       <ButtonEdit
                         theme="just-icon"
                         icon="close"
                         color="#db402c"
-                        size={20} // Change to number
+                        size={20}
                         onPress={() => onDeleteAd(ad.id)}
                       />
                     </View>
