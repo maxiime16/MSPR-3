@@ -8,7 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: test2
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     strategy:
       matrix:
         project:
@@ -26,6 +41,21 @@ jobs:
       with:
         node-version: '14'
     
+    - name: Export environment variables
+      run: |
+        echo "DB_USER=admin" >> $GITHUB_ENV
+        echo "DB_HOST=localhost" >> $GITHUB_ENV
+        echo "DB_DATABASE=test2" >> $GITHUB_ENV
+        echo "DB_PASSWORD=admin" >> $GITHUB_ENV
+        echo "DB_PORT=5432" >> $GITHUB_ENV
+        echo "SERVER_PORT=3000" >> $GITHUB_ENV
+
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h localhost -p 5432; do
+          sleep 1
+        done
+
     - name: Install dependencies
       run: |
         for project in ${{ matrix.project }}; do
@@ -33,6 +63,12 @@ jobs:
           npm install
           cd ..
         done
+
+    - name: Setup database
+      run: |
+        psql -h localhost -U admin -d test2 -f ./Docs/ScriptSQL.sql
+      env:
+        PGPASSWORD: admin
 
     - name: Run tests
       run: |
