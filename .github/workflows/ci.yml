@@ -34,13 +34,10 @@ jobs:
           cd ..
         done
 
-    - name: Load environment variables and run tests
+    - name: Run tests
       run: |
         for project in ${{ matrix.project }}; do
           cd $project
-          if [ -f .env ]; then
-            export $(cat .env | xargs)
-          fi
           npm test
           cd ..
         done
