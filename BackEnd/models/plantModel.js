@@ -13,23 +13,28 @@ class PlantModel {
   static async getById(plantId) {
     try {
       const plantDataResult = await pool.query(
-        "SELECT * FROM Plant P WHERE P.id = $1",
+        "SELECT id, name_plant, description, id_advertisement, id_sub_category FROM Plant WHERE id = $1",
         [plantId]
       );
       if (plantDataResult.rows.length === 0) {
-        throw new Error("Plant not found");
+        return null;
       }
       return plantDataResult.rows[0];
     } catch (err) {
-      throw new Error(`Error retrieving plant: ${err.message}`);
+      throw new Error(`Error retrieving address: ${err.message}`);
     }
   }
 
-  static async create({ name_plant, description, advertisement_id, subcategory_id }) {
+  static async create({
+    name_plant,
+    description,
+    id_advertisement,
+    id_sub_category,
+  }) {
     try {
       const newPlantDataResult = await pool.query(
         "INSERT INTO Plant (Name_plant, Description, id_Advertisement, id_Sub_category) VALUES ($1, $2, $3, $4) RETURNING *",
-        [name_plant, description, advertisement_id, subcategory_id]
+        [name_plant, description, id_advertisement, id_sub_category]
       );
 
       return newPlantDataResult.rows[0];
@@ -40,9 +45,10 @@ class PlantModel {
 
   static async delete(plantId) {
     try {
-      const result = await pool.query("DELETE FROM Plant WHERE PlantId = $1 RETURNING *", [
-        plantId,
-      ]);
+      const result = await pool.query(
+        "DELETE FROM Plant WHERE PlantId = $1 RETURNING *",
+        [plantId]
+      );
       if (result.rows.length === 0) {
         throw new Error("Plant not found");
       }
@@ -52,11 +58,14 @@ class PlantModel {
     }
   }
 
-  static async update(plantId, { name_plant, description, advertisement_id, subcategory_id }) {
+  static async update(
+    plantId,
+    { name_plant, description, id_advertisement, id_sub_category }
+  ) {
     try {
       const updatedPlantDataResult = await pool.query(
         "UPDATE Plant SET Name_Plant = $1, Description = $2, AdvertisementId = $3, SubCategoryId = $4 WHERE PlantId = $5 RETURNING *",
-        [name_plant, description, advertisement_id, subcategory_id, plantId]
+        [name_plant, description, id_advertisement, id_sub_category, plantId]
       );
 
       if (updatedPlantDataResult.rows.length === 0) {

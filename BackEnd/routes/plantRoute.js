@@ -17,8 +17,8 @@ const plantController = require("../controllers/plantController");
  *     required:
  *       - name_plant
  *       - description
- *       - advertisement_id
- *       - subcategory_id
+ *       - id_advertisement
+ *       - id_sub_category
  *     properties:
  *       id:
  *         type: integer
@@ -26,9 +26,9 @@ const plantController = require("../controllers/plantController");
  *         type: string
  *       description:
  *         type: string
- *       advertisement_id:
+ *       id_advertisement:
  *         type: integer
- *       subcategory_id:
+ *       id_sub_category:
  *         type: integer
  */
 
@@ -72,6 +72,8 @@ router.get("/", plantController.getAllPlants);
  *               $ref: '#/definitions/Plant'
  *       400:
  *         description: Missing or invalid ID
+ *       404:
+ *         description: ID not found
  *       500:
  *         description: Server error
  */
@@ -83,12 +85,25 @@ router.get("/:id", plantController.getPlantById);
  *   post:
  *     summary: Create a new plant
  *     tags: [Plants]
- *     requestBody:
+ *     parameters:
+ *     - in : body
+ *       name: body
  *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/definitions/Plant'
+ *       schema:
+ *         type: object
+ *         properties:
+ *          name_plant:
+ *            type: string
+ *            example: "Tulipe"
+ *          description:
+ *            type: string
+ *            example: "Arosé les plante 2 fois par jour"
+ *          id_advertisement:
+ *            type: integer
+ *            example: 1
+ *          id_sub_category:
+ *            type: integer
+ *            example: 1
  *     responses:
  *       201:
  *         description: Plant created

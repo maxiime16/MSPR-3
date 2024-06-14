@@ -7,8 +7,8 @@ const formatPlant = (plant) => ({
   attributes: {
     name_plant: plant.name_plant,
     description: plant.description,
-    advertisement_id: plant.advertisementid,
-    subcategory_id: plant.subcategoryid,
+    id_advertisement: plant.id_advertisement,
+    id_sub_category: plant.id_sub_category,
   },
 });
 
@@ -16,6 +16,7 @@ exports.getAllPlants = async (req, res) => {
   try {
     const plants = await PlantModel.getAll();
     const responseData = plants.map(formatPlant);
+    console.log(responseData)
     res.status(200).json({ data: responseData });
   } catch (err) {
     console.error(`Error fetching plants: ${err.message}`);
@@ -30,6 +31,11 @@ exports.getPlantById = async (req, res) => {
   }
   try {
     const plant = await PlantModel.getById(plantId);
+    if (!plant) {
+      return res
+        .status(404)
+        .json({ errors: [{ message: "Plant not found" }] });
+    }
     res.status(200).json({ data: formatPlant(plant) });
   } catch (err) {
     console.error(`Error fetching plant by ID: ${err.message}`);
@@ -40,13 +46,21 @@ exports.getPlantById = async (req, res) => {
 exports.createPlant = async (req, res) => {
   const { error } = plantSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { name_plant, description, advertisement_id, subcategory_id } = req.body;
+  const { name_plant, description, id_advertisement, id_sub_category } =
+    req.body;
 
   try {
-    const newPlant = await PlantModel.create({ name_plant, description, advertisement_id, subcategory_id });
+    const newPlant = await PlantModel.create({
+      name_plant,
+      description,
+      id_advertisement,
+      id_sub_category,
+    });
     res.status(201).json({ data: formatPlant(newPlant) });
   } catch (err) {
     console.error(`Error creating plant: ${err.message}`);
@@ -74,17 +88,25 @@ exports.updatePlant = async (req, res) => {
   const plantId = req.params.id;
   const { error } = plantSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ errors: [{ message: error.details[0].message }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: error.details[0].message }] });
   }
 
-  const { name_plant, description, advertisement_id, subcategory_id } = req.body;
+  const { name_plant, description, id_advertisement, id_sub_category } =
+    req.body;
 
   if (!plantId) {
     return res.status(400).json({ errors: [{ message: "Missing plant ID" }] });
   }
 
   try {
-    const updatedPlant = await PlantModel.update(plantId, { name_plant, description, advertisement_id, subcategory_id });
+    const updatedPlant = await PlantModel.update(plantId, {
+      name_plant,
+      description,
+      id_advertisement,
+      id_sub_category,
+    });
 
     if (!updatedPlant) {
       return res.status(404).json({ errors: [{ message: "Plant not found" }] });
@@ -100,12 +122,16 @@ exports.updatePlant = async (req, res) => {
 exports.getPlantsByAdvertisementId = async (req, res) => {
   const advertisementId = req.params.id;
   if (!advertisementId) {
-    return res.status(400).json({ errors: [{ message: "Missing advertisement ID" }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: "Missing advertisement ID" }] });
   }
   try {
     const plants = await PlantModel.getPlantsByAdvertisementId(advertisementId);
     if (plants.length === 0) {
-      return res.status(404).json({ errors: [{ message: "No plants found for this advertisement" }] });
+      return res.status(404).json({
+        errors: [{ message: "No plants found for this advertisement" }],
+      });
     }
 
     res.status(200).json({ data: plants });
