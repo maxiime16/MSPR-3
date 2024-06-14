@@ -13,7 +13,7 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: test2
+          POSTGRES_DB: test
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: admin
         ports:
@@ -40,15 +40,6 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '14'
-    
-    - name: Export environment variables
-      run: |
-        echo "DB_USER=admin" >> $GITHUB_ENV
-        echo "DB_HOST=localhost" >> $GITHUB_ENV
-        echo "DB_DATABASE=test2" >> $GITHUB_ENV
-        echo "DB_PASSWORD=admin" >> $GITHUB_ENV
-        echo "DB_PORT=5432" >> $GITHUB_ENV
-        echo "SERVER_PORT=3000" >> $GITHUB_ENV
 
     - name: Wait for PostgreSQL
       run: |
@@ -66,7 +57,7 @@ jobs:
 
     - name: Setup database
       run: |
-        psql -h localhost -U admin -d test2 -f ./Docs/ScriptSQL.sql
+        psql -h localhost -U admin -d test -f ./Docs/ScriptSQL.sql
       env:
         PGPASSWORD: admin
 
