@@ -16,7 +16,6 @@ exports.getAllPlants = async (req, res) => {
   try {
     const plants = await PlantModel.getAll();
     const responseData = plants.map(formatPlant);
-    console.log(responseData)
     res.status(200).json({ data: responseData });
   } catch (err) {
     console.error(`Error fetching plants: ${err.message}`);

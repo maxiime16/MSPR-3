@@ -47,7 +47,6 @@ exports.getAdvertisementById = async (req, res) => {
 
 exports.getAdvertisementByUserId = async (req, res) => {
   const userId = req.params.user_id;
-  console.log(userId)
   if (!userId) {
     return res.status(400).json({ errors: [{ message: "Missing user ID" }] });
   }

@@ -46,7 +46,6 @@ class AdvertisementModel {
    * Utilisé dans le front
    */
   static async getByUserId(userID) {
-    console.log(userID)
     try {
       const advertisementDataResult = await pool.query(
         "SELECT * FROM Advertisement WHERE id_User = $1",
