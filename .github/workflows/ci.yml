@@ -26,11 +26,19 @@ jobs:
       with:
         node-version: '14'
     
-    - name: Install dependencies and run tests
+    - name: Install dependencies
       run: |
         for project in ${{ matrix.project }}; do
           cd $project
           npm install
+          npm test
+          cd ..
+        done
+
+    - name: Run tests
+      run: |
+        for project in ${{ matrix.project }}; do
+          cd $project
           npm test
           cd ..
         done
