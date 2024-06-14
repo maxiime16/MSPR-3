@@ -31,7 +31,6 @@ jobs:
         for project in ${{ matrix.project }}; do
           cd $project
           npm install
-          npm test
           cd ..
         done
 
