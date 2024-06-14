@@ -3,7 +3,7 @@ name: Actions pour plusieurs projets
 on:
   push:
     branches:
-      - GithubAction
+      - main
 
 jobs:
   build:
