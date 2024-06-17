@@ -155,7 +155,7 @@ describe("UserModel", () => {
 
       expect(result).toEqual(updatedUser);
       expect(pool.query).toHaveBeenCalledWith(
-        "UPDATE Users SET Users.email = $1, Users.first_name = $2, Users.last_name = $3 WHERE Users.id = $4 RETURNING *",
+        "UPDATE users SET email = $1, first_name = $2, last_name = $3 WHERE id = $4 RETURNING *",
         ["john_updated@example.com", "John", "Doe", 1]
       );
     });

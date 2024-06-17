@@ -30,14 +30,14 @@ describe("User Controller", () => {
       const users = [
         {
           id: 1,
-          firstname: "John",
-          lastname: "Doe",
+          first_name: "John",
+          last_name: "Doe",
           email: "john@example.com",
         },
         {
           id: 2,
-          firstname: "Jane",
-          lastname: "Doe",
+          first_name: "Jane",
+          last_name: "Doe",
           email: "jane@example.com",
         },
       ];
@@ -52,8 +52,8 @@ describe("User Controller", () => {
           type: "user",
           id: user.id,
           attributes: {
-            first_name: user.firstname,
-            last_name: user.lastname,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
           },
         })),
@@ -65,8 +65,8 @@ describe("User Controller", () => {
     it("devrait retourner 200 si l'utilisateur est trouvé", async () => {
       const user = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
       };
       UserModel.getByEmail.mockResolvedValue(user);
@@ -81,8 +81,8 @@ describe("User Controller", () => {
           type: "user",
           id: user.id,
           attributes: {
-            first_name: user.firstname,
-            last_name: user.lastname,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
           },
         },
@@ -107,8 +107,8 @@ describe("User Controller", () => {
     it("devrait retourner 200 si l'utilisateur est trouvé", async () => {
       const user = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
       };
       UserModel.getById.mockResolvedValue(user);
@@ -123,8 +123,8 @@ describe("User Controller", () => {
           type: "user",
           id: user.id,
           attributes: {
-            first_name: user.firstname,
-            last_name: user.lastname,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
           },
         },
@@ -149,8 +149,8 @@ describe("User Controller", () => {
     it("devrait retourner 201 et créer un utilisateur", async () => {
       const newUser = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         password: "hashedpassword",
       };
@@ -183,8 +183,8 @@ describe("User Controller", () => {
     it("devrait retourner 400 si l'utilisateur existe déjà", async () => {
       const existingUser = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
       };
       UserModel.getByEmail.mockResolvedValue(existingUser);
@@ -209,14 +209,14 @@ describe("User Controller", () => {
     it("devrait retourner 200 et mettre à jour l'utilisateur", async () => {
       const existingUser = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
       };
       const updatedUser = {
         id: 1,
-        firstname: "Johnny",
-        lastname: "Doe",
+        first_name: "Johnny",
+        last_name: "Doe",
         email: "john@example.com",
       };
       UserModel.getById.mockResolvedValue(existingUser);
@@ -242,8 +242,8 @@ describe("User Controller", () => {
           type: "user",
           id: updatedUser.id,
           attributes: {
-            first_name: updatedUser.firstname,
-            last_name: updatedUser.lastname,
+            first_name: updatedUser.first_name,
+            last_name: updatedUser.last_name,
             email: updatedUser.email,
           },
         },
@@ -301,8 +301,8 @@ describe("User Controller", () => {
     it("devrait retourner 200 et un token JWT si les identifiants sont valides", async () => {
       const user = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         password: "hashedpassword",
       };
@@ -322,8 +322,8 @@ describe("User Controller", () => {
         {
           id: user.id,
           email: user.email,
-          first_name: user.firstname,
-          last_name: user.lastname,
+          first_name: user.first_name,
+          last_name: user.last_name,
         },
         process.env.JWT_SECRET
       );
@@ -333,8 +333,8 @@ describe("User Controller", () => {
           id: user.id,
           type: "user",
           attributes: {
-            first_name: user.firstname,
-            last_name: user.lastname,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
             token: "valid.jwt.token",
           },
@@ -358,8 +358,8 @@ describe("User Controller", () => {
     it("devrait retourner 401 si le mot de passe est invalide", async () => {
       const user = {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         password: "hashedpassword",
       };
