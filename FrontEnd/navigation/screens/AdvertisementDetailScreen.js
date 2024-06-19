@@ -15,7 +15,7 @@ import MapView, { Circle } from "react-native-maps";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { IP_Backend } from "../../components/const";
 import ButtonEdit from "../../components/button";
-import AddAdviceForm from "../../components/AddAdviceForm"; // Adjust the path as needed
+import AddAdviceForm from "../../components/AddAdviceForm"; 
 
 const IP = IP_Backend;
 const windowDimensions = Dimensions.get("window");
@@ -25,6 +25,7 @@ const AdvertisementDetailScreen = () => {
   const { adId } = route.params;
   const navigation = useNavigation();
   const [adData, setAdData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [plantsData, setPlantsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState({});
@@ -34,7 +35,6 @@ const AdvertisementDetailScreen = () => {
       const response = await fetch(`${IP}/advertisement/details/${adId}`);
       const data = await response.json();
       setAdData(data.data);
-      console.log("adData", adData)
 
       const plantsResponse = await fetch(`${IP}/plant/advertisement/${adId}`);
       const plantsData = await plantsResponse.json();
@@ -63,9 +63,18 @@ const AdvertisementDetailScreen = () => {
     }
   };
 
+
   useEffect(() => {
     fetchAdDetails();
   }, [adId]);
+
+  useEffect(() => {
+    if (adData) {
+      console.log("adData", adData);
+      setUserId(adData.userid);
+    }
+    
+  }, [adData]);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -80,6 +89,10 @@ const AdvertisementDetailScreen = () => {
       return "Utilisateur inconnu";
     }
     return `${firstName} ${lastName.charAt(0)}.`;
+  };
+
+  const navigateToMessageScreen = () => {
+    navigation.navigate("MessageScreen", { userId });
   };
 
   const renderPlantCard = (plant) => (
@@ -158,6 +171,7 @@ const AdvertisementDetailScreen = () => {
                   style={styles.messageButton}
                   theme="primary-border-small"
                   label="message"
+                  onPress={navigateToMessageScreen}
                 />
 
             <View style={styles.plantsContainer}>
