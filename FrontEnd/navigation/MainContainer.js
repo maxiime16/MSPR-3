@@ -10,7 +10,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Screens
 import HomeScreen from "./screens/HomeScreen";
 import ResearchScreen from "./screens/ResearchScreen";
-import AddScreen from "./screens/AddScreen";
 import ChatScreen from "./screens/ChatScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import AdDetailsScreen from "./screens/AdDetailsScreen";
@@ -19,7 +18,7 @@ import LogInScreen from "./screens/LogInScreen";
 import GeneralConditionsOfUse from "./screens/GeneralConditionsOfUse";
 import AddAdvertisementScreen from "./screens/AddAdvertisementScreen";
 import AdvertisementDetailScreen from "./screens/AdvertisementDetailScreen";
-import { SocketProvider } from '../components/SocketContext';
+import MessageScreen from "./screens/MessageScreen"
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -34,6 +33,7 @@ export default function MainContainer() {
           <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'slide_from_left' }}/>
           <Stack.Screen name="AdDetailsScreen" component={AdDetailsScreen} />
           <Stack.Screen name="AdvertisementDetailScreen" component={AdvertisementDetailScreen} />
+          <Stack.Screen name="MessageScreen" component={MessageScreen} />
           <Stack.Screen name="GeneralConditionsOfUse" component={GeneralConditionsOfUse} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -60,7 +60,6 @@ function MainTabs() {
   }, []);
 
   return (
-    <SocketProvider token={jwtToken}>
       <Tab.Navigator
         initialRouteName="Accueil"
         screenOptions={({ route }) => ({
@@ -72,8 +71,6 @@ function MainTabs() {
             } else if (route.name === "Rechercher") {
               iconName = focused ? "search" : "search-outline";
             } else if (route.name === "Ajouter") {
-              iconName = focused ? "add-circle" : "add-circle-outline";
-            } else if (route.name === "Add") {
               iconName = focused ? "add-circle" : "add-circle-outline";
             } else if (route.name === "Message") {
               iconName = focused ? "chatbubbles" : "chatbubbles-outline";
@@ -103,21 +100,8 @@ function MainTabs() {
           }}
         />
         <Tab.Screen name="Rechercher" component={ResearchScreen} />
-        <Tab.Screen
-          name="Ajouter"
-          component={AddScreen}
-          options={{
-            headerShown: true, // Afficher l'en-tête
-            headerStyle: { height: 110}, // Style de l'en-tête
-            headerTintColor: "white", // Couleur du texte de l'en-tête
-            headerTitle: () => (
-              <Text style={{ fontSize: 20}}>Ajouter une annonce</Text>
-            ),
-
-          }}
-        />
               <Tab.Screen
-          name="Add"
+          name="Ajouter"
           component={AddAdvertisementScreen}
           options={{
             headerShown: true, // Afficher l'en-tête
@@ -134,6 +118,5 @@ function MainTabs() {
           {() => <ProfileScreen onLogout={() => navigation.navigate('Login')} />}
         </Tab.Screen>
       </Tab.Navigator>
-    </SocketProvider>
   );
 }

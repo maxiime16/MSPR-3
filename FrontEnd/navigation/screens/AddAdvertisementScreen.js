@@ -168,7 +168,17 @@ export default function AddAdvertisementScreen({ navigation }) {
       }
   
       console.log("Annonce publiée avec succès");
-      // You can navigate to another screen or show a success message here
+
+      navigation.navigate('Accueil');
+      setTitle('');
+      setAddress('Champs-Élysées, Paris, France');
+      setCity('');
+      setPostalCode('');
+      setPlants([]);
+      setShowAddPlant(false);
+      setSelectedStartDate('');
+      setSelectedEndDate('');
+      setCoordinates(null);
     } catch (error) {
       console.error(
         "Error publishing advertisement:",

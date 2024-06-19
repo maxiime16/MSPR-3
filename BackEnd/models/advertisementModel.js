@@ -196,7 +196,7 @@ class AdvertisementModel {
     try {
       const advertisementDataResult = await pool.query(
         `
-      SELECT a.Title AS AdvertisementTitle, a.start_date, a.end_date, a.creation_date, u.first_name, u.last_name, u.email, ad.City, ad.Postal_Code, ad.Longitude, ad.Latitude 
+      SELECT a.Title AS AdvertisementTitle, u.id AS userId, a.start_date, a.end_date, a.creation_date, u.first_name, u.last_name, u.email, ad.City, ad.Postal_Code, ad.Longitude, ad.Latitude 
       FROM Advertisement a 
       JOIN Users u ON a.id_User = u.id 
       JOIN Address ad ON a.id_Address = ad.id 

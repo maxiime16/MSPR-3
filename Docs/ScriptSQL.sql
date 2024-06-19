@@ -18,8 +18,8 @@ CREATE TABLE Conversation(
 
 CREATE TABLE Message(
 	id                  SERIAL NOT NULL ,
-	message             VARCHAR (50) NOT NULL ,
-	Send_date           DATE  NOT NULL DEFAULT CURRENT_DATE,
+	message             VARCHAR (255) NOT NULL ,
+	send_date           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	id_User             INT  NOT NULL ,
 	id_User_Recepteur   INT  NOT NULL ,
 	id_Conversation     INT  NOT NULL  ,
