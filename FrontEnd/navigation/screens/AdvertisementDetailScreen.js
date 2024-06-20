@@ -25,6 +25,7 @@ const AdvertisementDetailScreen = () => {
   const { adId } = route.params;
   const navigation = useNavigation();
   const [adData, setAdData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [plantsData, setPlantsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState({});
@@ -67,19 +68,32 @@ const AdvertisementDetailScreen = () => {
     fetchAdDetails();
   }, [adId]);
 
+  useEffect(() => {
+    if (adData) {
+      console.log("adData", adData);
+      setUserId(adData.userid);
+    }
+    
+  }, [adData]);
+
   const handleGoBack = () => {
     navigation.goBack();
   };
 
   const handleAddAdvice = () => {
-    fetchAdDetails(); // Actualiser les données après l'ajout d'un conseil
+    fetchAdDetails();
   };
+
 
   const formatName = (firstName, lastName) => {
     if (!firstName || !lastName) {
       return "Utilisateur inconnu";
     }
     return `${firstName} ${lastName.charAt(0)}.`;
+  };
+
+  const navigateToMessageScreen = () => {
+    navigation.navigate("MessageScreen", { userId });
   };
 
   const renderPlantCard = (plant) => (
@@ -155,10 +169,11 @@ const AdvertisementDetailScreen = () => {
               Posté par : {formatName(adData.first_name, adData.last_name)}
             </Text>
             <ButtonEdit
-                style={styles.messageButton}
-                theme="primary-border-small"
-                label="message"
-              />
+              style={styles.messageButton}
+              theme="primary-border-small"
+              label="message"
+              onPress={navigateToMessageScreen}
+            />
 
             <View style={styles.plantsContainer}>
               <Text style={styles.title}>Plantes associées :</Text>
