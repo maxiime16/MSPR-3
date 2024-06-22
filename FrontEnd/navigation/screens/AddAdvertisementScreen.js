@@ -145,8 +145,8 @@ export default function AddAdvertisementScreen({ navigation }) {
         const plantResponse = await axios.post(`${IP}/plant`, {
           name_plant: plant.plantName,
           description: plant.description,
-          advertisement_id: advertisementId,
-          subcategory_id: plant.subCategoryValue, 
+          id_advertisement: advertisementId,
+          id_sub_category: plant.subCategoryValue, 
         });
   
         const plantId = plantResponse.data.data.id;

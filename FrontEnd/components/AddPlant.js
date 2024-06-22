@@ -57,7 +57,7 @@ export default function AddPlant({ onPlantAdd }) {
       try {
         if (categoryValue) {
           const response = await axios.get(
-            `${IP}/subCategory/category/${categoryValue}`
+            `${IP}/subcategory/category/${categoryValue}`
           );
           const subCategoriesFromApi = response.data.data;
           const adaptedSubCategories = subCategoriesFromApi.map(

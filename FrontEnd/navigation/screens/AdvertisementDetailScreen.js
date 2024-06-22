@@ -9,13 +9,15 @@ import {
   Dimensions,
   StyleSheet,
   Image,
+  Alert,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import MapView, { Circle } from "react-native-maps";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { IP_Backend } from "../../components/const";
 import ButtonEdit from "../../components/button";
-import AddAdviceForm from "../../components/AddAdviceForm"; // Adjust the path as needed
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AdviceBlock from "../../components/AdviceBlock"; // Adjust the path as needed
 
 const IP = IP_Backend;
 const windowDimensions = Dimensions.get("window");
@@ -29,6 +31,29 @@ const AdvertisementDetailScreen = () => {
   const [plantsData, setPlantsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState({});
+  const [userId, setUserId] = useState(null); // Ajoutez cet état
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const userDataJson = await AsyncStorage.getItem('userData');
+        if (userDataJson !== null) {
+          const userData = JSON.parse(userDataJson);
+          const userId = userData.data?.id;
+          if (userId) {
+            setUserId(userId);
+          } else {
+            console.error("User ID not found in userData");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user ID:", error);
+      }
+    };
+
+    fetchUserId();
+    fetchAdDetails();
+  }, [adId]);
 
   const fetchAdDetails = async () => {
     try {
@@ -36,25 +61,33 @@ const AdvertisementDetailScreen = () => {
       const data = await response.json();
       setAdData(data.data);
       console.log("adData", adData)
-
+  
       const plantsResponse = await fetch(`${IP}/plant/advertisement/${adId}`);
-      const plantsData = await plantsResponse.json();
-
-      const plantsWithImagesAndAdvice = await Promise.all(
-        plantsData.data.map(async (plant) => {
-          const imagesResponse = await fetch(`${IP}/image/plant/${plant.plantid}`);
-          const imagesData = await imagesResponse.json();
-          const adviceResponse = await fetch(`${IP}/advice/plant/${plant.plantid}`);
-          const adviceData = await adviceResponse.json();
-          return {
-            ...plant,
-            images: imagesData.data || [],
-            advice: adviceData.data || [],
-          };
-        })
-      );
-
-      setPlantsData(plantsWithImagesAndAdvice);
+      const plantsIds = await plantsResponse.json();
+  
+      if (plantsIds && plantsIds.data) {
+        const plantsWithDetails = await Promise.all(
+          plantsIds.data.map(async (plant) => {
+            const plantDetailsResponse = await fetch(`${IP}/plant/${plant.id}`);
+            const plantDetails = await plantDetailsResponse.json();
+            const imagesResponse = await fetch(`${IP}/image/plant/${plant.id}`);
+            const imagesData = await imagesResponse.json();
+            const adviceResponse = await fetch(`${IP}/advice/plant/${plant.id}`);
+            const adviceData = await adviceResponse.json();
+            return {
+              ...plantDetails.data.attributes,
+              id: plant.id,
+              images: imagesData.data || [],
+              advice: adviceData.data || [],
+            };
+          })
+        );
+  
+        setPlantsData(plantsWithDetails);
+      } else {
+        console.error('No plant data found');
+      }
+  
       setLoading(false);
     } catch (error) {
       console.error(
@@ -62,28 +95,11 @@ const AdvertisementDetailScreen = () => {
         error
       );
     }
-  };
-
-  useEffect(() => {
-    fetchAdDetails();
-  }, [adId]);
-
-  useEffect(() => {
-    if (adData) {
-      console.log("adData", adData);
-      setUserId(adData.userid);
-    }
-    
-  }, [adData]);
+  };  
 
   const handleGoBack = () => {
     navigation.goBack();
   };
-
-  const handleAddAdvice = () => {
-    fetchAdDetails();
-  };
-
 
   const formatName = (firstName, lastName) => {
     if (!firstName || !lastName) {
@@ -97,13 +113,13 @@ const AdvertisementDetailScreen = () => {
   };
 
   const renderPlantCard = (plant) => (
-    <View key={plant.plantid} style={styles.plantCard}>
+    <View key={plant.id} style={styles.plantCard}>
       <View style={styles.plantHeader}>
         <Text style={styles.plantTitle}>{plant.name_plant}</Text>
         <Text style={styles.plantCategory}>{plant.categoryname} / {plant.subcategoryname}</Text>
       </View>
       <Text style={styles.text}>Description : {plant.description}</Text>
-
+  
       {plant.images.length > 0 && (
         <View style={styles.carouselContainer}>
           <Carousel
@@ -113,32 +129,18 @@ const AdvertisementDetailScreen = () => {
             )}
             sliderWidth={windowDimensions.width - 40}
             itemWidth={windowDimensions.width - 40}
-            onSnapToItem={(index) => setActiveSlide((prev) => ({ ...prev, [plant.plantid]: index }))}
+            onSnapToItem={(index) => setActiveSlide((prev) => ({ ...prev, [plant.id]: index }))}
           />
           <Pagination
             dotsLength={plant.images.length}
-            activeDotIndex={activeSlide[plant.plantid] || 0}
+            activeDotIndex={activeSlide[plant.id] || 0}
             containerStyle={styles.paginationContainer}
             dotStyle={styles.paginationDot}
             inactiveDotStyle={styles.inactiveDot}
           />
         </View>
       )}
-      {plant.advice.length > 0 ? (
-        <View style={styles.adviceContainer}>
-          <Text style={styles.adviceTitle}>Conseils :</Text>
-          {plant.advice.map((advice) => (
-            <View key={advice.adviceid} style={styles.adviceCard}>
-              <Text style={styles.adviceContent}>{advice.content}</Text>
-              <Text style={styles.adviceAuthor}>Posté par : {formatName(advice.firstname, advice.lastname)}</Text>
-              <Text style={styles.adviceDate}>Le {new Date(advice.creationdate).toLocaleDateString()}</Text>
-            </View>
-          ))}
-        </View>
-      ) : (
-        <Text style={styles.noAdviceText}>Soyez le premier à donner un conseil</Text>
-      )}
-      <AddAdviceForm plantId={plant.plantid} onAddAdvice={handleAddAdvice} />
+      <AdviceBlock plant={plant} userId={userId} fetchAdDetails={fetchAdDetails} formatName={formatName} />
     </View>
   );
 
@@ -160,7 +162,7 @@ const AdvertisementDetailScreen = () => {
             <Text style={styles.title}>{adData.advertisementtitle}</Text>
 
             <Text style={styles.text}>
-              Du {new Date(adData.startdate).toLocaleDateString()} au {new Date(adData.enddate).toLocaleDateString()}
+              Du {new Date(adData.start_date).toLocaleDateString()} au {new Date(adData.end_date).toLocaleDateString()}
             </Text>
             <Text style={styles.text}>
               Localisation : {adData.city} - {adData.postal_code}
@@ -185,24 +187,26 @@ const AdvertisementDetailScreen = () => {
             </View>
             <View style={styles.mapContainer}>
               <Text style={styles.text}>Zone de gardiennage :</Text>
-              <MapView
-                style={styles.map}
-                initialRegion={{
-                  latitude: adData.latitude,
-                  longitude: adData.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-              >
-                <Circle
-                  center={{
+              {adData.latitude && adData.longitude && (
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
                     latitude: adData.latitude,
                     longitude: adData.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
                   }}
-                  radius={200} // 200 mètres
-                  fillColor="#A3D28880"
-                />
-              </MapView>
+                >
+                  <Circle
+                    center={{
+                      latitude: adData.latitude,
+                      longitude: adData.longitude,
+                    }}
+                    radius={200} // 200 mètres
+                    fillColor="#A3D28880"
+                  />
+                </MapView>
+              )}
             </View>
           </View>
         )}
@@ -250,11 +254,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
+    backgroundColor: "#f9f9f9",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   plantHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 10,
   },
   plantTitle: {
     fontSize: 20,
@@ -284,36 +295,6 @@ const styles = StyleSheet.create({
   },
   inactiveDot: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  adviceContainer: {
-    marginTop: 10,
-  },
-  adviceTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  adviceCard: {
-    marginTop: 5,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-  },
-  adviceContent: {
-    fontSize: 16,
-  },
-  adviceAuthor: {
-    fontSize: 14,
-    color: "#767676",
-  },
-  adviceDate: {
-    fontSize: 14,
-    color: "#767676",
-  },
-  noAdviceText: {
-    fontSize: 16,
-    color: "#767676",
-    marginVertical: 5,
   },
 });
 

@@ -6,6 +6,7 @@ const formatAdvice = (advice) => ({
   id: advice.id,
   attributes: {
     content: advice.content,
+    Creation_date: advice.Creation_date,
     id_user: advice.id_user,
     id_plant: advice.id_plant,
   },

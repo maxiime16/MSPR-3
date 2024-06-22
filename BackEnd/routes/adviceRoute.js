@@ -16,6 +16,7 @@ const adviceController = require("../controllers/adviceController");
  *     type: object
  *     required:
  *       - content
+ *       - Creation_date
  *       - id_user
  *       - id_plant
  *     properties:
@@ -125,6 +126,8 @@ router.get("/plant/:id_plant", adviceController.getAdviceByPlantId);
  *           properties:
  *             content:
  *               type: string
+ *             Creation_date:
+ *               type: date
  *             id_user:
  *               type: integer
  *             id_plant:

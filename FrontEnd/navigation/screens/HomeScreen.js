@@ -28,7 +28,7 @@ const HomeScreen = () => {
     const fetchUserData = async () => {
       try {
         const userData = await AsyncStorage.getItem("userData");
-        console.log("//////////////")
+        console.log("///////HOME PAGE///////")
         console.log(userData)
       } catch (error) {
         console.error("Erreur lors de la récupération des données utilisateur :", error);

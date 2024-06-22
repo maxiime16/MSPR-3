@@ -50,6 +50,7 @@ class AdviceModel {
           A.id,
           A.Content,
           A.Creation_date,
+          U.id AS id_user,
           U.first_name,
           U.last_name
         FROM 

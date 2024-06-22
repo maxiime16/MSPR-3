@@ -44,6 +44,7 @@ exports.getSubCategoryById = async (req, res) => {
 
 exports.getSubCategoryByCategoryId = async (req, res) => {
   const categoryId = req.params.id_category;
+  console.log(categoryId);
   if (!categoryId) {
     return res
       .status(400)

@@ -43,6 +43,7 @@ class SubCategoryModel {
         "SELECT * FROM Sub_category WHERE id_category = $1",
         [categoryId]
       );
+      console.log(subCategoryDataResult);
       return subCategoryDataResult.rows;
     } catch (err) {
       throw new Error(`Error retrieving sub-categories by category: ${err.message}`);

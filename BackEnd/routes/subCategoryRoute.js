@@ -16,13 +16,13 @@ const subCategoryController = require("../controllers/subCategoryController");
  *     type: object
  *     required:
  *       - name
- *       - category_id
+ *       - id_category
  *     properties:
- *       sub_category_id:
+ *       id:
  *         type: integer
  *       name:
  *         type: string
- *       category_id:
+ *       id_category:
  *         type: integer
  */
 
@@ -98,7 +98,7 @@ router.get("/:id", subCategoryController.getSubCategoryById);
  *       500:
  *         description: Server error
  */
-router.get("/category/:category_id", subCategoryController.getSubCategoryByCategoryId);
+router.get("/category/:id_category", subCategoryController.getSubCategoryByCategoryId);
 
 /**
  * @swagger

@@ -12,7 +12,6 @@ import HomeScreen from "./screens/HomeScreen";
 import ResearchScreen from "./screens/ResearchScreen";
 import ChatScreen from "./screens/ChatScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import AdDetailsScreen from "./screens/AdDetailsScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
 import GeneralConditionsOfUse from "./screens/GeneralConditionsOfUse";
@@ -31,7 +30,6 @@ export default function MainContainer() {
           <Stack.Screen name="Login" component={LogInScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'slide_from_left' }}/>
-          <Stack.Screen name="AdDetailsScreen" component={AdDetailsScreen} />
           <Stack.Screen name="AdvertisementDetailScreen" component={AdvertisementDetailScreen} />
           <Stack.Screen name="MessageScreen" component={MessageScreen} />
           <Stack.Screen name="GeneralConditionsOfUse" component={GeneralConditionsOfUse} />
