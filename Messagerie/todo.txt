@@ -1,0 +1,5 @@
+- Recherche des conversations selon le userId (si possible ajouter a la reponse de la requete, le dernier message par rapport a leur date)
+
+- Recherche des messages selon le conversationId
+
+- Envoi d'un message selon le conversationId

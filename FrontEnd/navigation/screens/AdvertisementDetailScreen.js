@@ -27,7 +27,6 @@ const AdvertisementDetailScreen = () => {
   const { adId } = route.params;
   const navigation = useNavigation();
   const [adData, setAdData] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [plantsData, setPlantsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState({});
@@ -60,7 +59,6 @@ const AdvertisementDetailScreen = () => {
       const response = await fetch(`${IP}/advertisement/details/${adId}`);
       const data = await response.json();
       setAdData(data.data);
-      console.log("adData", adData)
   
       const plantsResponse = await fetch(`${IP}/plant/advertisement/${adId}`);
       const plantsIds = await plantsResponse.json();
